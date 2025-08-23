@@ -1,0 +1,211 @@
+<!--
+FoxURL - Single-file HTML for GitHub Pages
+Simple to edit: look for lines that say "EDIT THIS" or "CHANGE ME"
+Save this file as index.html and put it in the root of your GitHub repo (e.g., username.github.io)
+
+Sections included:
+  - Page settings / site variables (change these values)
+  - Header / navigation
+  - Hero (big title + call to action)
+  - Features section
+  - Footer and contact form (simple, uses mailto by default)
+
+If you want to add more pages, create new .html files and link them in the <nav>.
+-->
+
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="description" content="FoxURL — innovate your connection. A tiny, editable one-file page for GitHub Pages.">
+  <title>FoxURL — innovate your connection</title>
+
+  <!-- EDIT SITE COLORS / LOGO TEXT BELOW -->
+  <style>
+    :root{
+      --bg: #0f1724;          /* page background */
+      --card: #0b1220;        /* cards / panels */
+      --accent: #f97316;      /* orange accent */
+      --muted: #9aa5b1;       /* muted text */
+      --glass: rgba(255,255,255,0.03);
+      --rounded: 14px;
+      --maxw: 1000px;
+      --mono: 'Courier New', monospace;
+    }
+
+    /* Basic reset */
+    *{box-sizing:border-box}
+    html,body{height:100%;margin:0;font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial}
+    body{background:linear-gradient(180deg,var(--bg),#071021);color:#e6eef6;line-height:1.45}
+
+    /* container */
+    .wrap{max-width:var(--maxw);margin:28px auto;padding:20px}
+
+    /* header */
+    header{display:flex;align-items:center;justify-content:space-between;margin-bottom:18px}
+    .brand{display:flex;gap:12px;align-items:center}
+    .logo{width:56px;height:56px;border-radius:12px;background:linear-gradient(135deg,#ffb86b,var(--accent));display:flex;align-items:center;justify-content:center;color:#081022;font-weight:700;font-size:20px}
+    .brand h1{margin:0;font-size:18px}
+    .tag{color:var(--muted);font-size:13px}
+
+    nav a{color:var(--muted);text-decoration:none;margin-left:14px;font-weight:600}
+    nav a:hover{color:var(--accent)}
+
+    /* hero */
+    .hero{display:grid;grid-template-columns:1fr;gap:18px;align-items:center;background:var(--glass);padding:20px;border-radius:var(--rounded);box-shadow:0 6px 20px rgba(0,0,0,0.5)}
+    .hero-grid{display:flex;flex-direction:column;gap:12px}
+    .hero h2{margin:0;font-size:28px}
+    .hero p{margin:0;color:var(--muted)}
+    .cta{display:inline-block;padding:10px 16px;border-radius:10px;background:linear-gradient(90deg,var(--accent),#ffd7b0);color:#06202a;font-weight:700;text-decoration:none}
+
+    /* features */
+    .features{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:12px;margin-top:16px}
+    .card{background:linear-gradient(180deg,var(--card), rgba(11,18,32,0.9));padding:14px;border-radius:12px}
+    .card h3{margin:0 0 8px 0}
+    .muted{color:var(--muted);font-size:13px}
+
+    /* footer */
+    footer{margin-top:22px;color:var(--muted);font-size:13px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px}
+
+    /* small screens */
+    @media (min-width:720px){
+      .hero{grid-template-columns:1fr 360px}
+      .hero-grid{padding-right:10px}
+    }
+
+    /* small helper */
+    .small{font-size:13px;color:var(--muted)}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;background:rgba(255,255,255,0.02);font-weight:700}
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <header>
+      <div class="brand">
+        <div class="logo">FOX</div>
+        <div>
+          <h1>FoxURL</h1>
+          <div class="tag">innovate your connection</div>
+        </div>
+      </div>
+
+      <nav>
+        <a href="#features">Features</a>
+        <a href="#how">How it works</a>
+        <a href="#contact">Contact</a>
+      </nav>
+    </header>
+
+    <!-- HERO: change title and description below -->
+    <section class="hero" aria-label="Intro">
+      <div class="hero-grid">
+        <h2><!-- EDIT THIS TITLE -->Fast, friendly links for your projects</h2>
+        <p class="muted"><!-- EDIT THIS DESCRIPTION -->FoxURL makes short links and easy pages for sharing your work. Perfect for students, devs, and small teams.</p>
+
+        <div style="margin-top:12px;display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+          <a class="cta" href="#get-started">Get started</a>
+          <span class="small">Free — simple — fast</span>
+        </div>
+
+        <div class="features" style="margin-top:14px">
+          <div class="card">
+            <h3>Short links</h3>
+            <div class="muted">Create easy-to-read, memorable short links.</div>
+          </div>
+          <div class="card">
+            <h3>Link stats</h3>
+            <div class="muted">See clicks and where they come from (optional).</div>
+          </div>
+          <div class="card">
+            <h3>Custom look</h3>
+            <div class="muted">Pick a logo, color, and short code for each link.</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: small demo / preview box (easy to edit text) -->
+      <aside style="padding:16px;border-radius:12px;background:linear-gradient(180deg,#071124,#06101a);box-shadow:inset 0 1px 0 rgba(255,255,255,0.02)">
+        <div style="font-family:var(--mono);font-size:14px;padding:6px 8px;border-radius:8px;background:#00111a;color:#9dd8ff;">https://foxurl.io/<strong>yourcode</strong></div>
+        <div style="margin-top:12px;color:var(--muted)">Try it: change <span class="pill">yourcode</span> to something you like.</div>
+
+        <div style="margin-top:12px">
+          <a href="#" class="small">View docs</a>
+        </div>
+      </aside>
+    </section>
+
+    <!-- HOW IT WORKS -->
+    <section id="how" style="margin-top:18px">
+      <h2 style="font-size:20px;margin-bottom:8px">How it works</h2>
+      <div class="card" style="padding:12px">
+        <ol style="margin:0;padding-left:18px;color:var(--muted)">
+          <li>Make a short name for your link (like <code>party</code>).</li>
+          <li>Choose where the link should go (a website, file, or profile).</li>
+          <li>Share that short link — people click it and go to your destination.</li>
+        </ol>
+      </div>
+    </section>
+
+    <!-- FEATURES / DETAILS -->
+    <section id="features" style="margin-top:18px">
+      <h2 style="font-size:20px;margin-bottom:8px">Features</h2>
+      <div class="features">
+        <div class="card">
+          <h3>Easy setup</h3>
+          <div class="muted">No complex tools. Paste your link, save, and share.</div>
+        </div>
+        <div class="card">
+          <h3>Privacy first</h3>
+          <div class="muted">Keep tracking simple or turn it off.</div>
+        </div>
+        <div class="card">
+          <h3>Works on any device</h3>
+          <div class="muted">Phones, tablets, and computers are supported.</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CONTACT / SIMPLE FORM (mailto fallback) -->
+    <section id="contact" style="margin-top:18px">
+      <h2 style="font-size:20px;margin-bottom:8px">Contact</h2>
+      <div class="card" style="display:grid;grid-template-columns:1fr;gap:10px">
+        <div class="muted">Want to reach FoxURL? Send an email or open an issue on GitHub.</div>
+        <!-- Change the mailto email below to your real email. -->
+        <a href="mailto:hello@foxurl.io?subject=Hello%20FoxURL" class="cta">Email us</a>
+        <div class="small">Or, make a GitHub repo and add this page. For help, reply in chat.</div>
+      </div>
+    </section>
+
+    <footer>
+      <div class="small">© <span id="year">2025</span> FoxURL — innovate your connection</div>
+      <div class="small">Built with ❤️ — <span class="muted">Easy to edit for GitHub Pages</span></div>
+    </footer>
+
+  </div>
+
+  <!-- Small script: update the year automatically and show simple editable site variables. -->
+  <script>
+    // EDIT THESE SETTINGS TO CHANGE SITE TEXT / BRANDING
+    const SITE = {
+      title: 'FoxURL',               // site title
+      tagline: 'innovate your connection',
+      email: 'hello@foxurl.io',      // contact email used by mailto link above
+      logoText: 'FOX'                 // the text shown in the square logo
+    };
+
+    // apply small runtime edits so you don't have to touch HTML too much
+    document.title = SITE.title + ' — ' + SITE.tagline;
+    document.querySelector('.brand h1').textContent = SITE.title;
+    document.querySelector('.tag').textContent = SITE.tagline;
+    document.querySelector('.logo').textContent = SITE.logoText;
+    document.getElementById('year').textContent = new Date().getFullYear();
+
+    // Update mailto link if email changed
+    const mail = document.querySelector('#contact a[href^="mailto:"]');
+    if(mail){
+      mail.href = `mailto:${SITE.email}?subject=${encodeURIComponent('Hello '+SITE.title)}`;
+    }
+  </script>
+</body>
+</html>
