@@ -3,391 +3,124 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <!-- ======================== EDIT ME: Site basics ========================= -->
   <title>FoxURL — innovate your connection</title>
-  <meta name="description" content="FoxURL — simple tools for links: shorten, share, and organize." />
-  <!-- ===================================================================== -->
 
+  <!-- ======================== EDIT ME: Site colors ======================== -->
   <style>
-    /* ======================== EDIT ME: Theme colors ======================== */
-    :root{
-      --bg: #0f172a;        /* page background */
-      --card: #111827;      /* panels/cards */
-      --text: #e5e7eb;      /* main text */
-      --muted: #9ca3af;     /* helper text */
-      --accent: #f97316;    /* fox orange */
-      --accent-2: #fb923c;  /* lighter orange */
-      --ok: #22c55e;
-      --warn: #f59e0b;
-      --err: #ef4444;
-      --radius: 16px;       /* rounded corners */
-      --shadow: 0 10px 30px rgba(0,0,0,.35);
+    :root {
+      --bg: #0f172a;        /* Background */
+      --card: #111827;      /* Boxes */
+      --text: #e5e7eb;      /* Normal text */
+      --muted: #9ca3af;     /* Dim text */
+      --accent: #f97316;    /* Fox orange */
+      --accent2: #fb923c;   /* Lighter orange */
+      --radius: 16px;
     }
-    /* ===================================================================== */
-
-    /* Reset-ish */
-    *,*::before,*::after{ box-sizing:border-box }
-    html,body{ height:100% }
-    body{
-      margin:0;
-      font-family: system-ui, -apple-system, Segoe UI, Roboto, Inter, Arial, sans-serif;
-      background:
-        radial-gradient(1200px 600px at 10% -20%, rgba(249,115,22,.25), transparent 60%),
-        radial-gradient(1200px 600px at 110% 20%, rgba(249,115,22,.18), transparent 60%),
-        var(--bg);
-      color:var(--text);
+    body {
+      margin:0; font-family: Arial, sans-serif;
+      background: var(--bg); color: var(--text);
       line-height:1.6;
     }
-    a{ color:var(--accent-2); text-decoration:none }
-    a:hover{ text-decoration:underline }
-    .wrap{ max-width:1000px; margin:0 auto; padding:24px }
-    .nav{
-      display:flex; align-items:center; justify-content:space-between;
-      gap:12px; padding:14px 0;
+    .wrap { max-width: 900px; margin: auto; padding: 24px; }
+    header {
+      display:flex; justify-content:space-between; align-items:center;
+      padding:12px 0;
     }
-    .brand{
-      display:flex; align-items:center; gap:10px; font-weight:800; letter-spacing:.3px
+    .brand { display:flex; align-items:center; gap:10px; font-weight:bold; }
+    .logo {
+      width:34px; height:34px; border-radius:8px;
+      display:grid; place-items:center;
+      background: linear-gradient(135deg,var(--accent),var(--accent2));
+      color:#111; font-weight:900;
     }
-    .logo{
-      width:34px; height:34px; border-radius:10px;
-      display:grid; place-items:center; background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      box-shadow: var(--shadow);
-      font-weight:900; color:#111;
+    nav a { margin-left: 16px; color: var(--accent2); text-decoration:none; }
+    nav a:hover { text-decoration: underline; }
+    .hero {
+      padding:32px; border-radius: var(--radius);
+      background: var(--card); margin:20px 0;
     }
-    .btn{
-      border:none; padding:12px 16px; border-radius:12px; font-weight:700;
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      color:#111; cursor:pointer; box-shadow:var(--shadow);
-      transition: transform .06s ease;
+    .hero h1 { font-size: 2em; margin:0 0 10px; }
+    .hero p { margin:0; color: var(--muted); }
+    .grid {
+      display:grid; gap:18px; grid-template-columns: repeat(auto-fit, minmax(250px,1fr));
+      margin:30px 0;
     }
-    .btn:active{ transform:translateY(1px) }
-    .btn.ghost{
-      background:#0000; color:var(--text); outline:1px solid #ffffff22
+    .card {
+      background: var(--card); padding:18px; border-radius: var(--radius);
     }
-    .hero{
-      margin:24px 0 34px; padding:28px; border-radius:var(--radius);
-      background: linear-gradient(180deg, #ffffff06, #ffffff00 60%), #0b1024;
-      outline:1px solid #ffffff12; box-shadow: var(--shadow);
+    .card h3 { margin-top:0; }
+    footer {
+      text-align:center; color: var(--muted); font-size:14px; margin:40px 0 10px;
     }
-    .hero h1{ font-size: clamp(28px, 4vw, 44px); line-height:1.2; margin:0 0 8px }
-    .hero p{ margin:0; color:var(--muted) }
-    .grid{
-      display:grid; gap:18px; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
-      margin:26px 0;
-    }
-    .card{
-      background:var(--card); border-radius:var(--radius); padding:18px; box-shadow:var(--shadow);
-      outline:1px solid #ffffff14;
-    }
-    .card h3{ margin:0 0 8px }
-    .muted{ color:var(--muted) }
-    .input, .select{
-      width:100%; padding:12px 14px; border-radius:12px; background:#0b1024; color:var(--text);
-      border:1px solid #ffffff1a; outline:none;
-    }
-    .row{ display:flex; gap:10px; align-items:center }
-    .row.wrap{ flex-wrap:wrap }
-    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace }
-    .pill{
-      display:inline-block; padding:6px 10px; border-radius:999px; font-size:12px; font-weight:700;
-      background:#ffffff10; border:1px solid #ffffff22; color:var(--muted)
-    }
-    .footer{
-      margin:40px 0 10px; color:var(--muted); font-size:14px; text-align:center
-    }
-    .tiny{ font-size:12px; color:var(--muted) }
-    .divider{ height:1px; background:#ffffff14; margin:18px 0 }
-    .copy{
-      white-space:nowrap; overflow:auto; padding:10px; border-radius:12px; background:#0b1024; border:1px solid #ffffff1a;
-    }
-    .hint{ font-size:13px; color:var(--muted); margin-top:8px }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <!-- ======================== TOP BAR ======================== -->
-    <header class="nav">
+    <!-- ======================== HEADER ======================== -->
+    <header>
       <div class="brand">
-        <div class="logo" aria-hidden="true">🦊</div>
+        <div class="logo">🦊</div>
         <div>
-          <!-- ================= EDIT ME: Name & Tagline text ================ -->
-          <div id="siteName" style="font-size:18px">FoxURL</div>
-          <div id="siteTag" class="tiny">innovate your connection</div>
-          <!-- =============================================================== -->
+          <!-- EDIT ME: Site name + tagline -->
+          <div id="siteName">FoxURL</div>
+          <div style="font-size:12px">innovate your connection</div>
         </div>
       </div>
-      <nav class="row">
-        <a class="btn ghost" href="#shortener">Link Shortener</a>
-        <a class="btn ghost" href="#tools">Tools</a>
-        <a class="btn" href="#about">About</a>
+      <nav>
+        <!-- EDIT ME: Navigation -->
+        <a href="#features">Features</a>
+        <a href="#about">About</a>
+        <a href="#contact">Contact</a>
       </nav>
     </header>
 
-    <!-- ======================== HERO ======================== -->
+    <!-- ======================== HERO SECTION ======================== -->
     <section class="hero">
-      <!-- ===================== EDIT ME: Headline & lead ==================== -->
-      <h1>Short links. Zero stress.</h1>
-      <p>Make tiny links you can share anywhere. Works right in your browser — no account needed.</p>
-      <!-- =================================================================== -->
-      <div class="row" style="margin-top:16px; gap:12px">
-        <a class="btn" href="#shortener">Start shortening</a>
-        <a class="btn ghost" href="#how">How it works</a>
-      </div>
+      <!-- EDIT ME: Big title + subtitle -->
+      <h1>Welcome to FoxURL</h1>
+      <p>Your all-in-one place for modern web tools.</p>
     </section>
 
-    <!-- ======================== LINK SHORTENER ======================== -->
-    <section id="shortener" class="card">
-      <div class="row wrap" style="justify-content:space-between">
-        <h2 style="margin:0">Link Shortener</h2>
-        <span class="pill">Local & Private</span>
-      </div>
-      <p class="muted" style="margin-top:2px">
-        Creates a short link that lives in your browser using <span class="mono">localStorage</span>.
-        You can share it by sending the generated URL (it includes a <span class="mono">#go=</span> code).
-      </p>
-
-      <label class="tiny">Paste a long link</label>
-      <input id="longUrl" class="input" type="url" placeholder="https://example.com/super/long/link?with=params" />
-
-      <div class="row" style="margin-top:10px">
-        <input id="customSlug" class="input" style="flex:1" placeholder="Custom code (optional), e.g. fox-news" />
-        <button id="makeBtn" class="btn">Make Short Link</button>
-      </div>
-
-      <div id="made" style="display:none; margin-top:14px">
-        <div class="tiny">Your short link</div>
-        <div id="shortOut" class="copy mono"></div>
-        <div class="row" style="gap:8px; margin-top:8px">
-          <button id="copyBtn" class="btn">Copy</button>
-          <button id="openBtn" class="btn ghost">Open</button>
-          <span id="saveNote" class="hint">Saved locally. Keep this page public to share it.</span>
-        </div>
-      </div>
-
-      <div class="divider"></div>
-
-      <details id="how" style="margin-top:4px">
-        <summary><strong>How it works (kid-friendly):</strong></summary>
-        <ul>
-          <li>You paste a big link.</li>
-          <li>We make a tiny code, like <span class="mono">fox12</span>.</li>
-          <li>We save <em>code → big link</em> in your browser only.</li>
-          <li>Your share link looks like <span class="mono">thispage#go=fox12</span>.</li>
-          <li>When someone opens it, their browser jumps to the big link.</li>
-        </ul>
-        <p class="tiny">Note: Because this is all in your browser, if you clear site data, your saved codes here will disappear.</p>
-      </details>
-    </section>
-
-    <!-- ======================== TOOLS / FEATURES ======================== -->
-    <section id="tools" class="grid">
+    <!-- ======================== FEATURES ======================== -->
+    <section id="features" class="grid">
+      <!-- EDIT ME: Add / remove cards for features -->
       <div class="card">
-        <h3>Link List</h3>
-        <p class="muted">See what you’ve saved on this device.</p>
-        <div id="list"></div>
+        <h3>🔗 Link Shortener</h3>
+        <p>Make tiny links you can share anywhere.</p>
       </div>
       <div class="card">
-        <h3>Theme</h3>
-        <p class="muted">Pick a color you like.</p>
-        <div class="row">
-          <input id="accentPicker" class="input" type="color" value="#f97316" style="max-width:140px">
-          <button id="resetTheme" class="btn ghost">Reset</button>
-        </div>
+        <h3>📁 File Sharing</h3>
+        <p>Upload and share files quickly and safely.</p>
       </div>
-      <div class="card" id="about">
-        <!-- ===================== EDIT ME: About text ======================= -->
-        <h3>About FoxURL</h3>
-        <p class="muted">
-          FoxURL is a tiny, friendly toolkit for links. We focus on speed, privacy,
-          and “it just works.” This page is one file, so it’s easy to edit.
-        </p>
-        <!-- ================================================================ -->
+      <div class="card">
+        <h3>🌐 Tools</h3>
+        <p>Extra utilities to make your web life easier.</p>
       </div>
     </section>
 
-    <footer class="footer">
-      <div>🦊 FoxURL • <span id="year"></span></div>
-      <div class="tiny">Made with vanilla HTML/CSS/JS. No tracking. No cookies (besides your own local saves).</div>
+    <!-- ======================== ABOUT ======================== -->
+    <section id="about" class="card">
+      <!-- EDIT ME: About text -->
+      <h3>About FoxURL</h3>
+      <p>FoxURL is a simple, friendly toolkit for the web. We’re building features that focus on speed, privacy, and ease of use.</p>
+    </section>
+
+    <!-- ======================== CONTACT ======================== -->
+    <section id="contact" class="card">
+      <!-- EDIT ME: Contact info -->
+      <h3>Contact</h3>
+      <p>Email us at: <a href="mailto:hello@foxurl.com">hello@foxurl.com</a></p>
+    </section>
+
+    <!-- ======================== FOOTER ======================== -->
+    <footer>
+      🦊 FoxURL • <span id="year"></span>
     </footer>
   </div>
 
   <script>
-  /* ====================== EDIT ME: Quick settings =========================
-     These are handy “knobs” you can tweak without touching the rest.
-     Change text, default colors, or the slug length for random codes.
-  ========================================================================== */
-  const SETTINGS = {
-    siteName: "FoxURL",
-    siteTagline: "innovate your connection",
-    defaultAccent: "#f97316",  // 🧡 fox orange
-    accent2: "#fb923c",
-    randomSlugLength: 5,
-    storageKey: "foxurl.links" // where we save { slug: url }
-  };
-  /* ====================================================================== */
-
-  // ===== Tiny helper functions (you usually don't need to edit below) =====
-  const $ = sel => document.querySelector(sel);
-  const $$ = sel => Array.from(document.querySelectorAll(sel));
-  const store = {
-    load(){
-      try{ return JSON.parse(localStorage.getItem(SETTINGS.storageKey) || "{}"); }
-      catch{ return {}; }
-    },
-    save(map){ localStorage.setItem(SETTINGS.storageKey, JSON.stringify(map)); }
-  };
-  const slugify = s => (s||"")
-    .toLowerCase().replace(/[^a-z0-9\-]+/g,"-").replace(/^\-+|\-+$/g,"").slice(0,64);
-  const rnd = n => Array.from(crypto.getRandomValues(new Uint8Array(n)))
-                    .map(x => "abcdefghijklmnopqrstuvwxyz0123456789"[x%36]).join("");
-  const nowYear = () => new Date().getFullYear();
-
-  // ========================== Init site text/theme =========================
-  $("#siteName").textContent = SETTINGS.siteName;
-  $("#siteTag").textContent = SETTINGS.siteTagline;
-  document.documentElement.style.setProperty("--accent", SETTINGS.defaultAccent);
-  document.documentElement.style.setProperty("--accent-2", SETTINGS.accent2);
-  $("#year").textContent = nowYear();
-
-  // =========================== Hash redirector =============================
-  // If URL has #go=slug, look it up and jump.
-  (function handleHashRedirect(){
-    const m = location.hash.match(/[#&]go=([a-z0-9\-]+)/i);
-    if(!m) return;
-    const slug = m[1].toLowerCase();
-    const map = store.load();
-    const target = map[slug];
-    if(target){
-      // Small visual hint, then redirect.
-      document.body.style.opacity = ".75";
-      setTimeout(()=>{ location.replace(target); }, 120);
-    }else{
-      alert("Sorry, that code was not found on this device.\n" +
-            "Tip: The person who made it needs to share a full link from their own page.");
-    }
-  })();
-
-  // ============================ Shortener logic ============================
-  const longUrl   = $("#longUrl");
-  const custom    = $("#customSlug");
-  const makeBtn   = $("#makeBtn");
-  const outBox    = $("#made");
-  const outText   = $("#shortOut");
-  const copyBtn   = $("#copyBtn");
-  const openBtn   = $("#openBtn");
-  const listBox   = $("#list");
-
-  function isValidUrl(u){
-    try{ new URL(u); return true; } catch{ return false; }
-  }
-
-  function buildShareUrl(slug){
-    const base = location.origin + location.pathname;
-    return base + "#go=" + slug;
-  }
-
-  function refreshList(){
-    const map = store.load();
-    const entries = Object.entries(map).sort(([a],[b]) => a.localeCompare(b));
-    if(entries.length === 0){
-      listBox.innerHTML = `<p class="muted tiny">No links yet. Make one above!</p>`;
-      return;
-    }
-    listBox.innerHTML = "";
-    for(const [slug, url] of entries){
-      const row = document.createElement("div");
-      row.className = "row wrap";
-      row.style.marginBottom = "8px";
-      row.innerHTML = `
-        <code class="mono copy" style="flex:1">${buildShareUrl(slug)}</code>
-        <button class="btn ghost" data-open="${slug}">Open</button>
-        <button class="btn ghost" data-copy="${slug}">Copy</button>
-        <button class="btn ghost" data-delete="${slug}">Delete</button>
-      `;
-      listBox.appendChild(row);
-    }
-    listBox.onclick = (e)=>{
-      const slug = e.target.dataset.open || e.target.dataset.copy || e.target.dataset.delete;
-      if(!slug) return;
-      const url = store.load()[slug];
-      if(e.target.dataset.open){ window.open(url, "_blank"); }
-      else if(e.target.dataset.copy){
-        navigator.clipboard.writeText(buildShareUrl(slug));
-        toast("Copied short link!");
-      }
-      else if(e.target.dataset.delete){
-        const map = store.load(); delete map[slug]; store.save(map); refreshList();
-      }
-    };
-  }
-
-  function toast(msg, ms=1200){
-    const t = document.createElement("div");
-    t.textContent = msg;
-    t.style.cssText = `
-      position:fixed; left:50%; top:20px; transform:translateX(-50%);
-      background:linear-gradient(135deg,var(--accent),var(--accent-2));
-      color:#111; padding:10px 14px; border-radius:999px; font-weight:800; z-index:9999;
-      box-shadow:var(--shadow)
-    `;
-    document.body.appendChild(t);
-    setTimeout(()=>t.remove(), ms);
-  }
-
-  makeBtn.addEventListener("click", ()=>{
-    const url = longUrl.value.trim();
-    if(!isValidUrl(url)){ alert("Please paste a real link (it should start with http:// or https://)."); return; }
-
-    let slug = slugify(custom.value);
-    if(!slug) slug = rnd(SETTINGS.randomSlugLength);
-
-    const map = store.load();
-    // Avoid overwrite unless it points to the same URL
-    if(map[slug] && map[slug] !== url){
-      alert(`The code "${slug}" is already used. Try a different one.`);
-      return;
-    }
-    map[slug] = url;
-    store.save(map);
-
-    const share = buildShareUrl(slug);
-    outText.textContent = share;
-    outBox.style.display = "block";
-    refreshList();
-  });
-
-  copyBtn.addEventListener("click", ()=>{
-    navigator.clipboard.writeText(outText.textContent);
-    toast("Copied!");
-  });
-
-  openBtn.addEventListener("click", ()=>{
-    const map = store.load();
-    // From the output box, grab slug back from text
-    const m = outText.textContent.match(/#go=([a-z0-9\-]+)/i);
-    if(m){ const slug = m[1]; window.open(map[slug] || outText.textContent, "_blank"); }
-  });
-
-  // ============================ Theme controls ============================
-  const picker = $("#accentPicker");
-  const reset = $("#resetTheme");
-  picker.addEventListener("input", ()=>{
-    document.documentElement.style.setProperty("--accent", picker.value);
-    localStorage.setItem("foxurl.accent", picker.value);
-  });
-  reset.addEventListener("click", ()=>{
-    document.documentElement.style.setProperty("--accent", SETTINGS.defaultAccent);
-    localStorage.removeItem("foxurl.accent");
-    picker.value = SETTINGS.defaultAccent;
-  });
-  // Load saved accent if any
-  (function loadAccent(){
-    const saved = localStorage.getItem("foxurl.accent");
-    if(saved){ document.documentElement.style.setProperty("--accent", saved); picker.value = saved; }
-  })();
-
-  // ============================== On load =================================
-  refreshList();
+    // Auto-update year in footer
+    document.getElementById("year").textContent = new Date().getFullYear();
   </script>
 </body>
 </html>
