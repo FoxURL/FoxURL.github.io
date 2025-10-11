@@ -1,72 +1,88 @@
 <!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>FoxURL – innovate your connection</title>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoxURL – innovate your connection</title>
+  <script src="https://FoxURL.github.io/main.js" defer></script>
+  <link rel="stylesheet" href="https://FoxURL.github.io/style.css">
+</head>
+<body>
 
-    <!-- Load global script (adds footer, favicon, and style.css automatically) -->
-    <script src="https://FoxURL.github.io/main.js" defer></script>
-  </head>
-
-  <body>
-    <!-- Sidebar -->
-    <div id="sidebar">
-      <h2>Apps</h2>
-      <button class="sidebar-btn" onclick="openApp('https://foxurl.github.io/apps/clock')">Clock ⏰</button>
-      <h2>Contact</h2>
-      <button class="sidebar-btn" onclick="scrollToContact()">Fox Power ⚡</button>
+  <!-- Hero Section -->
+  <header class="hero">
+    <img src="https://FoxURL.github.io/logo.png" alt="FoxURL Logo" class="logo">
+    <h1>FoxURL</h1>
+    <p class="tagline">Innovate your connection</p>
+    
+    <!-- Buttons under hero -->
+    <div class="hero-buttons">
+      <button class="btn" onclick="openApp('https://foxurl.github.io/apps/clock')">Clock ⏰</button>
+      <button class="btn" onclick="scrollToContact()">Contact Fox Power ⚡</button>
     </div>
+  </header>
 
-    <!-- Main Content -->
-    <div id="main">
-      <header class="hero">
-        <img src="https://FoxURL.github.io/logo.png" alt="FoxURL Logo" class="logo">
-        <h1>FoxURL</h1>
-        <p class="tagline">Innovate your connection</p>
-      </header>
+  <!-- Main Content -->
+  <main id="main">
+    <section class="content">
+      <h2>Welcome to FoxURL</h2>
+      <p>
+        At FoxURL, we believe in creating smarter, faster, and more connected experiences.
+        Whether you're sharing links, innovating online, or exploring digital creativity —
+        FoxURL helps you make every connection matter.
+      </p>
+    </section>
 
-      <section class="content">
-        <h2>Welcome to FoxURL</h2>
-        <p>
-          At FoxURL, we believe in creating smarter, faster, and more connected experiences.
-          Whether you're sharing links, innovating online, or exploring digital creativity —
-          FoxURL helps you make every connection matter.
-        </p>
-        <p>
-          Explore our projects, try our tools, and join the revolution in digital linking.
-        </p>
-      </section>
-
-      <!-- App iframe -->
-      <iframe id="appFrame" src="" style="display:none;"></iframe>
-
-      <!-- Contact Section -->
-      <div id="contact">
-        <h2>Contact Fox Power</h2>
-        <p>To contact Fox Power, please use the following methods:</p>
-        <p><strong>Email:</strong> <a href="mailto:foxpower.au@gmail.com">foxpower.au@gmail.com</a></p>
-        <p><strong>URL:</strong> <a href="mailto:foxpower.au@gmail.com">mailto:foxpower.au@gmail.com</a></p>
+    <!-- Explore Section -->
+    <section class="content" id="explore">
+      <h2>Explore</h2>
+      <div class="explore-links">
+        <a href="https://foxurl.github.io/apps/clock" class="btn">Apps ⏰</a>
+        <a href="#contact" class="btn">Contact ⚡</a>
       </div>
-    </div>
+    </section>
 
-    <script>
-      function openApp(url) {
-        const iframe = document.getElementById('appFrame');
-        iframe.src = url;
-        iframe.style.display = 'block';
-        iframe.style.width = '100%';
-        iframe.style.height = '400px';
-        iframe.style.border = '2px solid #ff8800';
-        iframe.style.borderRadius = '10px';
-        iframe.style.marginTop = '20px';
-        iframe.scrollIntoView({behavior: 'smooth'});
-      }
+    <!-- App iframe -->
+    <iframe id="appFrame" src="" style="display:none;"></iframe>
 
-      function scrollToContact() {
-        const contact = document.getElementById('contact');
-        contact.scrollIntoView({behavior: 'smooth'});
-      }
-    </script>
-  </body>
+    <!-- Contact Section -->
+    <section class="content" id="contact">
+      <h2>Contact Fox Power</h2>
+      <p>Email: <a href="mailto:foxpower.au@gmail.com">foxpower.au@gmail.com</a></p>
+      <p>URL: <a href="mailto:foxpower.au@gmail.com">mailto:foxpower.au@gmail.com</a></p>
+    </section>
+  </main>
+
+  <!-- Sidebar Toggle Button for Mobile -->
+  <button id="sidebarToggle">☰ Explore</button>
+  <aside id="sidebar">
+    <h2>Explore</h2>
+    <a href="https://foxurl.github.io/apps/clock" class="sidebar-btn">Apps ⏰</a>
+    <a href="#contact" class="sidebar-btn">Contact ⚡</a>
+  </aside>
+
+  <script>
+    // Open app in iframe
+    function openApp(url) {
+      const iframe = document.getElementById('appFrame');
+      iframe.src = url;
+      iframe.style.display = 'block';
+      iframe.scrollIntoView({behavior: 'smooth'});
+    }
+
+    // Scroll to contact
+    function scrollToContact() {
+      const contact = document.getElementById('contact');
+      contact.scrollIntoView({behavior: 'smooth'});
+    }
+
+    // Sidebar toggle for mobile
+    const sidebar = document.getElementById('sidebar');
+    const toggle = document.getElementById('sidebarToggle');
+    toggle.addEventListener('click', () => {
+      sidebar.classList.toggle('active');
+    });
+  </script>
+
+</body>
 </html>
