@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fox Drive</title>
+  <script src="https://FoxURL.github.io/main.js" defer></script>
+  <style>
+    body {
+      font-family: sans-serif;
+      background: linear-gradient(135deg, #ff8800, #ffbb33);
+      color: #111;
+      text-align: center;
+      padding: 20px;
+    }
+
+    h1 { margin-bottom: 10px; }
+    .btn { padding: 10px 20px; margin: 10px; border-radius: 20px; background: white; color: #ff6600; cursor: pointer; text-decoration: none; font-weight: bold; }
+    .btn:hover { background: #ff6600; color: white; }
+    .file-list { margin-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto; }
+    .file-list li { margin: 5px 0; }
+  </style>
+</head>
+<body>
+  <h1>Fox Drive 🦊</h1>
+  <p>Storage Used: <span id="used">0</span> / <span id="limit">0</span> bytes</p>
+  <p>Files: <span id="count">0</span></p>
+
+  <input type="file" id="fileInput" multiple>
+  <button class="btn" id="uploadBtn">Upload File(s)</button>
+
+  <ul class="file-list" id="fileList"></ul>
+
+  <script>
+    // Load limits
+    let limits = {};
+    fetch('https://FoxURL.github.io/slimit.json')
+      .then(res => res.json())
+      .then(data => {
+        limits = data.basic; // For now use 'basic'
+        document.getElementById('limit').textContent = limits;
+      });
+
+    // Load drive.json
+    let driveData = { files: [], totalSize: 0 };
+    fetch('https://FoxURL.github.io/drive.json')
+      .then(res => res.json())
+      .then(data => {
+        driveData = data;
+        updateUI();
+      });
+
+    function updateUI() {
+      document.getElementById('used').textContent = driveData.totalSize;
+      document.getElementById('count').textContent = driveData.files.length;
+      const list = document.getElementById('fileList');
+      list.innerHTML = '';
+      driveData.files.forEach(f => {
+        const li = document.createElement('li');
+        li.textContent = `${f.name} (${f.size} bytes)`;
+        list.appendChild(li);
+      });
+    }
+
+    // Handle file upload (local simulation)
+    document.getElementById('uploadBtn').addEventListener('click', () => {
+      const input = document.getElementById('fileInput');
+      if (!input.files.length) return alert('Select file(s) first');
+
+      for (const file of input.files) {
+        if (driveData.totalSize + file.size > limits) {
+          alert(`Cannot upload ${file.name}, storage limit exceeded`);
+          continue;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          driveData.files.push({
+            name: file.name,
+            size: file.size,
+            content: e.target.result.split(',')[1] // base64
+          });
+          driveData.totalSize += file.size;
+          updateUI();
+          alert(`${file.name} uploaded (simulated)`);
+        };
+        reader.readAsDataURL(file);
+      }
+    });
+  </script>
+</body>
+</html>
