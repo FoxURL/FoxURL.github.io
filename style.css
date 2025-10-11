@@ -1,8 +1,76 @@
+/* Original CSS */
 body {
   background-color: orange;
+  margin: 0;
+  font-family: "Segoe UI", sans-serif;
+  text-align: center;
 }
 
+/* Paragraph styling */
 p {
-    color: black;
-    font-size: 24px;
-  }
+  color: black;
+  font-size: 24px;
+  line-height: 1.6;
+}
+
+/* Hero section */
+.hero {
+  padding: 100px 20px 60px;
+  color: white;
+  background: linear-gradient(160deg, #ff6600, #ff8800);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  border-bottom: 4px solid #fff5e6;
+}
+
+.hero .logo {
+  width: 120px;
+  height: auto;
+  border-radius: 50%;
+  border: 3px solid white;
+  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+}
+
+.hero h1 {
+  font-size: 3em;
+  margin: 20px 0 5px;
+  letter-spacing: 1px;
+}
+
+.hero .tagline {
+  font-size: 1.2em;
+  margin-bottom: 30px;
+  color: #fff9e6;
+}
+
+/* Button styling */
+.btn {
+  display: inline-block;
+  background: white;
+  color: #ff6600;
+  text-decoration: none;
+  padding: 12px 25px;
+  border-radius: 30px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.btn:hover {
+  background: #ff8800;
+  color: white;
+}
+
+/* Main content box */
+.content {
+  background: white;
+  color: #333;
+  max-width: 800px;
+  margin: 40px auto;
+  padding: 40px;
+  border-radius: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.content h2 {
+  color: #ff6600;
+  margin-bottom: 10px;
+}
