@@ -1,0 +1,26 @@
+// main.js — FoxURL global script
+// Loads shared styles + adds footer to every page
+
+// 1️⃣ Load the shared CSS file (style.css) from main branch
+const link = document.createElement("link");
+link.rel = "stylesheet";
+link.href = "https://FoxURL.github.io/style.css"; // full GitHub Pages URL
+document.head.appendChild(link);
+
+// 2️⃣ When the page is ready, add a FoxURL footer
+document.addEventListener("DOMContentLoaded", () => {
+  const footer = document.createElement("footer");
+  footer.innerHTML = `
+    <hr style="border: none; border-top: 2px solid orange; width: 60%; margin: 40px auto;">
+    <p style="
+      font-family: sans-serif;
+      color: orange;
+      text-align: center;
+      font-size: 16px;
+      margin-bottom: 30px;
+    ">
+      🦊 FoxURL © 2025 – innovate your connection
+    </p>
+  `;
+  document.body.appendChild(footer);
+});
