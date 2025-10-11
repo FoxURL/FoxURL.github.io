@@ -1,12 +1,12 @@
-/* Original CSS */
+/* Base body */
 body {
-  background-color: orange;
   margin: 0;
   font-family: "Segoe UI", sans-serif;
+  background-color: orange;
   text-align: center;
 }
 
-/* Paragraph styling */
+/* Paragraphs */
 p {
   color: black;
   font-size: 16px;
@@ -15,10 +15,10 @@ p {
 
 /* Hero section */
 .hero {
-  padding: 100px 20px 60px;
+  padding: 80px 20px 40px;
   color: white;
   background: linear-gradient(160deg, #ff6600, #ff8800);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.2);
   border-bottom: 4px solid #fff5e6;
 }
 
@@ -27,21 +27,25 @@ p {
   height: auto;
   border-radius: 50%;
   border: 3px solid white;
-  box-shadow: 0 0 10px rgba(255, 255, 255, 0.6);
+  box-shadow: 0 0 10px rgba(255,255,255,0.6);
 }
+
 .hero h1 {
   font-size: 3em;
   margin: 20px 0 5px;
-  letter-spacing: 1px;
 }
 
 .hero .tagline {
   font-size: 1.2em;
-  margin-bottom: 30px;
+  margin-bottom: 20px;
   color: #fff9e6;
 }
 
-/* Button styling */
+/* Hero buttons */
+.hero-buttons {
+  margin-top: 10px;
+}
+
 .btn, .sidebar-btn {
   display: inline-block;
   background: white;
@@ -51,6 +55,7 @@ p {
   border-radius: 30px;
   font-weight: bold;
   transition: 0.3s;
+  margin: 5px;
   cursor: pointer;
   border: none;
 }
@@ -60,7 +65,7 @@ p {
   color: white;
 }
 
-/* Main content box */
+/* Content sections */
 .content {
   background: white;
   color: #333;
@@ -68,37 +73,12 @@ p {
   margin: 40px auto;
   padding: 40px;
   border-radius: 20px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.1);
 }
 
 .content h2 {
   color: #ff6600;
   margin-bottom: 10px;
-}
-
-/* Sidebar */
-#sidebar {
-  width: 200px;
-  background-color: #ff8800;
-  color: white;
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px;
-  text-align: left;
-}
-
-#sidebar h2 {
-  margin-top: 0;
-  font-size: 20px;
-  text-align: center;
-}
-
-/* Main layout */
-#main {
-  flex-grow: 1;
-  padding: 20px;
-  overflow-y: auto;
 }
 
 /* App iframe */
@@ -111,29 +91,52 @@ p {
   margin-top: 20px;
 }
 
-/* Contact Section */
-#contact {
-  margin-top: 40px;
-  background: #fff3e0;
+/* Sidebar */
+#sidebar {
+  position: fixed;
+  top: 0;
+  left: -220px;
+  width: 200px;
+  height: 100%;
+  background: #ff8800;
+  color: white;
   padding: 20px;
-  border-radius: 10px;
-  border: 2px solid #ff8800;
+  box-shadow: 4px 0 20px rgba(0,0,0,0.2);
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  transition: 0.3s;
+  z-index: 999;
 }
 
-#contact h2 {
-  color: #ff6600;
+#sidebar.active {
+  left: 0;
 }
 
-#contact p, #contact a {
-  font-size: 16px;
-  color: #111;
+#sidebar h2 {
+  text-align: center;
+  margin-top: 0;
 }
 
-#contact a {
-  text-decoration: none;
-  color: #ff8800;
+#sidebarToggle {
+  position: fixed;
+  top: 10px;
+  left: 10px;
+  background: #ff8800;
+  color: white;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 8px;
+  cursor: pointer;
+  z-index: 1000;
 }
 
-#contact a:hover {
-  text-decoration: underline;
+#sidebarToggle:hover {
+  background: #ff6600;
+}
+
+/* Explore links inside sidebar */
+.sidebar-btn {
+  display: block;
+  text-align: left;
 }
