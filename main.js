@@ -14,7 +14,7 @@ document.addEventListener("DOMContentLoaded", () => {
     <hr style="border: none; border-top: 2px solid orange; width: 60%; margin: 40px auto;">
     <p style="
       font-family: sans-serif;
-      color: orange;
+      color: black;
       text-align: center;
       font-size: 16px;
       margin-bottom: 30px;
