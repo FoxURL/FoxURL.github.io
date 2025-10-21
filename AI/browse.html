@@ -1,162 +1,35 @@
 <!doctype html>
-<html lang="en">
+<html>
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>foxurl — plain-text hash search</title>
-  <style>
-    html,body{height:100%;margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,'Helvetica Neue',Arial}
-    main{display:flex;flex-direction:column;gap:12px;padding:20px;max-width:880px;margin:0 auto}
-    label{font-weight:600}
-    input{width:100%;padding:8px;font-size:16px}
-    pre{background:#111;color:#eee;padding:16px;border-radius:8px;overflow:auto;white-space:pre-wrap}
-    .meta{font-size:13px;color:#666}
-    button{padding:8px 12px;border-radius:6px;border:1px solid #ccc;background:#fff;cursor:pointer}
-    a.fallback{margin-left:8px}
-  </style>
+<meta charset="utf-8">
+<title>foxurl browse</title>
 </head>
 <body>
-  <main>
-    <div class="meta">Usage: append your query after the URL hash. Example: <code>#foxes%20are%20the%20best</code>. The page automatically searches on load and when the hash changes and prints a plain-text answer (suitable for scraping).</div>
-
-    <div>
-      <label for="q">Current query (from hash)</label>
-      <input id="q" placeholder="Add text after the # in the URL and press Enter" />
-    </div>
-
-    <div>
-      <button id="doSearch">Search now</button>
-      <a id="openGoogle" class="fallback" target="_blank" rel="noopener">Open in Google</a>
-      <button id="copy" style="margin-left:8px">Copy plain text</button>
-    </div>
-
-    <pre id="output">(waiting for hash...)</pre>
-  </main>
-
-  <script>
-    // This single-file page reads location.hash, decodes it to a query string,
-    // calls DuckDuckGo Instant Answer API to get a short plain-text answer,
-    // and prints plain text inside the <pre id="output"> element so scripts
-    // can scrape it easily.
-    //
-    // NOTE: The browser cannot fetch Google Search results directly due to CORS
-    // restrictions and Google requiring API keys for programmatic access. If you
-    // want Google-based server-side searching, you'll need a backend or a Google
-    // Custom Search API key. This page uses DuckDuckGo's instant-answer JSON API
-    // which works for many queries and is CORS-friendly.
-
-    const output = document.getElementById('output');
-    const qInput = document.getElementById('q');
-    const doSearchBtn = document.getElementById('doSearch');
-    const openGoogle = document.getElementById('openGoogle');
-    const copyBtn = document.getElementById('copy');
-
-    function getQueryFromHash() {
-      // remove leading '#'
-      let h = location.hash || '';
-      if (h.startsWith('#')) h = h.slice(1);
-      // decode percent-encoding
-      try { h = decodeURIComponent(h.replace(/\+/g, ' ')); } catch (e) { /* ignore */ }
-      return h.trim();
+<pre id="out"></pre>
+<script>
+async function main(){
+  const out=document.getElementById('out');
+  let hash=location.hash.slice(1);
+  if(!hash){out.textContent='404';return;}
+  try{hash=decodeURIComponent(hash);}catch(e){}
+  out.textContent='Searching...';
+  const api='https://api.duckduckgo.com/?q='+encodeURIComponent(hash)+'&format=json&no_html=1&skip_disambig=1';
+  try{
+    const r=await fetch(api);
+    if(!r.ok)throw new Error(r.status);
+    const d=await r.json();
+    let text=d.AbstractText||'';
+    if(!text&&Array.isArray(d.RelatedTopics)&&d.RelatedTopics.length){
+      text=d.RelatedTopics.map(t=>t.Text||'').filter(Boolean).join('\n');
     }
-
-    function setPlainText(t) {
-      // ensure only plain text placed in the pre element
-      output.textContent = t;
-    }
-
-    async function searchQuery(q) {
-      if (!q) {
-        setPlainText('(no query provided in the URL hash)');
-        return;
-      }
-
-      setPlainText('Searching: ' + q + "\n\n(looking up a concise plain-text answer...)" );
-      // DuckDuckGo Instant Answer API (CORS-friendly)
-      const api = 'https://api.duckduckgo.com/?q=' + encodeURIComponent(q) + '&format=json&no_html=1&skip_disambig=1';
-
-      try {
-        const res = await fetch(api, {cache: 'no-store'});
-        if (!res.ok) throw new Error('Network response not ok: ' + res.status);
-        const data = await res.json();
-
-        // Prefer the AbstractText if present
-        let text = data.AbstractText && data.AbstractText.trim();
-
-        // If no AbstractText, try RelatedTopics (concatenate a few short results)
-        if (!text) {
-          if (Array.isArray(data.RelatedTopics) && data.RelatedTopics.length) {
-            const snippets = [];
-            for (const item of data.RelatedTopics) {
-              if (item.Text) snippets.push(item.Text);
-              else if (item.Topics && item.Topics.length && item.Topics[0].Text) snippets.push(item.Topics[0].Text);
-              if (snippets.length >= 4) break;
-            }
-            if (snippets.length) text = snippets.join('\n\n');
-          }
-        }
-
-        // If still nothing, include the abstract URL or fallback message
-        if (!text) {
-          text = data.AbstractURL ? ('(see) ' + data.AbstractURL) : '(no concise instant answer available)';
-        }
-
-        // Final plain-text output: show query, source, and the answer only as text
-        const header = 'Query: ' + q + '\nSource: DuckDuckGo Instant Answer API\n---\n';
-        setPlainText(header + text);
-
-      } catch (err) {
-        setPlainText('Error while searching: ' + String(err) + '\n\nAs a fallback you can open a normal Google search using the link next to the button.');
-      }
-    }
-
-    function updateUIForQuery(q) {
-      qInput.value = q;
-      openGoogle.href = 'https://www.google.com/search?q=' + encodeURIComponent(q);
-      openGoogle.textContent = 'Open Google search for "' + (q.length>30 ? q.slice(0,30)+'...' : q) + '"';
-    }
-
-    // trigger search when the hash changes
-    async function onHashChange() {
-      const q = getQueryFromHash();
-      updateUIForQuery(q);
-      await searchQuery(q);
-    }
-
-    // startup
-    window.addEventListener('hashchange', onHashChange, false);
-
-    // allow manual input too
-    qInput.addEventListener('keydown', (e)=>{
-      if (e.key === 'Enter') {
-        const v = qInput.value.trim();
-        location.hash = encodeURIComponent(v);
-      }
-    });
-
-    doSearchBtn.addEventListener('click', ()=>{
-      // write input back to hash (this triggers hashchange handler)
-      const v = qInput.value.trim();
-      location.hash = encodeURIComponent(v);
-    });
-
-    copyBtn.addEventListener('click', async ()=>{
-      try {
-        await navigator.clipboard.writeText(output.textContent || '');
-        copyBtn.textContent = 'Copied!';
-        setTimeout(()=>copyBtn.textContent = 'Copy plain text', 1500);
-      } catch (e) {
-        copyBtn.textContent = 'Copy failed';
-        setTimeout(()=>copyBtn.textContent = 'Copy plain text', 1500);
-      }
-    });
-
-    // run on first load
-    (async ()=>{
-      const q = getQueryFromHash();
-      updateUIForQuery(q);
-      await searchQuery(q);
-    })();
-  </script>
+    if(!text)text='no result';
+    out.textContent=text.trim();
+  }catch(e){
+    out.textContent='error';
+  }
+}
+main();
+window.addEventListener('hashchange',main);
+</script>
 </body>
 </html>
