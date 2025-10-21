@@ -9,11 +9,11 @@
 <script>
 async function main(){
   const out=document.getElementById('out');
-  let hash=location.hash.slice(1);
-  if(!hash){out.textContent='404';return;}
-  try{hash=decodeURIComponent(hash);}catch(e){}
+  const params=new URLSearchParams(location.search);
+  const q=params.get('q');
+  if(!q){out.textContent='404';return;}
   out.textContent='Searching...';
-  const api='https://api.duckduckgo.com/?q='+encodeURIComponent(hash)+'&format=json&no_html=1&skip_disambig=1';
+  const api='https://api.duckduckgo.com/?q='+encodeURIComponent(q)+'&format=json&no_html=1&skip_disambig=1';
   try{
     const r=await fetch(api);
     if(!r.ok)throw new Error(r.status);
@@ -29,7 +29,7 @@ async function main(){
   }
 }
 main();
-window.addEventListener('hashchange',main);
+window.addEventListener('popstate',main);
 </script>
 </body>
 </html>
