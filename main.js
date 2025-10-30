@@ -1,12 +1,7 @@
 // main.js — FoxURL global script
 // Loads shared styles, sets favicon and iOS touch icon, and adds footer to every page
 
-// Auto-inject FoxURL main.js if not already added
-if (!document.querySelector('script[src="https://FoxURL.github.io/main.js"]')) {
-  const script = document.createElement('script');
-  script.src = "https://FoxURL.github.io/main.js";
-  document.head.appendChild(script);
-}
+
 
 // 1️⃣ Load the shared CSS file (style.css) from main branch
 const link = document.createElement("link");
