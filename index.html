@@ -22,7 +22,106 @@ v<!DOCTYPE html>
       <a href="https://foxurl.github.io/apps" class="btn">See all apps</a>
     </div>
   </header>
-<a href="search.html">Search</a>
+<!-- FOXURL EMBEDDED SEARCH WIDGET -->
+<div id="foxurl-search-widget" style="max-width:500px;margin:20px auto;font-family:sans-serif;">
+  <input id="foxurl-search-input" type="text" placeholder="Search…" 
+    style="width:100%;padding:12px;border:2px solid orange;border-radius:10px;font-size:16px;outline:none;transition:0.2s;">
+  <div id="foxurl-search-results" style="margin-top:12px;"></div>
+</div>
+
+<script>
+(async () => {
+  const input = document.getElementById("foxurl-search-input");
+  const resultsBox = document.getElementById("foxurl-search-results");
+
+  // Load your layout.json
+  let pages = [];
+  try {
+    const res = await fetch("layout.json");
+    pages = await res.json();
+  } catch (e) {
+    resultsBox.innerHTML = "<p style='color:red;'>Could not load layout.json</p>";
+  }
+
+  let selectedIndex = -1;
+
+  function renderResults(query) {
+    resultsBox.innerHTML = "";
+    selectedIndex = -1;
+    if (!query.trim()) return;
+
+    const q = query.toLowerCase();
+    const matches = pages.filter(p =>
+      p.name.toLowerCase().includes(q) ||
+      p.description.toLowerCase().includes(q) ||
+      (p.tags || []).some(tag => tag.toLowerCase().includes(q))
+    ).slice(0, 7);
+
+    matches.forEach((p, i) => {
+      const item = document.createElement("div");
+      item.className = "result-item";
+      item.style = `
+        padding:10px;
+        border:1px solid #ffa64d;
+        border-radius:10px;
+        margin-bottom:10px;
+        cursor:pointer;
+        background:#fff6ec;
+        transition:0.15s;
+      `;
+
+      item.innerHTML = `
+        <strong style="color:#ff7a00;">${p.name}</strong><br>
+        <span style="font-size:14px;">${p.description}</span><br>
+        <div style="margin-top:4px;">
+          ${(p.tags || []).map(t => `<span style="
+            display:inline-block;
+            background:#ffddbf;
+            color:#c45a00;
+            padding:3px 8px;
+            margin-right:4px;
+            border-radius:6px;
+            font-size:12px;
+          ">${t}</span>`).join("")}
+        </div>
+      `;
+
+      item.addEventListener("click", () => window.location = p.link);
+      resultsBox.appendChild(item);
+    });
+  }
+
+  input.addEventListener("input", () => renderResults(input.value));
+
+  // Keyboard navigation
+  input.addEventListener("keydown", e => {
+    const items = [...document.querySelectorAll("#foxurl-search-results .result-item")];
+    if (items.length === 0) return;
+
+    if (e.key === "ArrowDown") {
+      selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
+      updateHighlight(items);
+      e.preventDefault();
+    }
+    if (e.key === "ArrowUp") {
+      selectedIndex = Math.max(selectedIndex - 1, 0);
+      updateHighlight(items);
+      e.preventDefault();
+    }
+    if (e.key === "Enter" && selectedIndex >= 0) {
+      items[selectedIndex].click();
+    }
+  });
+
+  function updateHighlight(items) {
+    items.forEach((it, idx) => {
+      it.style.background = idx === selectedIndex ? "#ffe0c2" : "#fff6ec";
+      it.style.transform = idx === selectedIndex ? "scale(1.02)" : "scale(1)";
+    });
+  }
+})();
+</script>
+
 
   <!-- Main Content -->
   <main id="main">
