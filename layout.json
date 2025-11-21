@@ -1,0 +1,10 @@
+{
+  "pages": [
+    {
+      "name": "home",
+      "description": "the main homepage for FoxURL",
+      "link": "https://FoxURL.github.io",
+      "tags": ["tool", "fun", "utility"]
+    }
+  ]
+}
