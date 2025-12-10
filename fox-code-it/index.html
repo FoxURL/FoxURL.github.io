@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Fox Code It Studio</title>
+<style>
+/* --- GENERAL --- */
+body {
+    margin: 0;
+    background: #1b1b1b;
+    color: white;
+    font-family: Arial;
+}
+#topbar {
+    display: flex;
+    justify-content: space-between;
+    background: #242424;
+    padding: 12px;
+    border-bottom: 2px solid #333;
+}
+#title { font-size: 22px; }
+
+#taskbar button {
+    margin-left: 8px;
+    background: #ff7f00;
+    border: 0;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+#taskbar button:hover { background: #ffaa44; }
+
+/* --- LAYOUT --- */
+#grid {
+    display: grid;
+    grid-template-columns: 250px 1fr 220px;
+    height: calc(100vh - 60px);
+}
+
+/* LEFT — IMPORT PANEL */
+#left {
+    background: #222;
+    padding: 15px;
+    border-right: 2px solid #333;
+}
+#left h2 { margin-top: 0; }
+#left input, #left textarea {
+    width: 100%;
+    padding: 6px;
+    border-radius: 6px;
+    border: 0;
+    margin: 6px 0;
+}
+#importURL {
+    background:#333; color:white;
+    border-radius:6px; border:0;
+    padding:6px; width:100%;
+}
+
+/* MIDDLE — INFO + EDITOR */
+#middle {
+    padding: 20px;
+}
+#editorSection {
+    background: #2d2d2d;
+    padding: 15px;
+    border-radius: 10px;
+    display: none;
+}
+input, textarea, select {
+    width: 100%;
+    box-sizing: border-box;
+    padding: 6px;
+    margin: 6px 0;
+    border-radius: 6px;
+    border: 0;
+}
+textarea { background:#1d1d1d;color:white; }
+
+/* RIGHT — HELP PANEL */
+#right {
+    background: #222;
+    padding: 15px;
+    border-left: 2px solid #333;
+}
+#helpPanel {
+    background:#2e2e2e;
+    padding:15px;
+    border-radius:8px;
+    display:none;
+}
+
+/* PROMPT POPUP */
+#promptPopup {
+    position: fixed;
+    top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: #2e2e2e;
+    padding: 20px;
+    border-radius: 10px;
+    display: none;
+    width: 400px;
+}
+#promptPopup textarea {
+    height: 120px;
+}
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div id="topbar">
+    <div id="title">Fox Code It Studio</div>
+
+    <div id="taskbar">
+        <button onclick="toggleHelp()">?</button>
+        <button onclick="openPrompt()">Prompt</button>
+        <button onclick="toggleEditor()">Editor</button>
+        <button onclick="previewCode()">Preview</button>
+        <button onclick="exportJSON()">Export</button>
+    </div>
+</div>
+
+<!-- 3-COLUMN LAYOUT -->
+<div id="grid">
+
+    <!-- LEFT PANEL -->
+    <div id="left">
+        <h2>Import JSON</h2>
+
+        <b>Paste JSON:</b>
+        <textarea id="pasteInput" rows="6"></textarea>
+
+        <b>Import from file:</b>
+        <input type="file" id="fileInput">
+
+        <b>Import from URL:</b>
+        <input id="importURL" placeholder="https://example.com/code.json">
+
+        <button onclick="loadJSON()">Load JSON</button>
+    </div>
+
+    <!-- MIDDLE PANEL -->
+    <div id="middle">
+        <h2>Details</h2>
+
+        <p><b>Name:</b> <span id="nameDisplay">(none)</span></p>
+        <p><b>Description:</b> <span id="descDisplay">(none)</span></p>
+
+        <!-- EDITOR -->
+        <div id="editorSection">
+            <h2>Code Editor</h2>
+
+            <label>Language:</label>
+            <select id="langField">
+                <option>html</option>
+                <option>css</option>
+                <option>javascript</option>
+                <option>python</option>
+                <option>json</option>
+                <option>java</option>
+                <option>c</option>
+                <option>c++</option>
+                <option>other</option>
+            </select>
+
+            <label>Version:</label>
+            <input id="verField">
+
+            <label>Name:</label>
+            <input id="nameField">
+
+            <label>Description:</label>
+            <textarea id="descField" rows="3"></textarea>
+
+            <label>Code (multi-line):</label>
+            <textarea id="codeField" rows="12"></textarea>
+        </div>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div id="right">
+        <h2>Help</h2>
+        <div id="helpPanel">
+            <p><b>How to Use Fox Code It Studio:</b></p>
+            <p>• Import JSON from file, paste, or URL<br>
+            • Click Editor to edit fields + code<br>
+            • Preview runs the code in a new window<br>
+            • Export saves your updated JSON</p>
+        </div>
+    </div>
+
+</div>
+
+<!-- PROMPT POPUP -->
+<div id="promptPopup">
+    <h2>Create AI Prompt</h2>
+    <p>Describe what you want to build:</p>
+    <textarea id="promptInput" placeholder="Example: Make a javascript snake game"></textarea>
+    <button onclick="generatePrompt()">Generate</button>
+    <button onclick="closePrompt()">Close</button>
+
+    <h3>Your AI Prompt:</h3>
+    <textarea id="promptOutput" readonly></textarea>
+</div>
+
+<script>
+let foxData = null;
+
+/* --- HELP PANEL --- */
+function toggleHelp(){
+    let p = document.getElementById("helpPanel");
+    p.style.display = p.style.display === "none" ? "block" : "none";
+}
+
+/* --- EDITOR --- */
+function toggleEditor(){
+    let ed = document.getElementById("editorSection");
+    ed.style.display = ed.style.display === "none" ? "block" : "none";
+}
+
+/* --- LOAD JSON (paste, file, or URL) --- */
+async function loadJSON(){
+    let pasted = document.getElementById("pasteInput").value.trim();
+    let url = document.getElementById("importURL").value.trim();
+    let file = document.getElementById("fileInput").files[0];
+
+    /* 1 — PASTE */
+    if(pasted){
+        try { foxData = JSON.parse(pasted); return loadToUI(); }
+        catch(e){ alert("Invalid pasted JSON"); return; }
+    }
+
+    /* 2 — FILE */
+    if(file){
+        let r = new FileReader();
+        r.onload = e => {
+            try { foxData = JSON.parse(e.target.result); loadToUI(); }
+            catch(e){ alert("Invalid JSON file"); }
+        };
+        r.readAsText(file);
+        return;
+    }
+
+    /* 3 — URL */
+    if(url){
+        try {
+            let res = await fetch(url);
+            foxData = await res.json();
+            loadToUI();
+            return;
+        } catch(e) {
+            alert("Failed to fetch JSON from URL");
+            return;
+        }
+    }
+
+    alert("Nothing to import.");
+}
+
+/* --- LOAD UI --- */
+function loadToUI(){
+    document.getElementById("nameDisplay").textContent = foxData.name || "(none)";
+    document.getElementById("descDisplay").textContent = foxData.description || "(none)";
+
+    document.getElementById("langField").value = foxData.language || "other";
+    document.getElementById("verField").value = foxData.version || "";
+    document.getElementById("nameField").value = foxData.name || "";
+    document.getElementById("descField").value = foxData.description || "";
+
+    document.getElementById("codeField").value =
+        foxData.code.replace(/\\n/g, "\n");
+
+    alert("Loaded successfully!");
+}
+
+/* --- UPDATE FOX DATA --- */
+function updateFox(){
+    foxData.language = document.getElementById("langField").value;
+    foxData.version = document.getElementById("verField").value;
+    foxData.name = document.getElementById("nameField").value;
+    foxData.description = document.getElementById("descField").value;
+    foxData.code = document.getElementById("codeField").value.replace(/\n/g, "\\n");
+}
+
+/* --- PREVIEW IN NEW WINDOW --- */
+function previewCode(){
+    if(!foxData){ alert("Load JSON first"); return; }
+
+    updateFox();
+
+    let win = window.open("", "", "width=900,height=700");
+    win.document.write(foxData.code);
+    win.document.close();
+}
+
+/* --- EXPORT JSON --- */
+function exportJSON(){
+    if(!foxData){ alert("Load JSON first"); return; }
+
+    updateFox();
+
+    const blob = new Blob([JSON.stringify(foxData)], {type:"application/json"});
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    a.download = (foxData.name || "foxcodeit") + ".json";
+    a.click();
+}
+
+/* --- PROMPT SYSTEM --- */
+function openPrompt(){
+    document.getElementById("promptPopup").style.display = "block";
+}
+function closePrompt(){
+    document.getElementById("promptPopup").style.display = "none";
+}
+
+function generatePrompt(){
+    let idea = document.getElementById("promptInput").value.trim();
+    if(!idea){ alert("Enter something first."); return; }
+
+    let out = `
+Generate a Fox Code It JSON for the following request:
+
+"${idea}"
+
+Use this exact JSON format:
+
+{
+  "language": "<the language used>",
+  "code": "<FULL WORKING CODE IN ONE LINE. Escape all newlines as \\\\n>",
+  "source": "AI",
+  "name": "<short name>",
+  "version": "1.0.0",
+  "description": "<brief description>"
+}
+
+The code must be fully working, clean, and exactly one line in the JSON.
+`;
+
+    document.getElementById("promptOutput").value = out.trim();
+}
+</script>
+
+</body>
+</html>
