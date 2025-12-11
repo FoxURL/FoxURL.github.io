@@ -1,49 +1,30 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Foxlink Redirect</title>
-<script>
-// Function to get URL query parameters
-function getQueryParam(param) {
-    const urlParams = new URLSearchParams(window.location.search);
-    return urlParams.get(param);
-}
-
-async function redirectFoxlink() {
-    const id = getQueryParam('q');
-    if (!id) {
-        document.getElementById('status').textContent = 'No ID provided in URL.';
-        return;
-    }
-
-    const dataURL = 'https://foxurl.github.io/web/foxLINK/linking/data.json';
-
-    try {
-        const response = await fetch(dataURL);
-        if (!response.ok) throw new Error('Failed to fetch data.json');
-        const jsonData = await response.json();
-        
-        const entry = jsonData.find(item => item.ID === id);
-        if (entry && entry.link) {
-            document.getElementById('status').textContent = 'Redirecting to ' + entry.name + '...';
-            window.location.href = entry.link;
-        } else {
-            document.getElementById('status').textContent = 'No matching ID found.';
-        }
-    } catch (err) {
-        document.getElementById('status').textContent = 'Error: ' + err;
-    }
-}
-
-window.onload = redirectFoxlink;
-</script>
+  <title>FoxLINK Redirect</title>
 </head>
-<body style="font-family:sans-serif;display:flex;align-items:center;justify-content:center;height:100vh;background:#f0f0f0;">
-<div style="text-align:center;">
-    <h1>Foxlink Redirect</h1>
-    <p id="status">Loading...</p>
-</div>
+<body>
+<script>
+  // Get the 'q' parameter from the URL
+  const params = new URLSearchParams(window.location.search);
+  const q = params.get('q'); // e.g., "001" or "002"
+
+  // Fetch your JSON file
+  fetch('https://foxurl.github.io/web/foxLINK/linking/data.json')
+    .then(res => res.json())
+    .then(data => {
+      // Find the entry by matching the uppercase 'ID'
+      const entry = data.find(item => item.ID === q);
+
+      if (entry) {
+        // Redirect to the link
+        window.location.href = entry.link;
+      } else {
+        document.body.innerHTML = "ID not found!";
+        console.log("Available IDs:", data.map(d => d.ID));
+      }
+    })
+    .catch(err => console.error(err));
+</script>
 </body>
 </html>
