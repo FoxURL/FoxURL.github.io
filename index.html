@@ -1,188 +1,327 @@
-v<!DOCTYPE html>
-<html lang="en">
+<!DOCTYPE html>
+<!-- Created with https://packager.turbowarp.org/ -->
+<html>
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>FoxURL – innovate your connection</title>
-  <script src="https://FoxURL.github.io/main.js" defer></script>
-  <link rel="stylesheet" href="https://FoxURL.github.io/style.css">
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <!-- We only include this to explicitly loosen the CSP of various packager environments. It does not provide any security. -->
+  <meta http-equiv="Content-Security-Policy" content="default-src * 'self' 'unsafe-inline' 'unsafe-eval' data: blob:">
+  <title>number to binary</title>
+  <style>
+    body {
+      color: #ffffff;
+      font-family: sans-serif;
+      overflow: hidden;
+      margin: 0;
+      padding: 0;
+    }
+    :root, body.is-fullscreen {
+      background-color: #000000;
+    }
+    [hidden] {
+      display: none !important;
+    }
+    h1 {
+      font-weight: normal;
+    }
+    a {
+      color: inherit;
+      text-decoration: underline;
+      cursor: pointer;
+    }
+
+    #app, #loading, #error, #launch {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+    }
+    .screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      cursor: default;
+      user-select: none;
+      -webkit-user-select: none;
+      background-color: #000000;
+    }
+    #launch {
+      background-color: rgba(0, 0, 0, 0.7);
+      cursor: pointer;
+    }
+    .green-flag {
+      width: 80px;
+      height: 80px;
+      padding: 16px;
+      border-radius: 100%;
+      background: rgba(255, 255, 255, 0.75);
+      border: 3px solid hsla(0, 100%, 100%, 1);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      box-sizing: border-box;
+    }
+    #loading {
+      
+    }
+    .progress-bar-outer {
+      border: 1px solid currentColor;
+      height: 10px;
+      width: 200px;
+      max-width: 200px;
+    }
+    .progress-bar-inner {
+      height: 100%;
+      width: 0;
+      background-color: currentColor;
+    }
+    .loading-text, noscript {
+      font-weight: normal;
+      font-size: 36px;
+      margin: 0 0 16px;
+    }
+    .loading-image {
+      margin: 0 0 16px;
+    }
+    #error-message, #error-stack {
+      font-family: monospace;
+      max-width: 600px;
+      white-space: pre-wrap;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    #error-stack {
+      text-align: left;
+      max-height: 200px;
+      overflow: auto;
+    }
+    .control-button {
+      width: 2rem;
+      height: 2rem;
+      padding: 0.375rem;
+      margin-top: 0.5rem;
+      margin-bottom: 0.5rem;
+      user-select: none;
+      -webkit-user-select: none;
+      cursor: pointer;
+      border: 0;
+      border-radius: 4px;
+    }
+    .control-button-highlight:hover {
+      background: #ff4c4c26;
+    }
+    .control-button-highlight.active {
+      background: #ff4c4c59;
+    }
+    .fullscreen-button {
+      background: white;
+    }
+    .standalone-fullscreen-button {
+      position: absolute;
+      top: 0;
+      right: 0;
+      background-color: rgba(0, 0, 0, 0.5);
+      border-radius: 0 0 0 4px;
+      padding: 4px;
+      cursor: pointer;
+    }
+    .sc-canvas {
+      cursor: auto;
+    }
+    .sc-monitor-root[data-opcode^="data_"] .sc-monitor-value-color {
+      background-color: #ff8c1a;
+    }
+    .sc-monitor-row-value-outer {
+      background-color: #fc662c;
+    }
+    .sc-monitor-row-value-editing .sc-monitor-row-value-outer {
+      background-color: #e25b27;
+    }
+    
+  </style>
+  <meta name="theme-color" content="#000000">
+  
 </head>
 <body>
+  <div id="app"></div>
 
-  <!-- Hero Section -->
-  <header class="hero">
-    <img src="https://FoxURL.github.io/logo.png" alt="FoxURL Logo" class="logo">
-    <h1>FoxURL</h1>
-    <p class="tagline">Innovate your connection</p>
-    <p class="tagline">featured links</p>
-    <!-- Buttons under hero -->
-    <div class="hero-buttons">
-      <a href="https://foxurl.github.io/apps/clock" class="btn">clock ⏰</a>
-      <a href="https://foxurl.github.io/contact/foxpower/" class="btn">contact Foxpower</a>
-      <a href="https://foxurl.github.io/apps" class="btn">See all apps</a>
+  <div id="launch" class="screen" hidden title="Click to start">
+    <div class="green-flag">
+      <svg viewBox="0 0 16.63 17.5" width="42" height="44">
+        <defs><style>.cls-1,.cls-2{fill:#4cbf56;stroke:#45993d;stroke-linecap:round;stroke-linejoin:round;}.cls-2{stroke-width:1.5px;}</style></defs>
+        <path class="cls-1" d="M.75,2A6.44,6.44,0,0,1,8.44,2h0a6.44,6.44,0,0,0,7.69,0V12.4a6.44,6.44,0,0,1-7.69,0h0a6.44,6.44,0,0,0-7.69,0"/>
+        <line class="cls-2" x1="0.75" y1="16.75" x2="0.75" y2="0.75"/>
+      </svg>
     </div>
-  </header>
-<!-- FOXURL EMBEDDED SEARCH WIDGET -->
-<div id="foxurl-search-widget" style="max-width:500px;margin:20px auto;font-family:sans-serif;">
-  <input id="foxurl-search-input" type="text" placeholder="Search…" 
-    style="width:100%;padding:12px;border:2px solid orange;border-radius:10px;font-size:16px;outline:none;transition:0.2s;">
-  <div id="foxurl-search-results" style="margin-top:12px;"></div>
-</div>
+  </div>
 
-<script>
-(async () => {
-  const input = document.getElementById("foxurl-search-input");
-  const resultsBox = document.getElementById("foxurl-search-results");
-
-  // Load your layout.json
-  let pages = [];
-  try {
-    const res = await fetch("layout.json");
-    pages = await res.json();
-  } catch (e) {
-    resultsBox.innerHTML = "<p style='color:red;'>Could not load layout.json</p>";
-  }
-
-  let selectedIndex = -1;
-
-  function renderResults(query) {
-    resultsBox.innerHTML = "";
-    selectedIndex = -1;
-    if (!query.trim()) return;
-
-    const q = query.toLowerCase();
-    const matches = pages.filter(p =>
-      p.name.toLowerCase().includes(q) ||
-      p.description.toLowerCase().includes(q) ||
-      (p.tags || []).some(tag => tag.toLowerCase().includes(q))
-    ).slice(0, 7);
-
-    matches.forEach((p, i) => {
-      const item = document.createElement("div");
-      item.className = "result-item";
-      item.style = `
-        padding:10px;
-        border:1px solid #ffa64d;
-        border-radius:10px;
-        margin-bottom:10px;
-        cursor:pointer;
-        background:#fff6ec;
-        transition:0.15s;
-      `;
-
-      item.innerHTML = `
-        <strong style="color:#ff7a00;">${p.name}</strong><br>
-        <span style="font-size:14px;">${p.description}</span><br>
-        <div style="margin-top:4px;">
-          ${(p.tags || []).map(t => `<span style="
-            display:inline-block;
-            background:#ffddbf;
-            color:#c45a00;
-            padding:3px 8px;
-            margin-right:4px;
-            border-radius:6px;
-            font-size:12px;
-          ">${t}</span>`).join("")}
-        </div>
-      `;
-
-      item.addEventListener("click", () => window.location = p.link);
-      resultsBox.appendChild(item);
-    });
-  }
-
-  input.addEventListener("input", () => renderResults(input.value));
-
-  // Keyboard navigation
-  input.addEventListener("keydown", e => {
-    const items = [...document.querySelectorAll("#foxurl-search-results .result-item")];
-    if (items.length === 0) return;
-
-    if (e.key === "ArrowDown") {
-      selectedIndex = Math.min(selectedIndex + 1, items.length - 1);
-      updateHighlight(items);
-      e.preventDefault();
-    }
-    if (e.key === "ArrowUp") {
-      selectedIndex = Math.max(selectedIndex - 1, 0);
-      updateHighlight(items);
-      e.preventDefault();
-    }
-    if (e.key === "Enter" && selectedIndex >= 0) {
-      items[selectedIndex].click();
-    }
-  });
-
-  function updateHighlight(items) {
-    items.forEach((it, idx) => {
-      it.style.background = idx === selectedIndex ? "#ffe0c2" : "#fff6ec";
-      it.style.transform = idx === selectedIndex ? "scale(1.02)" : "scale(1)";
-    });
-  }
-})();
-</script>
-
-
-  <!-- Main Content -->
-  <main id="main">
-    <section class="content">
-      <h2>Welcome to FoxURL</h2>
-      <p>
-        At FoxURL, we believe in creating smarter, faster, and more connected experiences.
-        Whether you're sharing links, innovating online, or exploring digital creativity —
-        FoxURL helps you make every connection matter.
-      </p>
-    </section>
-
-    <!-- Explore Section -->
-    <section class="content" id="explore">
-      <h2>Explore</h2>
-      <div class="explore-links">
-        <a href="https://foxurl.github.io/apps" class="btn">Apps ⏰</a>
-        <a href="https://foxurl.github.io/contact/foxpower" class="btn">Contact ⚡</a>
-      </div>
-    </section>
-
-    <!-- App iframe -->
-    <iframe id="appFrame" src="" style="display:none;"></iframe>
-
+  <div id="loading" class="screen">
+    <noscript>Enable JavaScript</noscript>
     
-  </main>
+    
+    <div class="progress-bar-outer"><div class="progress-bar-inner" id="loading-inner"></div></div>
+  </div>
 
-  <!-- Sidebar Toggle Button for Mobile -->
-  <button id="sidebarToggle">☰ Explore</button>
-  <aside id="sidebar">
-    <h2> </h2>
-    <h2>Explore</h2>
-    <a href="https://foxurl.github.io/apps" class="sidebar-btn">Apps</a>
-    <a href="https://foxurl.github.io/contact/foxpower" class="sidebar-btn">Contact fox power⚡</a>
-    <a href="https://foxurl.github.io/apps/Cat-feeding" class="sidebar-btn">Cat feeding</a>
-    <a href="https://foxurl.github.io/apps/clock" class="sidebar-btn">Clock</a>
-    <a href="https://foxurl.github.io/apps/internet-speed-test" class="sidebar-btn">internet speed test</a>
-  </aside>
+  <div id="error" class="screen" hidden>
+    <h1>Error</h1>
+    <details>
+      <summary id="error-message"></summary>
+      <p id="error-stack"></p>
+    </details>
+  </div>
 
+  <script src="script.js"></script>
   <script>
-    // Open app in iframe
-    function openApp(url) {
-      const iframe = document.getElementById('appFrame');
-      iframe.src = url;
-      iframe.style.display = 'block';
-      iframe.scrollIntoView({behavior: 'smooth'});
-    }
+    const appElement = document.getElementById('app');
+    const launchScreen = document.getElementById('launch');
+    const loadingScreen = document.getElementById('loading');
+    const loadingInner = document.getElementById('loading-inner');
+    const errorScreen = document.getElementById('error');
+    const errorScreenMessage = document.getElementById('error-message');
+    const errorScreenStack = document.getElementById('error-stack');
 
-    // Scroll to contact
-    function scrollToContact() {
-      const contact = document.getElementById('contact');
-      contact.scrollIntoView({behavior: 'smooth'});
-    }
+    const handleError = (error) => {
+      console.error(error);
+      if (!errorScreen.hidden) return;
+      errorScreen.hidden = false;
+      errorScreenMessage.textContent = '' + error;
+      let debug = error && error.stack || 'no stack';
+      debug += '\nUser agent: ' + navigator.userAgent;
+      errorScreenStack.textContent = debug;
+    };
+    const setProgress = (progress) => {
+      if (loadingInner) loadingInner.style.width = progress * 100 + '%';
+    };
+    const interpolate = (a, b, t) => a + t * (b - a);
 
-    // Sidebar toggle for mobile
-    const sidebar = document.getElementById('sidebar');
-    const toggle = document.getElementById('sidebarToggle');
-    toggle.addEventListener('click', () => {
-      sidebar.classList.toggle('active');
-    });
+    try {
+      setProgress(0.1);
+
+      const scaffolding = new Scaffolding.Scaffolding();
+      scaffolding.width = 480;
+      scaffolding.height = 360;
+      scaffolding.resizeMode = "preserve-ratio";
+      scaffolding.editableLists = false;
+      scaffolding.usePackagedRuntime = true;
+      scaffolding.setup();
+      scaffolding.appendTo(appElement);
+
+      const vm = scaffolding.vm;
+      window.scaffolding = scaffolding;
+      window.vm = scaffolding.vm;
+      window.Scratch = {
+        vm,
+        renderer: vm.renderer,
+        audioEngine: vm.runtime.audioEngine,
+        bitmapAdapter: vm.runtime.v2BitmapAdapter,
+        videoProvider: vm.runtime.ioDevices.video.provider
+      };
+
+      scaffolding.setUsername("player####".replace(/#/g, () => Math.floor(Math.random() * 10)));
+      scaffolding.setAccentColor("#ff4c4c");
+
+      try {
+        scaffolding.addCloudProvider(new Scaffolding.Cloud.WebSocketProvider(["wss://clouddata.turbowarp.org","wss://clouddata.turbowarp.xyz"], "p4-@number to binary.sb3"));
+      } catch (error) {
+        console.error(error);
+      }
+
+      vm.setTurboMode(false);
+      if (vm.setInterpolation) vm.setInterpolation(false);
+      if (vm.setFramerate) vm.setFramerate(30);
+      if (vm.renderer.setUseHighQualityRender) vm.renderer.setUseHighQualityRender(false);
+      if (vm.setRuntimeOptions) vm.setRuntimeOptions({
+        fencing: true,
+        miscLimits: true,
+        maxClones: 300,
+      });
+      if (vm.setCompilerOptions) vm.setCompilerOptions({
+        enabled: true,
+        warpTimer: false
+      });
+      if (vm.renderer.setMaxTextureDimension) vm.renderer.setMaxTextureDimension(2048);
+
+      // enforcePrivacy threat model only makes sense in the editor
+      if (vm.runtime.setEnforcePrivacy) vm.runtime.setEnforcePrivacy(false);
+
+      if (typeof ScaffoldingAddons !== 'undefined') {
+        ScaffoldingAddons.run(scaffolding, {"gamepad":false,"pointerlock":false,"specialCloudBehaviors":false,"unsafeCloudBehaviors":false,"pause":false});
+      }
+
+      scaffolding.setExtensionSecurityManager({
+        getSandboxMode: () => 'unsandboxed',
+        canLoadExtensionFromProject: () => true
+      });
+      for (const extension of []) {
+        vm.extensionManager.loadExtensionURL(extension);
+      }
+
+    } catch (e) {
+      handleError(e);
+    }
   </script>
-
+  
+  
+    <script>
+      const getProjectData = (function() {
+        const storage = scaffolding.storage;
+        storage.onprogress = (total, loaded) => {
+          setProgress(interpolate(0.2, 0.98, loaded / total));
+        };
+        
+        storage.addWebStore(
+          [
+            storage.AssetType.ImageVector,
+            storage.AssetType.ImageBitmap,
+            storage.AssetType.Sound,
+            storage.AssetType.Font
+          ].filter(i => i),
+          (asset) => new URL('./assets/' + asset.assetId + '.' + asset.dataFormat, location).href
+        );
+        return () => new Promise((resolve, reject) => {
+        const xhr = new XMLHttpRequest();
+        xhr.onload = () => {
+          resolve(xhr.response);
+        };
+        xhr.onerror = () => {
+          if (location.protocol === 'file:') {
+            reject(new Error('Zip environment must be used on a website, not on a local file. To fix this error, use the "Plain HTML" environment instead.'));
+          } else {
+            reject(new Error('Request to load project data failed.'));
+          }
+        };
+        xhr.onprogress = (e) => {
+          if (e.lengthComputable) {
+            setProgress(interpolate(0.1, 0.2, e.loaded / e.total));
+          }
+        };
+        xhr.responseType = 'arraybuffer';
+        xhr.open('GET', "./assets/project.json");
+        xhr.send();
+      });
+      })();
+    </script>
+  <script>
+    const run = async () => {
+      const projectData = await getProjectData();
+      await scaffolding.loadProject(projectData);
+      setProgress(1);
+      loadingScreen.hidden = true;
+      if (false) {
+        scaffolding.start();
+      } else {
+        launchScreen.hidden = false;
+        launchScreen.addEventListener('click', () => {
+          launchScreen.hidden = true;
+          scaffolding.start();
+        });
+        launchScreen.focus();
+      }
+    };
+    run().catch(handleError);
+  </script>
 </body>
 </html>
