@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sign in</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    body {
+      background:#0e0f14;
+      color:white;
+      font-family:system-ui;
+      display:flex;
+      justify-content:center;
+      align-items:center;
+      height:100vh;
+    }
+    .box {
+      background:#161824;
+      padding:24px;
+      border-radius:16px;
+      width:100%;
+      max-width:320px;
+    }
+    input, button {
+      width:100%;
+      padding:10px;
+      margin-top:10px;
+      border-radius:8px;
+      border:none;
+    }
+    button {
+      background:#6b8cff;
+      color:white;
+      font-weight:bold;
+      cursor:pointer;
+    }
+    .error {
+      color:#ff6b6b;
+      margin-top:10px;
+      font-size:13px;
+    }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>Private site</h2>
+    <p>Please sign in</p>
+
+    <input id="user" placeholder="Username">
+    <input id="pass" type="password" placeholder="Password">
+    <button onclick="login()">Sign in</button>
+
+    <div id="error" class="error"></div>
+  </div>
+
+  <script>
+    const params = new URLSearchParams(location.search);
+    const loopback = params.get("loopback") || "/";
+
+    async function login() {
+      const u = user.value;
+      const p = pass.value;
+
+      const res = await fetch("https://foxurl.github.io/security/users.json");
+      const data = await res.json();
+
+      const ok = data.users.find(x => x.username === u && x.password === p);
+
+      if (!ok) {
+        error.textContent = "Invalid login";
+        return;
+      }
+
+      // store session
+      localStorage.setItem("CAT_AUTH", JSON.stringify({
+        user: u,
+        time: Date.now()
+      }));
+
+      location.href = loopback;
+    }
+  </script>
+</body>
+</html>
