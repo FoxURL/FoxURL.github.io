@@ -2,84 +2,140 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Sign in</title>
+  <title>Sign in – CatURL</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
+    /* Global styles */
+    * { box-sizing: border-box; margin:0; padding:0; }
     body {
-      background:#0e0f14;
-      color:white;
-      font-family:system-ui;
-      display:flex;
-      justify-content:center;
-      align-items:center;
-      height:100vh;
+      font-family: 'Roboto', Arial, sans-serif;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+      background: #f2f2f2;
+      color: #202124;
     }
-    .box {
-      background:#161824;
-      padding:24px;
-      border-radius:16px;
-      width:100%;
-      max-width:320px;
+
+    /* Card container */
+    .login-card {
+      background: #fff;
+      padding: 40px 32px;
+      border-radius: 8px;
+      width: 100%;
+      max-width: 360px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      text-align: center;
     }
-    input, button {
-      width:100%;
-      padding:10px;
-      margin-top:10px;
-      border-radius:8px;
-      border:none;
+
+    /* CatURL logo (placeholder) */
+    .logo {
+      font-size: 32px;
+      font-weight: bold;
+      color: #6b8cff;
+      margin-bottom: 24px;
     }
+
+    h1 {
+      font-size: 24px;
+      font-weight: 400;
+      margin-bottom: 32px;
+    }
+
+    /* Input fields */
+    input {
+      width: 100%;
+      padding: 14px 12px;
+      margin-bottom: 16px;
+      font-size: 16px;
+      border: 1px solid #dadce0;
+      border-radius: 4px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: #4285f4;
+      box-shadow: 0 1px 6px rgba(66,133,244,0.3);
+    }
+
+    /* Sign in button */
     button {
-      background:#6b8cff;
-      color:white;
-      font-weight:bold;
-      cursor:pointer;
+      width: 100%;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: 500;
+      color: #fff;
+      background-color: #4285f4;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: background-color 0.2s;
     }
+
+    button:hover {
+      background-color: #357ae8;
+    }
+
     .error {
-      color:#ff6b6b;
-      margin-top:10px;
-      font-size:13px;
+      color: #d93025;
+      font-size: 13px;
+      margin-top: 8px;
+    }
+
+    /* Optional footer / help */
+    .footer {
+      margin-top: 32px;
+      font-size: 12px;
+      color: #5f6368;
     }
   </style>
 </head>
 <body>
-  <div class="box">
-    <h2>Private site</h2>
-    <p>Please sign in</p>
+  <div class="login-card">
+    <div class="logo">CatURL</div>
+    <h1>Sign in</h1>
 
-    <input id="user" placeholder="Username">
+    <input id="user" type="text" placeholder="Username">
     <input id="pass" type="password" placeholder="Password">
-    <button onclick="login()">Sign in</button>
+    <button id="loginBtn">Next</button>
 
     <div id="error" class="error"></div>
+
+    <div class="footer">© CatCORP</div>
   </div>
 
   <script>
     const params = new URLSearchParams(location.search);
     const loopback = params.get("loopback") || "/";
 
-    async function login() {
-      const u = user.value;
-      const p = pass.value;
+    document.getElementById("loginBtn").addEventListener("click", async () => {
+      const u = document.getElementById("user").value;
+      const p = document.getElementById("pass").value;
 
-      const res = await fetch("https://foxurl.github.io/security/users.json");
-      const data = await res.json();
+      try {
+        const res = await fetch("https://foxurl.github.io/security/users.json");
+        const data = await res.json();
 
-      const ok = data.users.find(x => x.username === u && x.password === p);
+        const ok = data.users.find(x => x.username === u && x.password === p);
 
-      if (!ok) {
-        error.textContent = "Invalid login";
-        return;
+        if (!ok) {
+          document.getElementById("error").textContent = "Incorrect username or password";
+          return;
+        }
+
+        localStorage.setItem("CAT_AUTH", JSON.stringify({
+          user: u,
+          time: Date.now()
+        }));
+
+        window.location.href = loopback;
+      } catch (err) {
+        console.error(err);
+        document.getElementById("error").textContent = "Login failed. Try again.";
       }
-
-      // store session
-      localStorage.setItem("CAT_AUTH", JSON.stringify({
-        user: u,
-        time: Date.now()
-      }));
-
-      location.href = loopback;
-    }
+    });
   </script>
 </body>
 </html>
