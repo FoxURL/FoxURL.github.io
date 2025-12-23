@@ -6,7 +6,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 
   <style>
-    /* Global styles */
     * { box-sizing: border-box; margin:0; padding:0; }
     body {
       font-family: 'Roboto', Arial, sans-serif;
@@ -17,8 +16,6 @@
       background: #f2f2f2;
       color: #202124;
     }
-
-    /* Card container */
     .login-card {
       background: #fff;
       padding: 40px 32px;
@@ -28,22 +25,8 @@
       box-shadow: 0 4px 20px rgba(0,0,0,0.1);
       text-align: center;
     }
-
-    /* CatURL logo (placeholder) */
-    .logo {
-      font-size: 32px;
-      font-weight: bold;
-      color: #6b8cff;
-      margin-bottom: 24px;
-    }
-
-    h1 {
-      font-size: 24px;
-      font-weight: 400;
-      margin-bottom: 32px;
-    }
-
-    /* Input fields */
+    .logo { font-size: 32px; font-weight: bold; color: #6b8cff; margin-bottom: 24px; }
+    h1 { font-size: 24px; font-weight: 400; margin-bottom: 32px; }
     input {
       width: 100%;
       padding: 14px 12px;
@@ -53,14 +36,11 @@
       border-radius: 4px;
       transition: border-color 0.2s, box-shadow 0.2s;
     }
-
     input:focus {
       outline: none;
       border-color: #4285f4;
       box-shadow: 0 1px 6px rgba(66,133,244,0.3);
     }
-
-    /* Sign in button */
     button {
       width: 100%;
       padding: 12px;
@@ -73,23 +53,9 @@
       cursor: pointer;
       transition: background-color 0.2s;
     }
-
-    button:hover {
-      background-color: #357ae8;
-    }
-
-    .error {
-      color: #d93025;
-      font-size: 13px;
-      margin-top: 8px;
-    }
-
-    /* Optional footer / help */
-    .footer {
-      margin-top: 32px;
-      font-size: 12px;
-      color: #5f6368;
-    }
+    button:hover { background-color: #357ae8; }
+    .error { color: #d93025; font-size: 13px; margin-top: 8px; }
+    .footer { margin-top: 32px; font-size: 12px; color: #5f6368; }
   </style>
 </head>
 <body>
@@ -102,7 +68,6 @@
     <button id="loginBtn">Next</button>
 
     <div id="error" class="error"></div>
-
     <div class="footer">© CatCORP</div>
   </div>
 
@@ -110,12 +75,16 @@
     const params = new URLSearchParams(location.search);
     const loopback = params.get("loopback") || "/";
 
-    document.getElementById("loginBtn").addEventListener("click", async () => {
+    const loginBtn = document.getElementById("loginBtn");
+
+    loginBtn.addEventListener("click", async () => {
       const u = document.getElementById("user").value;
       const p = document.getElementById("pass").value;
 
       try {
-        const res = await fetch("https://foxurl.github.io/security/users.json");
+        // Use raw GitHub URL for JSON
+        const res = await fetch("https://raw.githubusercontent.com/FoxURL/FoxURL.github.io/main/security/users.json");
+        if (!res.ok) throw new Error(`HTTP error ${res.status}`);
         const data = await res.json();
 
         const ok = data.users.find(x => x.username === u && x.password === p);
@@ -125,15 +94,18 @@
           return;
         }
 
+        // Store session
         localStorage.setItem("CAT_AUTH", JSON.stringify({
           user: u,
           time: Date.now()
         }));
 
+        // Redirect back to loopback
         window.location.href = loopback;
+
       } catch (err) {
-        console.error(err);
-        document.getElementById("error").textContent = "Login failed. Try again.";
+        console.error("Login fetch error:", err);
+        document.getElementById("error").textContent = "Login failed. Check console.";
       }
     });
   </script>
