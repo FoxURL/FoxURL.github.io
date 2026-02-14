@@ -8,6 +8,11 @@ if (localStorage.getItem("SignedIn") === null) {
   localStorage.setItem("SignedIn", "false");
 }
 
+function showError(msg) {
+  const box = document.getElementById("errorBox");
+  if (box) box.textContent = msg;
+}
+
 document.addEventListener("DOMContentLoaded", () => {
   const usernameInput = document.getElementById("username");
   const passwordInput = document.getElementById("password");
@@ -19,21 +24,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const siteSub = document.getElementById("siteSub");
   const welcomeTitle = document.getElementById("welcomeTitle");
   const welcomeSubtitle = document.getElementById("welcomeSubtitle");
+  const quickInfo = document.getElementById("quickInfo");
 
-  // Collect creatures
   document.querySelectorAll(".creature").forEach(c => creatures.push(c));
 
-  // Load site + user from JSON based on ?source=
-  initSiteAndUser(siteNameHeading, siteSub, welcomeTitle, welcomeSubtitle);
+  initSiteAndUser(siteNameHeading, siteSub, welcomeTitle, welcomeSubtitle, quickInfo);
 
-  // Toggle password visibility + shy reaction
   toggleBtn.addEventListener("click", () => {
     const isPassword = passwordInput.type === "password";
     passwordInput.type = isPassword ? "text" : "password";
     toggleBtn.classList.toggle("closed", isPassword);
 
     if (isPassword) {
-      // Going from hidden → visible: slimes get shy
       creatures.forEach(creature => {
         creature.classList.add("shy", "mouth-flat");
         creature.classList.remove("mouth-squiggle");
@@ -45,14 +47,12 @@ document.addEventListener("DOMContentLoaded", () => {
         });
       }, 1200);
     } else {
-      // Back to hidden: restore smile
       creatures.forEach(creature => {
         creature.classList.remove("shy", "mouth-flat", "mouth-squiggle");
       });
     }
   });
 
-  // Enable button only when both fields filled
   function updateButtonState() {
     const filled =
       usernameInput.value.trim() !== "" &&
@@ -62,7 +62,6 @@ document.addEventListener("DOMContentLoaded", () => {
   usernameInput.addEventListener("input", updateButtonState);
   passwordInput.addEventListener("input", updateButtonState);
 
-  // Custom red error highlight on empty required fields
   [usernameInput, passwordInput].forEach(input => {
     input.addEventListener("blur", () => {
       if (input.value.trim() === "") {
@@ -79,7 +78,6 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   });
 
-  // Handle submit: exact match required
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -87,7 +85,8 @@ document.addEventListener("DOMContentLoaded", () => {
     const passVal = passwordInput.value.trim();
 
     if (!currentUser || !currentSite) {
-      invalidAnimation(usernameInput, passwordInput);
+      showError("Site or user not found.");
+      invalidAnimation();
       return;
     }
 
@@ -95,16 +94,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const passMatch = passVal === currentUser.password;
 
     if (!userMatch || !passMatch) {
-      invalidAnimation(usernameInput, passwordInput);
+      showError("Incorrect username or password.");
+      invalidAnimation();
       return;
     }
 
-    // Success
     localStorage.setItem("SignedIn", currentUser.ID);
     window.location.href = currentSite.URL;
   });
 
-  // Creature engine
   initCreatures();
   initCursorTracking();
   initBlinking();
@@ -112,8 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
   initTypingReactions(usernameInput, passwordInput);
 });
 
-// --- JSON LOADING & SITE/USER RESOLUTION ---
-async function initSiteAndUser(siteNameHeading, siteSub, welcomeTitle, welcomeSubtitle) {
+// --- JSON LOADING ---
+async function initSiteAndUser(siteNameHeading, siteSub, welcomeTitle, welcomeSubtitle, quickInfo) {
   try {
     const params = new URLSearchParams(window.location.search);
     const source = params.get("q");
@@ -124,48 +122,47 @@ async function initSiteAndUser(siteNameHeading, siteSub, welcomeTitle, welcomeSu
     ]);
 
     if (!Array.isArray(sites) || !Array.isArray(users)) {
-      console.warn("site.json or details.json is not an array.");
+      showError("Login data is not formatted correctly.");
       return;
     }
 
     const site = sites.find(s => String(s.ID) === String(source));
     if (!site) {
-      console.warn("No site found for source:", source);
-      siteNameHeading.textContent = "Sign in";
-      siteSub.textContent = "to continue";
-      welcomeSubtitle.textContent = "";
+      showError("Invalid site ID.");
       return;
     }
 
     const ownerUser = users.find(u => String(u.ID) === String(site.owner));
     if (!ownerUser) {
-      console.warn("No owner user found for site:", site);
+      showError("Owner user not found.");
       return;
     }
 
     currentSite = site;
     currentUser = ownerUser;
 
-    // Update UI
-    siteNameHeading.textContent = `Sign in to ${site.name || "this site"}`;
-    siteSub.textContent = `to continue to ${site.name || site.URL || "your site"}`;
+    siteNameHeading.textContent = `Sign in with FoxURL`;
+    siteSub.textContent = `to continue to ${site.name || site.URL || "this site"}`;
+
     welcomeTitle.textContent = `Welcome back`;
     welcomeSubtitle.textContent = ownerUser.nickname
       ? `Signing in as ${ownerUser.nickname}`
-      : `Signing in to ${site.name || site.URL}`;
+      : `Signing in`;
+
+    if (quickInfo) {
+      quickInfo.textContent = `Account: ${ownerUser.username} (${ownerUser.nickname})`;
+    }
+
   } catch (err) {
-    console.error("Error loading site or details JSON:", err);
+    showError("Failed to load login data.");
+    console.error(err);
   }
 }
 
 // --- INVALID ANIMATION ---
-function invalidAnimation(usernameInput, passwordInput) {
-  if (usernameInput.value.trim() === "") usernameInput.classList.add("error");
-  if (passwordInput.value.trim() === "") passwordInput.classList.add("error");
-
+function invalidAnimation() {
   creatures.forEach(creature => {
     creature.classList.add("invalid", "mouth-squiggle");
-    creature.classList.remove("mouth-flat");
   });
 
   setTimeout(() => {
@@ -177,7 +174,6 @@ function invalidAnimation(usernameInput, passwordInput) {
 
 // --- CREATURE ENGINE ---
 
-// Entrance animation
 function initCreatures() {
   creatures.forEach((creature, index) => {
     const delay = 150 * index;
@@ -187,7 +183,6 @@ function initCreatures() {
   });
 }
 
-// Cursor tracking: lean + slight move toward cursor + pupil tracking
 function initCursorTracking() {
   document.addEventListener("mousemove", (e) => {
     creatures.forEach(creature => {
@@ -200,7 +195,6 @@ function initCursorTracking() {
       const dx = (e.clientX - cx);
       const dy = (e.clientY - cy);
 
-      // Approach factor: how much they move toward cursor
       let approachFactor = 90;
       if (type === "small") approachFactor = 70;
       if (type === "wide") approachFactor = 110;
@@ -208,7 +202,6 @@ function initCursorTracking() {
       const moveX = dx / approachFactor;
       const moveY = dy / approachFactor;
 
-      // Lean factor
       let leanX = dx / 80;
       let stretchY = 1 - Math.min(Math.max(dy * 0.0008, -0.08), 0.08);
       let stretchX = 1 + Math.min(Math.max(dy * 0.0008, -0.08), 0.08);
@@ -229,7 +222,6 @@ function initCursorTracking() {
       body.style.transform =
         `translate(${moveX + leanX}px, ${moveY * 1.1}px) scale(${stretchX}, ${stretchY})`;
 
-      // Pupil tracking
       const eyes = creature.querySelectorAll(".eye");
       eyes.forEach(eye => {
         const pupil = eye.querySelector(".pupil");
@@ -250,7 +242,6 @@ function initCursorTracking() {
   });
 }
 
-// Blinking system
 function scheduleBlink(eye, min = 3000, max = 8000) {
   const eyelid = eye.querySelector(".eyelid");
   if (!eyelid) return;
@@ -279,23 +270,18 @@ function initBlinking() {
   });
 }
 
-// Idle stretch / look-around micro-movements
 function initIdleStretch() {
   creatures.forEach(creature => {
     const body = creature.querySelector(".creature-body");
-    let baseScaleX = 1;
-    let baseScaleY = 1;
 
     function randomStretch() {
       const sx = 1 + (Math.random() - 0.5) * 0.06;
       const sy = 1 + (Math.random() - 0.5) * 0.06;
-      baseScaleX = sx;
-      baseScaleY = sy;
 
       body.style.transition = "transform 0.4s ease-in-out";
       const current = body.style.transform || "";
-      // We don't try to parse existing transform here; cursor tracking overwrites frequently.
-      // This just gives occasional subtle pulses when cursor is idle.
+      body.style.transform = current + ` scale(${sx}, ${sy})`;
+
       setTimeout(() => {
         body.style.transition = "";
       }, 420);
@@ -308,7 +294,6 @@ function initIdleStretch() {
   });
 }
 
-// React to typing (subtle)
 function initTypingReactions(usernameInput, passwordInput) {
   function creaturesReact(type) {
     creatures.forEach(creature => {
