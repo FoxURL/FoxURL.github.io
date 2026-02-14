@@ -406,3 +406,6 @@ button:disabled {
     max-width: 380px;
   }
 }
+.left-space {
+  min-height: 100vh;
+}
