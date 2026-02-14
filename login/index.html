@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FoxURL – Sign in</title>
+<link rel="icon" href="favicon.png">
+
+<style>
+* {
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Roboto, Arial, sans-serif;
+    background: #ffffff; /* white background */
+    height: 100vh;
+    display: flex;
+    overflow: hidden;
+    color: #333;
+}
+
+/* Layout */
+.left-space {
+    width: 60%;
+    display: flex;
+    justify-content: flex-start;
+    align-items: flex-start;
+    padding-left: 40px;
+    padding-top: 60px;
+    position: relative;
+}
+
+.login-area {
+    width: 35%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.right-space { width: 5%; }
+
+/* Welcome text */
+.welcome-box {
+    text-align: left;
+    color: #333;
+    max-width: 400px;
+    z-index: 3;
+}
+
+.welcome-box h1 {
+    margin: 0;
+    font-size: 48px;
+    font-weight: 700;
+    color: #ff8a3d;
+    text-shadow: 0 0 12px rgba(255,138,61,0.4);
+}
+
+/* Glow background accent */
+.left-space::before {
+    content: "";
+    position: absolute;
+    left: -80px;
+    top: 120px;
+    width: 420px;
+    height: 420px;
+    background: radial-gradient(circle, rgba(255,138,61,0.18), transparent 70%);
+    filter: blur(4px);
+    z-index: 1;
+}
+
+/* CREATURES */
+.creature {
+    position: absolute;
+    bottom: 0;
+    transform-origin: bottom center;
+    opacity: 0;
+    z-index: 2;
+}
+
+/* Slime body base */
+.creature-body {
+    position: relative;
+    border-radius: 50%;
+    box-shadow:
+        0 0 18px rgba(255,138,61,0.6),
+        0 0 40px rgba(0,0,0,0.08);
+    transition: transform 0.15s ease-out;
+    overflow: hidden;
+}
+
+/* Individual colors */
+.creature[data-type="tall"] .creature-body {
+    background: radial-gradient(circle at 30% 20%, #ffd2a3, #ff8a3d 40%, #ff6a00 80%);
+}
+.creature[data-type="wide"] .creature-body {
+    background: radial-gradient(circle at 30% 20%, #fff6b8, #ffe066 40%, #ffcc33 80%);
+}
+.creature[data-type="small"] .creature-body {
+    background: radial-gradient(circle at 30% 20%, #ffd0ea, #ff66b3 40%, #ff3385 80%);
+}
+
+/* Subtle breathing */
+@keyframes breathe {
+    0%   { transform: scale(1, 1); }
+    50%  { transform: scale(1.02, 0.98); }
+    100% { transform: scale(1, 1); }
+}
+
+.creature-body.breathe {
+    animation: breathe 4s ease-in-out infinite;
+}
+
+/* Eyes */
+.eye {
+    position: absolute;
+    width: 38px;
+    height: 38px;
+    background: #ffffff;
+    border-radius: 50%;
+    overflow: hidden;
+    box-shadow: 0 0 6px rgba(0,0,0,0.25);
+}
+
+.pupil {
+    width: 18px;
+    height: 18px;
+    background: #050608;
+    border-radius: 50%;
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    transition: transform 0.08s linear;
+}
+
+/* Eyelid (for blinking) */
+.eyelid {
+    position: absolute;
+    left: 0;
+    top: -100%;
+    width: 100%;
+    height: 100%;
+    background: rgba(255,181,122,0.9);
+    border-bottom-left-radius: 50%;
+    border-bottom-right-radius: 50%;
+    transition: transform 0.12s ease-in-out;
+    transform: translateY(0);
+}
+
+.eye.blinking .eyelid {
+    transform: translateY(100%);
+}
+
+/* Mouth (SVG) */
+.mouth {
+    position: absolute;
+    width: 46px;
+    height: 22px;
+    left: 50%;
+    transform: translateX(-50%);
+    bottom: 26px;
+}
+
+/* Mouth paths visibility */
+.mouth path {
+    fill: none;
+    stroke: #4a2b1a;
+    stroke-width: 2.2;
+    stroke-linecap: round;
+    opacity: 0;
+    transition: opacity 0.15s ease;
+}
+
+.mouth-smile { opacity: 1; }   /* default */
+
+/* States controlled via classes on .creature */
+.creature.mouth-flat .mouth-smile { opacity: 0; }
+.creature.mouth-flat .mouth-flat-path { opacity: 1; }
+
+.creature.mouth-squiggle .mouth-smile { opacity: 0; }
+.creature.mouth-squiggle .mouth-squiggle-path { opacity: 1; }
+
+/* Entrance animation */
+@keyframes creatureEnter {
+    0%   { transform: translateY(260px) scale(0.6); opacity: 0; }
+    60%  { transform: translateY(-18px) scale(1.08, 0.92); opacity: 1; }
+    100% { transform: translateY(0) scale(1); opacity: 1; }
+}
+
+/* Shy turn (password reveal) */
+.creature.shy .creature-body {
+    transform: rotate(-18deg) translateX(-6px) scale(0.98,1.02);
+}
+
+/* Invalid wiggle */
+@keyframes invalidWiggle {
+    0%   { transform: translateX(0); }
+    25%  { transform: translateX(-4px); }
+    50%  { transform: translateX(4px); }
+    75%  { transform: translateX(-3px); }
+    100% { transform: translateX(0); }
+}
+
+.creature.invalid .creature-body {
+    animation: invalidWiggle 0.25s ease;
+}
+
+/* Card */
+.card {
+    background: #ffffff;
+    width: 380px;
+    padding: 35px;
+    border-radius: 16px;
+    box-shadow:
+        0 8px 25px rgba(0,0,0,0.12),
+        0 0 8px rgba(0,0,0,0.06);
+    border: 1px solid rgba(0,0,0,0.06);
+}
+
+.logo {
+    display: block;
+    margin: 0 auto 20px auto;
+    width: 75px;
+}
+
+h2 {
+    text-align: center;
+    margin: 0 0 5px 0;
+    font-weight: 500;
+    color: #222;
+}
+
+.sub {
+    text-align: center;
+    font-size: 14px;
+    color: #777;
+    margin-bottom: 25px;
+}
+
+/* Inputs */
+.input-group {
+    position: relative;
+    margin-bottom: 22px;
+}
+
+.input-group input {
+    width: 100%;
+    padding: 12px 45px 12px 12px;
+    font-size: 15px;
+    border: 1px solid #d0d0d0;
+    background: #ffffff;
+    color: #333;
+    border-radius: 6px;
+    outline: none;
+    transition: 0.25s ease;
+}
+
+/* Floating labels */
+.input-group label {
+    position: absolute;
+    left: 12px;
+    top: 12px;
+    color: #777;
+    font-size: 15px;
+    transition: 0.25s ease;
+    background: #ffffff;
+    padding: 0 4px;
+    cursor: text;
+}
+
+/* Neon focus */
+.input-group input:focus {
+    border: 1px solid #ff8a3d;
+    box-shadow:
+        0 0 6px rgba(255,138,61,0.6),
+        0 0 12px rgba(255,106,0,0.4);
+    animation: neonFlash 0.4s ease;
+}
+
+.input-group input:focus + label,
+.input-group input:not(:placeholder-shown) + label {
+    top: -8px;
+    font-size: 11px;
+    color: #ff8a3d;
+}
+
+/* Error state */
+.input-group input.error {
+    border: 1px solid #ff3b30 !important;
+    box-shadow: 0 0 8px rgba(255, 59, 48, 0.5) !important;
+}
+
+/* Eye container for password toggle */
+.toggle-password {
+    position: absolute;
+    right: 12px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 24px;
+    height: 24px;
+    cursor: pointer;
+}
+
+.eye-svg {
+    width: 100%;
+    height: 100%;
+}
+
+.eyelid-icon {
+    fill: #ffffff;
+    transform-origin: top;
+    transform: translateY(-100%);
+    transition: transform 0.25s ease-in-out;
+}
+
+.closed .eyelid-icon {
+    transform: translateY(0);
+}
+
+/* Button */
+button {
+    background: linear-gradient(135deg, #ff8a3d, #ff6a00);
+    color: white;
+    border: none;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s ease;
+    box-shadow:
+        0 0 10px rgba(255,138,61,0.7),
+        0 0 20px rgba(255,106,0,0.5);
+}
+
+button:hover:enabled {
+    background: linear-gradient(135deg, #ff9b57, #ff7f1a);
+    box-shadow:
+        0 0 14px rgba(255,138,61,0.9),
+        0 0 26px rgba(255,106,0,0.7);
+}
+
+button:disabled {
+    opacity: 0.5;
+    cursor: default;
+    box-shadow: none;
+}
+
+/* Neon animation */
+@keyframes neonFlash {
+    0% { box-shadow: 0 0 0px #ff8a3d; }
+    50% {
+        box-shadow:
+            0 0 10px #ff8a3d,
+            0 0 20px rgba(255,106,0,0.5);
+    }
+    100% {
+        box-shadow:
+            0 0 6px #ff8a3d,
+            0 0 14px rgba(255,106,0,0.4);
+    }
+}
+
+/* Mobile responsiveness */
+@media (max-width: 900px) {
+    .left-space, .right-space {
+        display: none;
+    }
+    body {
+        justify-content: center;
+        align-items: center;
+        background: #ffffff;
+    }
+    .login-area {
+        width: 100%;
+    }
+    .card {
+        width: 90%;
+        max-width: 380px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<div class="left-space">
+
+    <!-- CREATURE 1 – Tall, shy, curious (Fox Orange) -->
+    <div class="creature" data-type="tall" style="left: 80px;">
+        <div class="creature-body breathe" style="width: 120px; height: 210px;">
+            <div class="eye" style="top: 70px; left: 26px;">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+            <div class="eye" style="top: 70px; left: 66px;">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+            <svg class="mouth" viewBox="0 0 40 20">
+                <!-- smile -->
+                <path class="mouth-smile" d="M6 9 Q20 18 34 9" />
+                <!-- flat -->
+                <path class="mouth-flat-path" d="M8 12 L32 12" />
+                <!-- squiggle -->
+                <path class="mouth-squiggle-path" d="M6 11 Q10 15 14 11 T22 11 T30 11 T34 11" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- CREATURE 2 – Wide, confident, chill (Neon Yellow) -->
+    <div class="creature" data-type="wide" style="left: 270px;">
+        <div class="creature-body breathe" style="width: 190px; height: 150px;">
+            <div class="eye" style="top: 45px; left: 48px;">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+            <div class="eye" style="top: 45px; left: 100px;">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+            <svg class="mouth" viewBox="0 0 40 20">
+                <path class="mouth-smile" d="M6 9 Q20 18 34 9" />
+                <path class="mouth-flat-path" d="M8 12 L32 12" />
+                <path class="mouth-squiggle-path" d="M6 11 Q10 15 14 11 T22 11 T30 11 T34 11" />
+            </svg>
+        </div>
+    </div>
+
+    <!-- CREATURE 3 – Small, hyper, bouncy (Neon Pink) -->
+    <div class="creature" data-type="small" style="left: 190px;">
+        <div class="creature-body breathe" style="width: 90px; height: 115px;">
+            <div class="eye" style="top: 32px; left: 20px;">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+            <div class="eye" style="top: 32px; left: 46px;">
+                <div class="pupil"></div>
+                <div class="eyelid"></div>
+            </div>
+            <svg class="mouth" viewBox="0 0 40 20">
+                <path class="mouth-smile" d="M6 9 Q20 18 34 9" />
+                <path class="mouth-flat-path" d="M8 12 L32 12" />
+                <path class="mouth-squiggle-path" d="M6 11 Q10 15 14 11 T22 11 T30 11 T34 11" />
+            </svg>
+        </div>
+    </div>
+
+    <div class="welcome-box">
+        <h1>Welcome back</h1>
+    </div>
+</div>
+
+<div class="login-area">
+<div class="card">
+
+<img src="https://FoxURL.github.io/logo.png" alt="FoxURL Logo" class="logo">
+
+<h2>Sign in</h2>
+<div class="sub">to continue to FoxURL</div>
+
+<form id="loginForm" action="/login" method="POST" autocomplete="on" novalidate>
+
+<div class="input-group">
+    <input type="email" name="email" id="email" placeholder=" " required autocomplete="username">
+    <label for="email">Email</label>
+</div>
+
+<div class="input-group">
+    <input type="password" name="password" id="password" placeholder=" " required autocomplete="current-password">
+    <label for="password">Password</label>
+
+    <div class="toggle-password" id="toggleBtn">
+        <svg viewBox="0 0 24 24" class="eye-svg">
+            <path fill="#888"
+                  d="M12 4C7 4 2.7 7.1 1 12c1.7 4.9 6 8 11 8s9.3-3.1 11-8c-1.7-4.9-6-8-11-8zm0 13a5 5 0 1 1 0-10 5 5 0 0 1 0 10z"/>
+            <rect class="eyelid-icon" x="0" y="0" width="24" height="12"/>
+        </svg>
+    </div>
+</div>
+
+<div style="text-align:right;">
+    <button type="submit" id="submitBtn" disabled>Next</button>
+</div>
+
+</form>
+</div>
+</div>
+
+<div class="right-space"></div>
+
+<script>
+const passwordInput = document.getElementById("password");
+const emailInput = document.getElementById("email");
+const toggleBtn = document.getElementById("toggleBtn");
+const submitBtn = document.getElementById("submitBtn");
+const form = document.getElementById("loginForm");
+const creatures = Array.from(document.querySelectorAll(".creature"));
+
+/* Toggle password visibility + shy reaction */
+toggleBtn.addEventListener("click", () => {
+    const isPassword = passwordInput.type === "password";
+    passwordInput.type = isPassword ? "text" : "password";
+    toggleBtn.classList.toggle("closed", isPassword);
+
+    if (isPassword) {
+        // Going from hidden → visible: slimes get shy
+        creatures.forEach(creature => {
+            creature.classList.add("shy", "mouth-flat");
+            creature.classList.remove("mouth-squiggle");
+        });
+
+        setTimeout(() => {
+            creatures.forEach(creature => {
+                creature.classList.remove("shy", "mouth-flat");
+            });
+        }, 1200);
+    } else {
+        // Back to hidden: restore smile
+        creatures.forEach(creature => {
+            creature.classList.remove("shy", "mouth-flat", "mouth-squiggle");
+        });
+    }
+});
+
+/* Enable button only when both fields filled */
+function updateButtonState() {
+    const filled = emailInput.value.trim() !== "" && passwordInput.value.trim() !== "";
+    submitBtn.disabled = !filled;
+}
+emailInput.addEventListener("input", updateButtonState);
+passwordInput.addEventListener("input", updateButtonState);
+
+/* Custom red error highlight on empty required fields */
+document.querySelectorAll("input[required]").forEach(input => {
+    input.addEventListener("blur", () => {
+        if (input.value.trim() === "") {
+            input.classList.add("error");
+        } else {
+            input.classList.remove("error");
+        }
+    });
+
+    input.addEventListener("input", () => {
+        if (input.value.trim() !== "") {
+            input.classList.remove("error");
+        }
+    });
+});
+
+/* Handle submit: require both fields, squiggly mouths on invalid */
+form.addEventListener("submit", (e) => {
+    const emailVal = emailInput.value.trim();
+    const passVal = passwordInput.value.trim();
+
+    if (emailVal === "" || passVal === "") {
+        e.preventDefault();
+
+        // Mark errors
+        if (emailVal === "") emailInput.classList.add("error");
+        if (passVal === "") passwordInput.classList.add("error");
+
+        // Slimes react: squiggly mouths + subtle wiggle
+        creatures.forEach(creature => {
+            creature.classList.add("invalid", "mouth-squiggle");
+            creature.classList.remove("mouth-flat");
+        });
+
+        setTimeout(() => {
+            creatures.forEach(creature => {
+                creature.classList.remove("invalid", "mouth-squiggle");
+            });
+        }, 600);
+    } else {
+        // Here you could let it submit normally or handle via JS
+        // For now, let it submit
+    }
+});
+
+/* CREATURE ENGINE */
+
+/* Entrance animation */
+function initCreatures() {
+    creatures.forEach((creature, index) => {
+        const delay = 150 * index;
+        setTimeout(() => {
+            creature.style.animation = "creatureEnter 0.9s ease-out forwards";
+        }, delay);
+    });
+}
+document.addEventListener("DOMContentLoaded", initCreatures);
+
+/* Cursor tracking: lean + slight move toward cursor + pupil tracking */
+document.addEventListener("mousemove", (e) => {
+    creatures.forEach(creature => {
+        const type = creature.dataset.type;
+        const body = creature.querySelector(".creature-body");
+        const rect = creature.getBoundingClientRect();
+        const cx = rect.left + rect.width / 2;
+        const cy = rect.top + rect.height / 2;
+
+        const dx = (e.clientX - cx);
+        const dy = (e.clientY - cy);
+
+        // Approach factor: how much they move toward cursor
+        let approachFactor = 90;
+        if (type === "small") approachFactor = 70;
+        if (type === "wide") approachFactor = 110;
+
+        const moveX = dx / approachFactor;
+        const moveY = dy / approachFactor;
+
+        // Lean factor
+        let leanX = dx / 80;
+        let stretchY = 1 - Math.min(Math.max(dy * 0.0008, -0.08), 0.08);
+        let stretchX = 1 + Math.min(Math.max(dy * 0.0008, -0.08), 0.08);
+
+        if (type === "tall") {
+            stretchY *= 1.08;
+            stretchX *= 0.96;
+        }
+        if (type === "wide") {
+            stretchX *= 1.06;
+            stretchY *= 0.97;
+        }
+        if (type === "small") {
+            stretchX *= 1.02;
+            stretchY *= 1.02;
+        }
+
+        body.style.transform =
+            `translate(${moveX + leanX}px, ${moveY * 1.1}px) scale(${stretchX}, ${stretchY})`;
+
+        // Pupil tracking
+        const eyes = creature.querySelectorAll(".eye");
+        eyes.forEach(eye => {
+            const pupil = eye.querySelector(".pupil");
+            const er = eye.getBoundingClientRect();
+            const ex = er.left + er.width / 2;
+            const ey = er.top + er.height / 2;
+
+            let px = (e.clientX - ex) / 20;
+            let py = (e.clientY - ey) / 20;
+
+            const limit = 6;
+            px = Math.max(-limit, Math.min(limit, px));
+            py = Math.max(-limit, Math.min(limit, py));
+
+            pupil.style.transform = `translate(${px}px, ${py}px)`;
+        });
+    });
+});
+
+// Blinking system
+function scheduleBlink(eye, min = 3000, max = 8000) {
+    const eyelid = eye.querySelector(".eyelid");
+    if (!eyelid) return;
+
+    const delay = Math.random() * (max - min) + min;
+    setTimeout(() => {
+        eye.classList.add("blinking");
+        setTimeout(() => {
+            eye.classList.remove("blinking");
+            scheduleBlink(eye, min, max);
+        }, 140);
+    }, delay);
+}
+
+document.querySelectorAll(".eye").forEach(eye => {
+    const parentCreature = eye.closest(".creature");
+    const type = parentCreature.dataset.type;
+    if (type === "small") {
+        scheduleBlink(eye, 1500, 4000);
+    } else if (type === "tall") {
+        scheduleBlink(eye, 4000, 9000);
+    } else {
+        scheduleBlink(eye, 2500, 7000);
+    }
+});
+
+// React to typing (subtle)
+function creaturesReact(type) {
+    creatures.forEach(creature => {
+        const cType = creature.dataset.type;
+        const body = creature.querySelector(".creature-body");
+
+        if (type === "type") {
+            if (cType === "small") {
+                body.style.transition = "transform 0.08s ease-out";
+                body.style.transform += " translateY(-4px)";
+                setTimeout(() => {
+                    body.style.transform = body.style.transform.replace(" translateY(-4px)", "");
+                }, 120);
+            } else if (cType === "wide") {
+                body.style.transition = "transform 0.12s ease-out";
+                body.style.transform += " scale(1.02,0.98)";
+                setTimeout(() => {
+                    body.style.transform = body.style.transform.replace(" scale(1.02,0.98)", "");
+                }, 140);
+            } else if (cType === "tall") {
+                body.style.transition = "transform 0.12s ease-out";
+                body.style.transform += " scale(0.99,1.02)";
+                setTimeout(() => {
+                    body.style.transform = body.style.transform.replace(" scale(0.99,1.02)", "");
+                }, 140);
+            }
+        }
+
+        if (type === "focus") {
+            body.style.transition = "transform 0.18s ease-out";
+            body.style.transform += " translateY(-4px)";
+            setTimeout(() => {
+                body.style.transform = body.style.transform.replace(" translateY(-4px)", "");
+            }, 180);
+        }
+    });
+}
+
+document.addEventListener("keydown", () => {
+    creaturesReact("type");
+});
+
+document.querySelectorAll("input").forEach(input => {
+    input.addEventListener("focus", () => {
+        creaturesReact("focus");
+    });
+});
+</script>
+
+</body>
+</html>
