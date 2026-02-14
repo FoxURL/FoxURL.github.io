@@ -116,7 +116,7 @@ document.addEventListener("DOMContentLoaded", () => {
 async function initSiteAndUser(siteNameHeading, siteSub, welcomeTitle, welcomeSubtitle) {
   try {
     const params = new URLSearchParams(window.location.search);
-    const source = params.get("source");
+    const source = params.get("q");
 
     const [sites, users] = await Promise.all([
       fetch("site.json").then(r => r.json()),
