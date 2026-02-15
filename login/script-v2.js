@@ -114,7 +114,6 @@ async function initSiteAndUser(siteNameHeading, siteSub, welcomeTitle, welcomeSu
     const params = new URLSearchParams(window.location.search);
     const source = params.get("q");
 
-    // FIXED: absolute URLs so GitHub Pages always loads them correctly
     const [sites, usersData] = await Promise.all([
       fetch("https://foxurl.github.io/login/site.json").then(r => r.json()),
       fetch("https://foxurl.github.io/login/details.json").then(r => r.json())
