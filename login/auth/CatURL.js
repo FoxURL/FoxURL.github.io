@@ -1,11 +1,11 @@
 (function () {
 
-  // Identify the script tag that loaded this file
+  // Get the script tag and site ID
   const scriptTag = document.currentScript;
   const siteID = scriptTag.getAttribute("data-site");
 
   if (!siteID) {
-    console.error("CatURL.js: No site ID provided in data-site attribute.");
+    console.error("CatURL.js: No site ID provided.");
     return;
   }
 
@@ -18,12 +18,11 @@
     return;
   }
 
-  // Load site.json + details.json from FoxURL
+  // Load site.json + details.json
   Promise.all([
-  fetch("https://foxurl.github.io/login/site.json").then(r => r.json()),
-  fetch("https://foxurl.github.io/login/details.json").then(r => r.json())
-])
-
+    fetch("https://foxurl.github.io/login/site.json").then(r => r.json()),
+    fetch("https://foxurl.github.io/login/details.json").then(r => r.json())
+  ])
     .then(([sites, users]) => {
 
       // Find the site entry
@@ -36,25 +35,27 @@
       // Find the signed‑in user
       const user = users.find(u => String(u.ID) === String(signedIn));
 
-      // If user ID doesn't exist → force re-login
+      // If user ID not found → force re-login
       if (!user) {
+        localStorage.setItem("SignedIn", "false");
         window.location.href = `https://foxurl.github.io/login/index.html?q=${siteID}`;
         return;
       }
 
       // Parse allowed list
-      const allowedList = site.allowed.split(",").map(id => id.trim());
+      const allowedList = site.allowed
+        .split(",")
+        .map(id => id.trim());
 
       // Check if user is allowed
       if (!allowedList.includes(user.ID)) {
-        // User is signed in but not allowed → block page
         document.body.innerHTML = `
           <h1>You do not have permission to view this site.</h1>
         `;
         return;
       }
 
-      // User is allowed → do nothing, page loads normally
+      // User is allowed → do nothing
     })
     .catch(err => {
       console.error("CatURL.js error:", err);
