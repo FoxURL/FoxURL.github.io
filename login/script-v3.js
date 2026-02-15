@@ -1,4 +1,4 @@
-// --- GLOBAL STATE ---
+ // --- GLOBAL STATE ---
 let currentSite = null;
 window.allUsers = null;
 const creatures = [];
