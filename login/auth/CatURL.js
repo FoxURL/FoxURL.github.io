@@ -20,9 +20,10 @@
 
   // Load site.json + details.json from FoxURL
   Promise.all([
-    fetch("https://foxurl.github.io/login/site.json").then(r => r.json()),
-    fetch("https://foxurl.github.io/login/details.json").then(r => r.json())
-  ])
+  fetch("https://foxurl.github.io/login/site.json").then(r => r.json()),
+  fetch("https://foxurl.github.io/login/details.json").then(r => r.json())
+])
+
     .then(([sites, users]) => {
 
       // Find the site entry
