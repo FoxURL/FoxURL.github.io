@@ -9,10 +9,10 @@
     return;
   }
 
-  // Check login status
+  // Read login state
   const signedIn = localStorage.getItem("SignedIn");
 
-  // If not signed in → redirect instantly
+  // If not signed in → redirect to login
   if (!signedIn || signedIn === "false") {
     window.location.href = `https://foxurl.github.io/login/index.html?q=${siteID}`;
     return;
@@ -55,7 +55,7 @@
         return;
       }
 
-      // User is allowed → do nothing
+      // User is allowed → do nothing (page loads normally)
     })
     .catch(err => {
       console.error("CatURL.js error:", err);
