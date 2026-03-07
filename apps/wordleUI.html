@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Wordle Solver</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Mono:wght@400;500&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#0f0e0d;
+  --surface:#161513;
+  --surface2:#1e1c1a;
+  --border:#2a2825;
+  --accent:#e8d44d;
+  --accent-dim:#b8a730;
+  --green:#6aaa64;
+  --yellow:#c9b458;
+  --grey:#3a3a3c;
+  --grey-border:#555;
+  --text:#f0ece3;
+  --muted:#7a776e;
+  --faint:#3a3836;
+}
+
+html,body{height:100%;overflow:hidden;}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:'DM Sans',sans-serif;
+  display:flex;
+  flex-direction:column;
+}
+
+/* Grain */
+body::after{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 512 512' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:9999;opacity:0.35;
+}
+
+/* ── Top bar ── */
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;height:56px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+  flex-shrink:0;
+  z-index:10;
+}
+
+.topbar-logo{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:24px;letter-spacing:0.1em;
+  color:var(--text);
+}
+
+.topbar-logo span{color:var(--accent);}
+
+.topbar-meta{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted);letter-spacing:0.1em;
+}
+
+.topbar-pills{display:flex;gap:8px;}
+
+.pill{
+  padding:5px 12px;border-radius:100px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  border:1px solid var(--border);color:var(--muted);
+  cursor:pointer;transition:all 0.2s;
+}
+.pill:hover,.pill.active{
+  border-color:var(--accent);color:var(--accent);
+  background:rgba(232,212,77,0.08);
+}
+
+/* ── Main layout ── */
+.main{
+  display:flex;flex:1;overflow:hidden;
+}
+
+/* ── LEFT: Suggestions panel ── */
+.left-panel{
+  width:55%;border-right:1px solid var(--border);
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+.panel-header{
+  padding:18px 24px 14px;
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:baseline;gap:12px;
+  flex-shrink:0;
+}
+
+.panel-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:20px;letter-spacing:0.08em;color:var(--text);
+}
+
+.word-count{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--muted);
+}
+
+.word-count b{color:var(--accent);}
+
+/* Sort/filter bar */
+.sort-bar{
+  padding:10px 20px;border-bottom:1px solid var(--border);
+  display:flex;gap:8px;align-items:center;
+  flex-shrink:0;
+}
+
+.sort-label{
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--muted);letter-spacing:0.12em;text-transform:uppercase;
+  margin-right:4px;
+}
+
+.sort-btn{
+  padding:4px 10px;border-radius:6px;
+  font-family:'DM Mono',monospace;font-size:11px;
+  border:1px solid var(--border);color:var(--muted);
+  background:transparent;cursor:pointer;transition:all 0.15s;
+}
+.sort-btn:hover{border-color:var(--muted);color:var(--text);}
+.sort-btn.active{
+  background:rgba(232,212,77,0.1);
+  border-color:var(--accent);color:var(--accent);
+}
+
+/* Word grid */
+.word-grid{
+  flex:1;overflow-y:auto;
+  padding:16px 20px;
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(110px, 1fr));
+  gap:8px;
+  align-content:start;
+}
+
+.word-grid::-webkit-scrollbar{width:4px;}
+.word-grid::-webkit-scrollbar-track{background:transparent;}
+.word-grid::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px;}
+
+.word-card{
+  padding:10px 10px 9px;
+  border:1px solid var(--border);
+  border-radius:10px;
+  background:var(--surface2);
+  cursor:pointer;
+  transition:all 0.15s;
+  display:flex;flex-direction:column;gap:6px;
+}
+
+.word-card:hover{
+  border-color:var(--accent-dim);
+  background:rgba(232,212,77,0.05);
+  transform:translateY(-1px);
+}
+
+.word-card-letters{
+  display:flex;gap:3px;
+}
+
+.wc-tile{
+  width:20px;height:22px;
+  border-radius:4px;
+  background:var(--faint);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:14px;
+  color:var(--text);
+  flex-shrink:0;
+}
+
+.wc-tile.g{background:var(--green);}
+.wc-tile.y{background:var(--yellow);}
+
+.word-card-score{
+  font-family:'DM Mono',monospace;font-size:10px;
+  color:var(--muted);
+}
+
+/* Best pick badge */
+.word-card.best{
+  border-color:rgba(106,170,100,0.5);
+  background:rgba(106,170,100,0.07);
+}
+
+.word-card.best .word-card-score{color:var(--green);}
+
+/* Empty state */
+.empty-state{
+  grid-column:1/-1;
+  text-align:center;padding:60px 20px;
+  display:flex;flex-direction:column;align-items:center;gap:12px;
+}
+
+.empty-icon{font-size:40px;}
+
+.empty-title{
+  font-family:'Bebas Neue',sans-serif;
+  font-size:22px;letter-spacing:0.06em;color:var(--muted);
+}
+
+.empty-sub{
+  font-size:13px;color:var(--muted);max-width:260px;line-height:1.5;
+}
+
+/* ── RIGHT: Input panel ── */
+.right-panel{
+  width:45%;
+  display:flex;flex-direction:column;
+  overflow:hidden;
+}
+
+.right-inner{
+  flex:1;overflow-y:auto;
+  padding:20px 24px;
+  display:flex;flex-direction:column;
+  gap:20px;
+}
+
+.right-inner::-webkit-scrollbar{width:4px;}
+.right-inner::-webkit-scrollbar-track{background:transparent;}
+.right-inner::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px;}
+
+/* Guess rows */
+.section-label{
+  font-family:'DM Mono',monospace;font-size:10px;
+  letter-spacing:0.16em;text-transform:uppercase;
+  color:var(--muted);margin-bottom:10px;
+}
+
+.guess-rows{display:flex;flex-direction:column;gap:8px;}
+
+.guess-row{
+  display:flex;align-items:center;gap:6px;
+}
+
+.guess-row-num{
+  font-family:'DM Mono',monospace;font-size:11px;
+  color:var(--faint);width:16px;text-align:right;flex-shrink:0;
+}
+
+.tiles-row{display:flex;gap:5px;}
+
+.tile{
+  width:44px;height:48px;
+  border-radius:8px;
+  border:1.5px solid var(--border);
+  background:var(--surface2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Bebas Neue',sans-serif;font-size:24px;
+  color:var(--text);
+  cursor:pointer;
+  transition:background 0.15s, border-color 0.15s, transform 0.1s;
+  position:relative;
+  user-select:none;
+}
+
+.tile:hover{border-color:var(--muted);}
+.tile.active{border-color:var(--accent)!important;box-shadow:0 0 0 2px rgba(232,212,77,0.15);}
+
+.tile.state-grey{background:var(--grey);border-color:var(--grey-border);color:#999;}
+.tile.state-yellow{background:var(--yellow);border-color:#a08030;color:#fff;}
+.tile.state-green{background:var(--green);border-color:#4a8a44;color:#fff;}
+
+
+
+.row-delete{
+  width:28px;height:28px;border-radius:7px;
+  background:transparent;border:1px solid var(--border);
+  color:var(--muted);cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:all 0.15s;flex-shrink:0;
+}
+.row-delete:hover{border-color:#e05c5c;color:#e05c5c;background:rgba(224,92,92,0.08);}
+
+/* Keyboard */
+.keyboard{display:flex;flex-direction:column;gap:6px;}
+
+.kb-row{display:flex;gap:5px;justify-content:center;}
+
+.kb-key{
+  height:38px;
+  min-width:32px;padding:0 6px;
+  border-radius:7px;
+  background:var(--surface2);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:'DM Mono',monospace;font-size:12px;
+  cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all 0.15s;
+  position:relative;
+}
+
+.kb-key:hover{background:var(--faint);border-color:var(--muted);}
+.kb-key.wide{min-width:52px;font-size:11px;}
+.kb-key.state-grey{background:var(--grey);border-color:var(--grey-border);color:#777;}
+.kb-key.state-yellow{background:var(--yellow);border-color:#a08030;color:#fff;}
+.kb-key.state-green{background:var(--green);border-color:#4a8a44;color:#fff;}
+
+/* Legend */
+.legend{
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+
+.legend-item{
+  display:flex;align-items:center;gap:6px;
+  font-size:12px;color:var(--muted);
+}
+
+.legend-dot{
+  width:14px;height:14px;border-radius:4px;
+}
+
+.legend-dot.g{background:var(--green);}
+.legend-dot.y{background:var(--yellow);}
+.legend-dot.x{background:var(--grey);}
+.legend-dot.e{background:var(--surface2);border:1px solid var(--border);}
+
+/* Controls */
+.controls{display:flex;gap:8px;}
+
+.btn{
+  padding:11px 18px;border-radius:10px;
+  font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.15s;border:none;
+}
+
+.btn-accent{
+  background:var(--accent);color:#0f0e0d;
+  flex:1;
+}
+.btn-accent:hover{background:#f0df60;transform:translateY(-1px);box-shadow:0 6px 20px rgba(232,212,77,0.2);}
+
+.btn-ghost{
+  background:transparent;color:var(--muted);
+  border:1px solid var(--border);
+}
+.btn-ghost:hover{border-color:var(--muted);color:var(--text);}
+
+/* Add row button */
+.add-row-btn{
+  display:flex;align-items:center;gap:8px;
+  padding:9px 14px;border-radius:9px;
+  background:transparent;border:1px dashed var(--border);
+  color:var(--muted);font-size:13px;cursor:pointer;
+  transition:all 0.2s;width:100%;
+  font-family:'DM Sans',sans-serif;
+}
+.add-row-btn:hover{border-color:var(--accent-dim);color:var(--accent);}
+
+/* Word length selector in right panel */
+.wlen-row{display:flex;gap:6px;}
+.wlen-btn{
+  flex:1;padding:8px 4px;
+  border-radius:8px;border:1px solid var(--border);
+  background:transparent;color:var(--muted);
+  font-family:'DM Mono',monospace;font-size:14px;
+  cursor:pointer;transition:all 0.15s;
+}
+.wlen-btn:hover{border-color:var(--muted);color:var(--text);}
+.wlen-btn.active{
+  background:rgba(232,212,77,0.1);
+  border-color:var(--accent);color:var(--accent);
+}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(60px);
+  background:var(--text);color:var(--bg);
+  padding:10px 20px;border-radius:100px;
+  font-size:13px;font-weight:600;
+  z-index:10000;transition:transform 0.3s cubic-bezier(.34,1.56,.64,1);
+  pointer-events:none;white-space:nowrap;
+}
+.toast.show{transform:translateX(-50%) translateY(0);}
+
+/* Scrollbar */
+::-webkit-scrollbar{width:4px;}
+::-webkit-scrollbar-track{background:transparent;}
+::-webkit-scrollbar-thumb{background:var(--faint);border-radius:4px;}
+
+/* Animations */
+@keyframes fadeIn{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.2)}100%{transform:scale(1)}}
+@keyframes flipTile{
+  0%{transform:rotateX(0);}
+  50%{transform:rotateX(90deg);}
+  100%{transform:rotateX(0);}
+}
+
+.word-card{animation:fadeIn 0.2s ease both;}
+
+/* Mobile */
+@media(max-width:700px){
+  .main{flex-direction:column;}
+  .left-panel,.right-panel{width:100%;height:50%;}
+  .left-panel{border-right:none;border-bottom:1px solid var(--border);}
+  .tile{width:36px;height:40px;font-size:20px;}
+  .wc-tile{width:17px;height:19px;font-size:12px;}
+  .topbar{padding:0 16px;}
+}
+</style>
+</head>
+<body>
+
+<!-- Top bar -->
+<div class="topbar">
+  <div class="topbar-logo">Wordle<span>.</span>Solver</div>
+  <div class="topbar-pills" id="wlen-pills">
+    <div class="pill active" data-len="4">4</div>
+    <div class="pill active" data-len="5">5 letters</div>
+    <div class="pill" data-len="6">6</div>
+    <div class="pill" data-len="7">7</div>
+    <div class="pill" data-len="8">8</div>
+  </div>
+  <div class="topbar-meta" id="topbar-meta">READY</div>
+</div>
+
+<!-- Main split -->
+<div class="main">
+
+  <!-- LEFT: Word suggestions -->
+  <div class="left-panel">
+    <div class="panel-header">
+      <div class="panel-title">Suggestions</div>
+      <div class="word-count" id="word-count"><b id="wc-num">—</b> possible words</div>
+      <span id="dict-status" style="font-family:'DM Mono',monospace;font-size:10px;color:var(--accent);margin-left:auto;"></span>
+    </div>
+    <div class="sort-bar">
+      <span class="sort-label">Sort:</span>
+      <button class="sort-btn active" id="sort-freq" onclick="setSortMode('freq')">Best first</button>
+      <button class="sort-btn" id="sort-alpha" onclick="setSortMode('alpha')">A–Z</button>
+      <button class="sort-btn" id="sort-score" onclick="setSortMode('score')">Score</button>
+    </div>
+    <div class="word-grid" id="word-grid">
+      <!-- words rendered here -->
+    </div>
+  </div>
+
+  <!-- RIGHT: Input -->
+  <div class="right-panel">
+    <div class="right-inner">
+
+      <!-- Legend -->
+      <div>
+        <div class="section-label">How to use</div>
+        <div class="legend">
+          <div class="legend-item"><div class="legend-dot e"></div>Empty — not entered</div>
+          <div class="legend-item"><div class="legend-dot x"></div>Grey — letter not in word</div>
+          <div class="legend-item"><div class="legend-dot y"></div>Yellow — wrong position</div>
+          <div class="legend-item"><div class="legend-dot g"></div>Green — correct position</div>
+        </div>
+        <p style="font-size:12px;color:var(--muted);margin-top:8px;line-height:1.5">
+          Type a letter in a tile, then <strong style="color:var(--text)">click the tile</strong> to cycle its colour. The suggestions update instantly.
+        </p>
+      </div>
+
+      <!-- Guess rows -->
+      <div>
+        <div class="section-label">Your guesses</div>
+        <div class="guess-rows" id="guess-rows"></div>
+        <button class="add-row-btn" id="add-row-btn" onclick="addRow()" style="margin-top:8px;">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="7" y1="1" x2="7" y2="13"/><line x1="1" y1="7" x2="13" y2="7"/></svg>
+          Add another guess row
+        </button>
+      </div>
+
+      <!-- Keyboard -->
+      <div>
+        <div class="section-label">Keyboard — click to type</div>
+        <div class="keyboard" id="keyboard"></div>
+      </div>
+
+      <!-- Controls -->
+      <div>
+        <div class="controls">
+          <button class="btn btn-accent" onclick="solve()">Solve →</button>
+          <button class="btn btn-ghost" onclick="resetAll()">Reset</button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ════════════════════════════════════════════
+// WORD LIST — top 2309 five-letter words (Wordle official list subset)
+// ════════════════════════════════════════════
+const WORDS_5 = "aback,abase,abash,abate,abbey,abbot,abhor,abide,abler,abode,abort,about,above,abuse,abyss,ached,aches,acids,acock,acorn,acres,acrid,acted,acute,adage,adept,adlib,admit,adobe,adopt,adore,adorn,adult,aegis,affix,afoot,afoul,after,again,agate,agave,agaze,agile,aging,aglow,agone,agony,agora,agree,ahead,ahold,aider,aimer,aisle,ajuga,alack,alarm,alary,album,alder,alert,algae,alias,alibi,align,alike,allay,alley,allot,allow,alloy,aloft,alone,along,aloof,aloud,alter,altho,amaze,amber,amble,amend,amide,amigo,amiss,amour,ample,amuck,amuse,angel,anger,angle,angry,anime,ankhs,annex,annoy,antic,antsy,anvil,aorta,apace,apart,aphid,apple,apply,appro,apron,aptly,arbor,arced,ardor,arena,argot,argue,arise,armor,aroma,arose,array,ashen,aside,asked,askew,atilt,atlas,atoll,atone,attic,audio,audit,aught,augur,auras,avast,avian,avoid,avows,awake,award,aware,awash,awful,awoke,axiom,azure,badge,badly,baker,baste,batch,batty,bayou,beach,beard,beast,beech,belle,belly,beset,bevel,bided,bivvy,blast,blaze,bleat,bleed,bless,blimp,bliss,bloke,blood,blurb,blurt,blush,board,bocce,bogus,bolls,bolts,bonds,bonny,bonus,booby,boons,boors,boots,booze,borax,botch,bothy,bough,bowed,boxed,boxer,boyar,bract,brads,braes,brags,braid,brans,brash,brats,brawl,brays,braze,bream,breed,brent,breve,brews,briar,brigs,brims,brine,briny,brios,brisk,brome,brood,brook,broom,broth,brown,brows,bruin,brume,brung,brunt,brusk,bubal,budge,buffs,buggy,built,bulbs,bulge,bulky,bulls,bumps,bumpy,bungs,bunks,bunny,bunts,burps,burrs,butch,butts,buxom,bylaw,bytes,cabal,caber,cacao,cacti,cadet,cafes,cairn,calms,calve,cameo,capex,capos,caput,cares,cargo,carol,carps,carry,carte,carts,carve,casas,caste,caulk,cedar,ceded,cello,chads,chafe,chalk,champ,chaos,charm,chars,chary,chase,chaws,chays,cheap,cheep,cheer,chefs,chess,chide,chimp,chine,chins,chips,chits,chivy,chops,chord,chore,chows,chubs,chump,churn,cider,cigar,cinch,cissy,civic,civil,civvy,clads,claim,clamp,clans,claps,clasp,claws,clays,cleat,clefs,cleft,clerk,clews,click,cliff,cling,clink,cloak,clock,clods,clogs,clone,clops,clots,clown,cloze,clubs,clued,clues,clung,coach,coaly,cobby,coble,codon,coles,combs,comet,comic,comma,compo,conch,condo,coned,cones,coney,conga,conic,copse,corny,cosec,coset,cosey,cosmo,couch,coude,cough,could,coups,coves,cowls,coxes,craft,cramp,crane,crank,crash,crass,crave,crawl,craze,creak,creed,crept,crimp,crisp,croak,crone,crops,cross,croup,crown,cruel,crumb,crump,cruse,crush,crust,crypt,cubed,cuber,cubes,cubic,cubit,culpa,cupid,curbs,curds,cured,cures,curie,curls,curly,curry,curse,curst,curve,cushy,cutey,cymes,daily,dally,dance,dbase,dealt,death,decry,delta,depot,derby,dodge,doing,dolly,dough,downy,dozen,drain,drape,dread,dream,dress,dried,drink,drive,drone,drool,droop,drove,drown,drunk,dryer,duchy,dusky,dusty,eager,eagle,early,earth,egret,eight,elite,ember,empty,enact,endow,enjoy,enter,equip,erupt,ethos,evict,evoke,exact,exalt,exert,exile,extra,exude,exult,fable,facet,faint,fairy,faith,fancy,farce,fatal,fault,favor,feast,feint,feral,ferry,fetch,fewer,fiber,fiend,fiery,fjord,flank,flare,flask,flats,flesh,flier,fling,flint,float,flock,flood,flora,floss,flour,flout,flown,flunk,flute,focus,folly,forge,forth,found,foyer,frail,frame,fraud,fresh,frisk,fritz,front,frost,froze,fruit,frump,fully,fungi,funky,furry,fuzzy,gauge,gauze,gavel,gawky,genre,ghost,ghoul,giddy,gizmo,gland,gloat,gloss,glove,grasp,grate,graze,greed,greet,grief,grind,groan,groin,grope,gross,grout,growl,grown,guile,guise,gulch,gusto,gypsy,haiku,hairy,handy,harsh,haste,haven,havoc,hazel,heady,heath,helix,hepat,herby,heron,hippo,hoary,hotel,hound,hover,humid,humus,hunch,hurdy,hyena,hyper,icily,ideal,idiom,idiot,igloo,image,imbue,impel,inept,inlay,inner,inter,intro,irate,irons,ivory,jaunt,jazzy,jelly,jerky,jiffy,joint,joust,judge,juicy,jumbo,kayak,knack,knave,kneel,knell,knelt,knoll,known,koala,kudos,labor,lance,lanky,lapel,laser,latch,lathe,liege,light,lilac,lofty,logic,loopy,lousy,lusty,lusus,lying,lyric,magic,mango,manor,maxim,mealy,melee,mercy,merit,merry,metal,mimic,minus,mirth,miser,mitre,moist,molar,moldy,moody,moose,moral,moray,motif,moult,mound,mourn,mousy,musty,myrrh,nadir,naive,nasty,naval,nervy,nifty,night,noble,noise,notch,novel,nymph,oaken,occur,octet,oddly,offal,olive,opine,optic,orbit,organ,other,otter,ought,outdo,ovoid,oxide,ozone,padre,paint,panel,pansy,papal,pearl,penal,penis,perch,pesky,phase,phone,piano,pilot,piney,pious,pixel,pixie,plaid,plank,plant,plead,pleat,pluck,plumb,plume,plump,plunk,plush,poach,poker,polka,polyp,poppy,potty,pound,pouty,prank,prawn,prism,privy,probe,prone,prong,prose,prowl,prude,puffy,pulpy,pulse,punch,pupal,pupil,purge,pygmy,quack,quaff,qualm,quart,quasi,queen,query,queue,quilt,quota,quote,rabbi,rabid,radar,radio,raise,rally,rapid,raspy,ratty,ravel,reach,realm,rebel,rebus,reedy,relay,rider,right,risky,rivet,roomy,roost,rough,round,rowdy,ruble,rugby,ruled,rumba,rusty,sabot,sadly,saint,salsa,samba,sandy,satin,sauce,saucy,sauna,savor,savvy,scald,scalp,scaly,scram,scrap,scree,screw,scrim,scrub,scuff,sedan,seedy,seize,serve,shack,shade,shaft,shaky,shame,shank,shape,shard,share,shark,shawl,sheen,sheer,shelf,shell,shift,shire,shirk,shirt,shock,shone,shook,shore,short,shout,shove,shown,showy,shred,shrew,shrub,shrug,shunt,sight,sigma,silly,since,sinew,sixth,sixty,skill,skimp,skirt,skulk,slain,slang,slant,sleek,sleet,slick,slide,slimy,sling,slope,sloth,slump,slunk,slurp,smack,small,smart,smear,smelt,smock,snack,snaky,snare,snark,sneer,snide,sniff,snout,sooty,sorry,south,spell,spend,spice,spill,spine,spire,spite,split,spoke,spook,sport,spray,spree,sprig,squat,squid,staid,stain,stake,stale,stall,stamp,stand,stank,stare,start,stash,state,stave,stead,steal,steam,steel,steep,steer,stern,stoic,stomp,stony,store,stout,straw,stray,strip,strut,stuck,study,stump,stung,stunk,swamp,swarm,swath,swear,sweat,sweep,sweet,swept,swill,swoop,syrup,tabby,tango,tardy,taunt,taupe,tepid,terse,theft,thick,thing,think,thong,thorn,those,throb,throw,thrum,thump,tiara,tilth,tinge,tipsy,tonic,topaz,topic,torch,touch,tough,trace,track,trail,train,trait,tramp,trawl,tread,treat,treks,tripe,trite,troll,troop,troth,trout,trove,truce,truly,trump,trunk,truss,tulip,tumor,tuner,tuple,twixt,tying,ulcer,ultra,undue,unlit,until,upper,upset,urban,usurp,utter,valid,valor,valve,vault,vaunt,vicar,vigil,villa,vinyl,viola,viper,vivid,vixen,vocal,voice,voile,vomit,voter,vouch,vowel,vulva,wacky,wafer,wager,waltz,waver,weave,whack,whale,whiff,while,whisk,wider,wield,windy,wispy,witch,witty,woman,women,world,wormy,worse,worst,worth,wreak,wreck,wring,wrist,wrong,yacht,yearn,young,yours,yucca,zebra,zesty".split(",").filter(w=>w.length===5);
+
+const WORDS_4 = "able,aced,ache,acid,acme,acne,acre,aged,ague,aide,aims,airs,airy,akin,alms,also,alto,amid,amok,amps,anal,anew,anon,ante,anti,ants,apes,apex,apps,arch,arcs,area,aria,arid,arks,arms,army,arty,asks,aves,avid,awed,awes,awls,awry,axed,axes,axis,babe,baby,back,bale,balk,ball,band,bane,bang,bank,bans,barb,bare,barf,bark,barn,bars,base,bash,bask,bass,bate,bath,baud,bays,bead,beam,bean,bear,beat,beck,beds,beef,been,bees,beet,begs,bell,belt,bend,best,bike,bird,bite,bled,blew,blob,bloc,blot,blow,blue,boar,boat,bobs,bode,body,bogs,boll,bolt,bomb,bond,bone,book,boon,boor,boos,boot,bore,born,bosh,boss,both,bout,bows,boxy,brag,bran,brat,brew,brig,brim,bros,buds,buff,bulb,bull,bump,bund,bung,bunk,bunt,burn,burp,burr,busy,butt,buzz,cafe,cage,cake,call,calm,came,camp,cams,cane,cant,cape,caps,card,care,carp,cars,cart,case,cask,cast,cats,cave,caws,cede,cell,cent,chad,char,chat,chew,chin,chip,chit,chop,chow,city,clad,clam,clan,clap,claw,clay,clew,clip,clod,clog,clop,club,cobs,cock,code,cods,cogs,coil,cola,cold,cols,colt,coma,comb,come,comp,cone,conk,cons,cook,cool,cops,cord,core,cork,corm,corn,cost,cots,coup,cove,cowl,cows,cozy,crop,crow,curb,curd,cure,curr,cute,cuts,dabs,dams,dank,dare,dark,darn,dart,data,date,dawn,daze,dead,deal,dean,dear,debt,deco,deed,deem,deep,deer,deft,deli,dell,dens,dent,deny,desk,dews,dial,dice,died,dies,diet,digs,dill,dims,dine,ding,dink,dins,dire,dirt,disc,dish,disk,diva,dive,dock,does,doff,dogs,dole,dolt,dome,done,dons,door,dork,dose,dote,dove,down,drab,drag,draw,drew,drip,drop,drub,drug,drum,dual,dull,dung,dunk,dupe,dusk,dust,duty,dyke,dyne,each,earl,earn,ease,east,eave,edge,edgy,eels,elan,elms,else,emit,envy,epic,even,ever,evil,exam,expo,eyed,eyes,face,fact,fade,faff,fags,fail,fall,fame,fang,fare,farm,fast,fate,fawn,faze,feds,feel,feet,fell,felt,fern,feta,feud,fife,figs,file,fill,film,find,fine,fink,fire,firm,fish,fist,fizz,flag,flak,flan,flap,flat,flaw,flax,flay,fled,flew,flex,flip,flit,floe,flog,flop,flow,flue,foam,fobs,fogy,folk,fond,font,fool,foot,ford,fore,fork,form,fort,foul,fowl,fray,free,fret,frog,from,fuel,full,fume,fund,funk,furl,fury,fuse,gabs,gads,gain,gale,gall,game,gamy,gape,gash,gasp,gave,gawk,gaze,gear,gels,germ,gibe,gift,gigs,gill,gilt,gist,give,glad,glee,glen,glib,glob,glow,glue,gnaw,goal,gone,gong,good,gore,gory,gosh,gout,gown,grab,gram,gran,grey,grim,grip,grit,grog,grub,guff,gulf,gull,gums,guru,gust,guts,gyms,hack,hale,half,hall,halt,hams,hand,hang,hark,harm,harp,hart,hash,hasp,hate,have,haze,hazy,head,heal,heap,hear,heat,heel,heft,help,hens,herb,herd,here,hews,hide,high,hill,hint,hire,hiss,hoax,hobo,hock,hogs,hold,hole,home,hone,hood,hoof,hook,hope,hops,horn,hose,host,hour,hove,howl,hubs,huff,hugs,hulk,hull,hump,hung,hunt,hurl,hurt,hymn,iced,icon,idea,idol,iffy,imps,inch,inks,inky,into,ions,iris,irks,isle,itch,jade,jags,jail,jams,jars,jaws,jays,jean,jeer,jest,jibs,jigs,jilt,jinx,jive,jobs,jock,jogs,joke,jolt,jots,jugs,junk,jury,just,juts,keel,keen,keep,kelp,kerb,keys,kick,kids,kiln,kilt,kind,king,kins,kiss,kite,knew,knob,knot,labs,lack,laid,lair,lake,lamb,lame,lamp,land,lard,lark,last,late,lawn,laze,lazy,lead,leaf,leak,lean,leek,leer,left,legs,lend,lens,lent,levy,lewd,lied,lien,limb,lime,limo,limp,lion,lisp,list,live,load,loan,lock,lode,loft,loin,loll,long,look,loom,loop,lord,lore,lose,loss,lost,loud,lour,lout,love,luck,luff,luge,lull,lump,lung,lure,lurk,lust,mace,made,mail,maim,main,make,male,mall,mare,mark,mars,mast,mate,math,maze,mead,meal,mean,meek,meet,meow,mesh,mice,mike,mild,milk,mill,mime,mind,mine,mint,mire,miss,mist,moat,mobs,mock,mood,moon,moos,mope,more,moss,most,moue,move,much,muck,mugs,mule,mull,muse,muss,must,myth,nail,name,neck,need,nerd,news,newt,next,nice,nick,nigh,nine,nips,node,nook,noon,norm,nose,note,nubs,nude,null,nuns,oafs,oaks,oars,oast,oath,oats,obey,oboe,odds,okay,olds,once,only,onyx,opus,oral,orbs,orca,ores,oval,oven,over,owed,owns,pack,pads,page,paid,pale,palm,pang,pans,para,park,part,pass,past,path,pave,pawn,pays,peak,pear,peat,peck,peel,peer,pens,peon,perp,peso,pest,pied,pier,pike,pile,pill,pimp,pine,pink,pint,pipe,plan,play,plea,plop,plot,plow,ploy,plug,plum,pods,poem,poke,poll,polo,pond,pone,pong,pony,poof,pool,poop,pops,pore,porn,port,post,pour,pout,prey,prop,prow,pubs,puff,pull,pulp,pump,punk,punt,puny,pure,purl,purr,puts,quit,race,rack,rage,rags,raid,rain,rake,ramp,rang,rank,rant,raps,rapt,rare,rash,rate,rats,rave,rays,raze,razz,read,real,reek,rein,rely,rend,rent,repo,rest,rice,rich,ride,rids,rife,riff,rime,rims,ring,riot,rips,rise,risk,road,roam,roar,robe,robs,rock,rode,rods,role,roll,romp,roof,rook,room,root,rope,rose,rots,rove,rube,rubs,rugs,ruin,rule,rump,rune,rung,runt,ruse,rush,rust,ruts,safe,sage,sail,sake,sale,salt,same,sand,sane,sang,sank,sate,save,sawn,scam,scan,scar,seal,seam,seat,seed,seek,seem,seen,seer,self,sell,send,sewn,shag,shed,shin,ship,shiv,shoe,shop,shot,show,shun,shut,sick,side,sigh,silk,sill,sing,sink,site,size,skim,skin,skip,skit,slag,slam,slap,slew,slim,slip,slob,sloe,slog,slop,slot,slow,slug,slur,snag,snap,snob,snot,snow,snub,snug,soak,soap,sock,sods,sofa,soil,sole,some,song,soot,sops,soul,soup,sour,span,spar,spat,spec,sped,spew,spin,spit,spot,stab,stag,stem,step,stew,stir,stop,stub,stud,such,suit,sumo,sump,sung,sunk,sups,surf,suss,swam,swap,swat,sway,swig,swim,swot,tabs,tack,tads,take,tale,talk,tall,tame,tank,tans,tape,tare,tarn,tarp,tart,task,taxi,teak,teat,tees,tell,tend,tens,term,tern,test,text,than,that,them,then,this,tide,tied,tiff,tile,till,time,tiny,tire,toad,toga,toke,told,toll,tome,tone,tong,tons,took,tool,toot,tops,tore,torn,tort,tote,tour,town,tram,trap,tray,tree,trek,trim,trio,trip,troy,true,tuck,tugs,tung,turf,tusk,tutu,twin,tyke,type,typo,ugly,undo,unit,upon,urge,used,vamp,vary,vast,vats,veer,vein,vend,vent,vest,veto,vial,vibe,vied,vies,vile,vine,visa,vise,void,wade,waft,wags,wail,wait,wake,walk,wane,ward,warm,warn,wart,wash,watt,wavy,weal,wean,webs,weds,weft,weld,welt,wigs,wile,will,wilt,wily,wimp,wink,wins,wire,wiry,wisp,wits,woes,woke,wolf,womb,wood,woos,wore,work,worm,wove,wrap,wren,yaks,yank,yaps,yell,yore,yuan,yuck,yule,zany,zeal,zero,zinc,zing,zips,zone,zoom,zoos".split(",").filter(w=>w.length===4);
+
+const WORDS_6 = "abacus,abduct,ablaze,abloom,aboard,abound,abroad,abrupt,absent,absorb,absurd,accent,accept,access,accord,accrue,accuse,aching,acidic,acquit,across,acting,action,active,actual,adhere,adjoin,adjust,admire,adroit,advent,advice,advise,afford,afield,aflame,afloat,afraid,afresh,agency,agenda,agleam,agreed,albeit,alight,allied,almond,almost,alpine,always,ambled,ambush,amends,amidst,amount,amulet,anemia,animal,annual,answer,anyone,anyway,appeal,artist,ascend,aspect,assert,assets,assure,astray,attend,attest,author,averse,awning,backed,badger,ballad,ballot,barren,batter,battle,beacon,beaten,beckon,before,behalf,behind,belfry,belief,belong,beluga,benign,berate,beside,bestow,betray,bewail,beware,billow,bisect,bitter,bladed,blanch,blotch,bodily,bonnet,border,bounty,brandy,brassy,brazen,breach,breath,breezy,bridge,bright,bronze,brooch,browse,brutal,budget,bumble,bundle,buried,burrow,bushel,bypass,cackle,cahoot,calico,candid,candor,canopy,canvas,carbon,castle,center,chance,change,charge,cherry,choose,chosen,circle,clammy,clamor,clench,client,clique,closet,clumsy,cobalt,cobble,cobweb,coddle,column,combat,common,compel,comply,concur,confer,corner,cosset,costly,county,couple,coward,coyote,crayon,crimes,crisis,crispy,crunch,crying,cuddle,curdle,curfew,cursed,cutoff,dagger,damage,danger,dangle,dapper,dapple,darken,darkly,dazzle,deacon,deadly,debate,debris,decide,decree,deeply,deface,defeat,defend,deftly,demand,denser,depart,derive,design,desire,devoid,devour,differ,dimple,dispel,divert,docile,doctor,dollar,domain,donkey,dotted,double,dreary,driven,driver,drudge,during,earthy,edible,eggnog,egoist,eighth,either,elicit,embark,embody,emerge,empire,enable,encode,endure,engage,engine,enough,entire,entity,equine,erotic,errand,escape,estate,ethics,events,exceed,exempt,expand,extend,fabled,fabric,factor,fading,family,famine,fasten,father,fathom,fatten,feeble,feline,female,ferret,festal,fester,feudal,fiasco,fiesta,figure,filler,filthy,finery,finish,fiscal,fizzle,flashy,flawed,flimsy,floaty,floppy,florid,fluffy,follow,forbid,formal,former,foster,fracas,friend,frosty,frothy,frozen,frugal,fumble,fungal,gallon,gambit,gamble,garble,gargle,garish,garnet,gather,gauche,gentle,ghetto,gifted,giggle,girder,glitch,global,glower,glumly,gluten,gobble,gossip,govern,gravel,greasy,greedy,grisly,grotto,grotty,growth,grudge,gutter,hamlet,hangar,hansom,happen,harder,hardly,health,hearth,herald,hoarse,hobble,hollow,homely,honest,hookup,hornet,hotdog,hugely,humane,humble,hunger,hunter,hurdle,hushed,hustle,hybrid,hyphen,icicle,ignite,ignore,impact,impede,incite,indeed,infuse,inject,injury,innate,insane,inside,insist,insult,invade,invent,island,itself,jagged,jangle,jester,jitter,joined,jostle,jounce,jovial,joyful,jumble,jungle,kernel,kindle,knobby,launch,lavish,league,lessen,likely,linger,liquid,listen,litmus,little,lively,locked,locket,lumber,luster,madden,mangle,mantle,market,marvel,matter,meadow,mellow,member,menace,method,middle,midway,mingle,minted,mirror,mishap,misuse,modest,molten,moment,mortal,mortar,mother,murder,muscle,muster,mutate,mutton,mystic,narrow,native,nearby,needle,negate,nether,nickel,nimble,noodle,normal,notify,nuzzle,object,obtain,offend,office,orange,ordeal,orphan,outrun,outwit,paddle,pamper,parcel,pardon,parody,partly,patron,patter,paving,pebble,pepper,perish,person,pester,petite,phrase,pickle,pillow,planet,pledge,plunge,pocket,poison,ponder,portal,potato,potion,potter,pounce,prince,prison,profit,prompt,proper,public,pummel,punish,pursue,putrid,puzzle,python,quench,quirky,radius,ragged,ramble,rancor,random,rankle,ransom,rather,rattle,ravage,reason,recent,recoil,record,recoup,refill,refine,reform,refuge,refuse,rehash,relish,remind,render,rental,repair,repeat,rescue,resent,reveal,revert,revive,riches,riddle,ripple,ritual,robust,rotate,ruffle,ruling,rumble,rustle,saddle,salute,sample,savage,savour,scorch,scrawl,scrimp,scroll,senior,sermon,settle,silver,simple,single,sizzle,sleuth,slight,slowly,smooth,social,soften,soothe,sorrow,source,speech,sphinx,spiral,splash,sprawl,squash,squeak,squeal,squint,stable,stench,stigma,stodgy,stride,strike,strong,stymie,subdue,submit,sudden,suffer,sultry,summer,supply,surely,swivel,system,tackle,tangle,target,tassel,tender,thatch,thrash,threat,thrive,throne,thrust,tickle,tingle,tiptoe,toggle,topple,touchy,travel,tribal,triple,trophy,trudge,tumble,tundra,turban,tussle,twitch,unable,unfold,unkind,unruly,upbeat,uproot,urgent,vacant,vandal,vanish,velvet,vendor,veneer,versus,vessel,victim,vigour,virtue,vision,volume,wallow,walrus,wander,wanton,warily,wealth,weasel,weekly,weight,wheeze,wither,wobble,wonder,wooden,worker,wraith,wreath,writhe,yearly,yeoman,zealot,zigzag,zombie".split(",").filter(w=>w.length===6);
+
+const WORDS_7 = "abandon,ability,absence,absolve,abstain,acclaim,account,achieve,acquire,adamant,adapted,address,adjourn,advance,adverse,against,agitate,ailment,alarmed,almonds,amnesia,ancient,animals,another,anxious,appease,applied,appoint,archery,archway,arrange,assault,attract,auction,audible,auditor,average,balance,banquet,bargain,barrier,because,bedside,beliefs,between,blanket,blossom,bourbon,bravely,broader,brother,brought,calcium,caliber,capable,capital,capsule,captain,capture,carrier,cartoon,catalog,caution,central,century,ceramic,certain,chamber,chapter,charter,chassis,chicken,chronic,citizen,clarity,classic,clement,climate,cluster,cognize,collide,combine,comfort,command,compact,compass,compete,complex,compute,conduct,confess,confine,confirm,conform,connect,conquer,consent,consume,contain,control,convert,convict,corrupt,costume,council,counsel,country,courage,crevice,curious,curtain,cushion,custody,dashing,declare,default,defence,defiant,defined,deflect,delight,deliver,deposit,descend,destiny,develop,devoted,diamond,digital,dispute,distant,disturb,diverge,diverse,divided,dolphin,dormant,durable,eagerly,earnest,economy,elderly,element,embassy,emotion,entitle,entropy,episode,equally,erratic,essence,evident,examine,example,exhibit,exposed,express,extreme,faculty,failure,fantasy,fashion,fatigue,feature,fertile,fiction,flavour,focused,foreign,foresee,fortify,fortune,forward,founder,fragile,frankly,freedom,freshen,fulfill,funeral,gallant,garland,garnish,gazette,general,genesis,glacier,glimpse,glitter,glorify,glowing,gorilla,granted,graphic,grapple,greatly,grimace,habitat,hallway,hamster,handful,handout,hardest,harmony,heavily,heroism,highway,history,holding,hostile,however,hundred,hunting,illegal,illicit,imitate,immense,impasse,implant,implied,improve,impulse,include,initial,inquiry,inspire,install,instead,intense,invalid,inwards,isolate,jewelry,jittery,journal,journey,justice,justify,kingdom,kitchen,knowing,lantern,largely,lasting,laundry,lawsuit,learned,lecture,legally,liberal,limited,located,logical,longbow,loyalty,luggage,magnify,managed,mankind,masters,mastery,maximum,meadows,measure,million,miracle,missing,mission,mixture,monthly,morning,mounted,mundane,mystery,network,neutral,notably,nothing,nourish,nowhere,observe,obvious,officer,operate,opinion,orbital,outcome,outside,overall,overlap,package,painful,parting,passion,pastime,patriot,pattern,payload,pension,perfect,perform,persist,phantom,pilgrim,plastic,popular,poverty,precise,prepare,prevent,primary,private,problem,process,prolong,protect,proudly,provide,publish,purpose,qualify,quality,quickly,radical,railway,reality,realize,receive,recruit,reflect,refugee,refusal,removal,replace,require,resolve,respond,restore,results,retrace,retreat,revenue,revised,roughly,routine,royalty,satisfy,savings,scatter,scholar,section,segment,sharpen,shelter,silence,slender,soldier,somehow,sorcery,sponsor,squeeze,station,sterile,strange,stretch,subject,succeed,sundown,support,supreme,survive,sustain,swagger,symptom,tactics,teacher,tension,terrain,testing,therapy,thermal,thought,thunder,torpedo,towards,trading,tragedy,treason,tribute,trigger,triumph,trouble,turbine,typical,uncover,undergo,uniform,unknown,unravel,unusual,updated,upgrade,variety,venture,victory,violent,warrant,website,welfare,willing,without,witness,worship,written".split(",").filter(w=>w.length===7);
+
+// ════════════════════════════════════════════
+// LETTER FREQUENCY (approx) for scoring
+// ════════════════════════════════════════════
+const LETTER_FREQ = {a:8.2,b:1.5,c:2.8,d:4.3,e:13,f:2.2,g:2,h:6.1,i:7,j:0.2,k:0.8,l:4,m:2.4,n:6.7,o:7.5,p:1.9,q:0.1,r:6,s:6.3,t:9.1,u:2.8,v:1,w:2.4,x:0.2,y:2,z:0.1};
+
+const WORDS_8 = "absolute,abstract,accident,accurate,achieved,acquaint,acquired,activate,actually,addition,adequate,adjusted,admitted,adoption,advanced,affected,affirmed,afforded,agencies,agreeing,alerting,allegory,alliance,allowing,although,aluminum,ambition,analysis,announce,annually,answered,apparent,appeared,appetite,applying,approval,argument,arranged,arrested,articles,assemble,assisted,assuming,attached,attacked,attitude,bachelor,backward,balanced,barriers,baseball,becoming,behavior,birthday,breakout,calendar,captured,category,centered,champion,changing,chapters,clothing,collapse,combined,compared,compiled,compound,computed,concerns,conclude,consider,consists,contrary,controls,coupling,coverage,creating,decisive,declared,defended,delegate,delivery,departed,describe,designed,detected,devoting,directed,disabled,disaster,discover,distinct,doubtful,dramatic,duration,dwelling,educated,elevated,emerging,emotions,employed,energize,engaging,enhanced,enriched,entirety,equipped,estimate,evolving,excluded,exercise,expected,external,featured,feedback,followed,formally,forwards,fraction,frontier,function,generate,generous,grateful,greatest,guidance,happened,harmless,headline,honestly,identity,illusion,imagined,improved,included,increase,indicate,industry,intended,involved,isolated,language,launched,learning,lifetime,lighting,likewise,limiting,location,managing,marketed,maturity,measured,medicine,military,minimize,mobility,movement,multiple,northern,observed,obtained,occupied,official,operated,opposite,original,outbreak,overseas,peaceful,perceive,personal,planning,pleasant,positive,possible,practice,prepared,pressure,probably,produces,progress,promoted,provides,publicly,purchase,realized,received,reducing,referred,rejected,reliable,remained,replaced,required,research,resolved,restored,revealed,reviewed,rewarded,schedule,security,selected,separate,sequence,singular,solution,southern,specific,strength,strongly,students,suffered,suitable,superior,supplied,survival,targeted,terminal,thousand,together,training,transfer,transmit,traveled,troubled,ultimate,umbrella,unbiased,underway,unfairly,uniquely,unlikely,updating,vacation,valuable,variable,verified,violence,visiting,whatever,wireless".split(",").filter(w=>w.length===8);
+
+// Built-in fallback lists (used instantly; upgraded when fetch completes)
+const BUILTIN_LISTS = {4:WORDS_4, 5:WORDS_5, 6:WORDS_6, 7:WORDS_7, 8:WORDS_8};
+let WORD_LISTS = {4:[...WORDS_4], 5:[...WORDS_5], 6:[...WORDS_6], 7:[...WORDS_7], 8:[...WORDS_8]};
+
+// ════════════════════════════════════════════
+// FETCH LARGE DICTIONARY AT STARTUP
+// ════════════════════════════════════════════
+async function fetchDictionary() {
+  const statusEl = document.getElementById('dict-status');
+  try {
+    statusEl.textContent = 'Loading full dictionary…';
+    statusEl.style.color = 'var(--accent)';
+    const res = await fetch('https://raw.githubusercontent.com/dwyl/english-words/master/words_alpha.txt');
+    if (!res.ok) throw new Error('fetch failed');
+    const text = await res.text();
+    const all = text.split('\n').map(w=>w.trim().toLowerCase()).filter(w=>w.length>=3&&w.length<=10&&/^[a-z]+$/.test(w));
+    const byLen = {};
+    for (let n=3;n<=10;n++) byLen[n]=[];
+    for (const w of all) { if(byLen[w.length]) byLen[w.length].push(w); }
+    // Merge with built-ins
+    for (let n=3;n<=10;n++) {
+      WORD_LISTS[n] = Array.from(new Set([...(BUILTIN_LISTS[n]||[]), ...(byLen[n]||[])]));
+    }
+    const total = Object.values(WORD_LISTS).reduce((s,a)=>s+a.length,0);
+    statusEl.textContent = `✓ ${total.toLocaleString()} words`;
+    statusEl.style.color = 'var(--green)';
+    solve();
+    setTimeout(()=>{ statusEl.textContent=''; },3000);
+  } catch(e) {
+    const total = Object.values(BUILTIN_LISTS).reduce((s,a)=>s+a.length,0);
+    statusEl.textContent = `Built-in: ${total.toLocaleString()} words`;
+    statusEl.style.color = 'var(--muted)';
+  }
+}
+
+// ════════════════════════════════════════════
+// STATE
+// ════════════════════════════════════════════
+let wordLen = 5;
+let rows = [];
+let activeCell = null;
+let sortMode = 'freq';
+
+const STATE_CYCLE = ['', 'grey', 'yellow', 'green'];
+
+// ════════════════════════════════════════════
+// INIT
+// ════════════════════════════════════════════
+function init() {
+  rows = [];
+  activeCell = null;
+  addRow();
+  buildKeyboard();
+  solve();
+}
+
+function setWordLen(n) {
+  wordLen = n;
+  document.querySelectorAll('#wlen-pills .pill').forEach(p => {
+    p.classList.toggle('active', parseInt(p.dataset.len) === n);
+  });
+  init();
+}
+
+// ════════════════════════════════════════════
+// ROW MANAGEMENT
+// ════════════════════════════════════════════
+function addRow() {
+  if (rows.length >= 8) { showToast('Max 8 rows'); return; }
+  rows.push({ letters: Array(wordLen).fill(''), states: Array(wordLen).fill('') });
+  renderRows();
+}
+
+function deleteRow(idx) {
+  if (rows.length <= 1) { rows[0] = { letters: Array(wordLen).fill(''), states: Array(wordLen).fill('') }; renderRows(); solve(); return; }
+  rows.splice(idx, 1);
+  activeCell = null;
+  renderRows();
+  solve();
+}
+
+function renderRows() {
+  const container = document.getElementById('guess-rows');
+  container.innerHTML = '';
+  rows.forEach((row, rIdx) => {
+    const rowEl = document.createElement('div');
+    rowEl.className = 'guess-row';
+    rowEl.innerHTML = `<div class="guess-row-num">${rIdx+1}</div><div class="tiles-row" id="row-${rIdx}"></div>
+    <button class="row-delete" onclick="deleteRow(${rIdx})" title="Clear row">✕</button>`;
+    container.appendChild(rowEl);
+
+    const tilesRow = rowEl.querySelector('.tiles-row');
+    row.letters.forEach((letter, cIdx) => {
+      const tile = document.createElement('div');
+      const isActive = activeCell && activeCell.rowIdx === rIdx && activeCell.colIdx === cIdx;
+      tile.className = `tile ${row.states[cIdx] ? 'state-'+row.states[cIdx] : ''} ${isActive ? 'active' : ''}`;
+      tile.textContent = letter;
+      tile.dataset.row = rIdx;
+      tile.dataset.col = cIdx;
+      tile.onclick = () => handleTileClick(rIdx, cIdx);
+      tilesRow.appendChild(tile);
+    });
+  });
+}
+
+function handleTileClick(rIdx, cIdx) {
+  if (activeCell && activeCell.rowIdx === rIdx && activeCell.colIdx === cIdx) {
+    // Cycle state if letter exists
+    if (rows[rIdx].letters[cIdx]) {
+      const cur = rows[rIdx].states[cIdx];
+      const next = STATE_CYCLE[(STATE_CYCLE.indexOf(cur) + 1) % STATE_CYCLE.length];
+      rows[rIdx].states[cIdx] = next === '' ? 'grey' : next;
+      renderRows();
+      updateKeyboard();
+      solve();
+    }
+  } else {
+    activeCell = { rowIdx: rIdx, colIdx: cIdx };
+    renderRows();
+  }
+}
+
+// ════════════════════════════════════════════
+// KEYBOARD
+// ════════════════════════════════════════════
+const KB_ROWS = [
+  ['Q','W','E','R','T','Y','U','I','O','P'],
+  ['A','S','D','F','G','H','J','K','L'],
+  ['⌫','Z','X','C','V','B','N','M','↵']
+];
+
+function buildKeyboard() {
+  const kb = document.getElementById('keyboard');
+  kb.innerHTML = '';
+  KB_ROWS.forEach(keys => {
+    const row = document.createElement('div');
+    row.className = 'kb-row';
+    keys.forEach(k => {
+      const btn = document.createElement('button');
+      btn.className = `kb-key ${(k==='⌫'||k==='↵')?'wide':''}`;
+      btn.id = `kb-${k}`;
+      btn.textContent = k;
+      btn.onclick = () => handleKey(k);
+      row.appendChild(btn);
+    });
+    kb.appendChild(row);
+  });
+}
+
+function handleKey(k) {
+  if (!activeCell) {
+    // Find first empty cell
+    for (let r=0;r<rows.length;r++) {
+      for (let c=0;c<wordLen;c++) {
+        if (!rows[r].letters[c]) { activeCell={rowIdx:r,colIdx:c}; break; }
+      }
+      if (activeCell) break;
+    }
+    if (!activeCell) { addRow(); activeCell={rowIdx:rows.length-1,colIdx:0}; }
+  }
+
+  const {rowIdx:r, colIdx:c} = activeCell;
+
+  if (k === '⌫') {
+    if (rows[r].letters[c]) {
+      rows[r].letters[c] = '';
+      rows[r].states[c] = '';
+    } else if (c > 0) {
+      rows[r].letters[c-1] = '';
+      rows[r].states[c-1] = '';
+      activeCell = {rowIdx:r, colIdx:c-1};
+    }
+    renderRows();
+    updateKeyboard();
+    solve();
+    return;
+  }
+
+  if (k === '↵') { solve(); return; }
+
+  const letter = k.toUpperCase();
+  rows[r].letters[c] = letter;
+  if (!rows[r].states[c]) rows[r].states[c] = 'grey';
+  // Advance
+  if (c < wordLen-1) activeCell = {rowIdx:r, colIdx:c+1};
+  else if (r < rows.length-1) activeCell = {rowIdx:r+1, colIdx:0};
+  else activeCell = null;
+  renderRows();
+  updateKeyboard();
+  solve();
+}
+
+// Physical keyboard support
+document.addEventListener('keydown', e => {
+  if (e.ctrlKey || e.metaKey || e.altKey) return;
+  if (e.key === 'Backspace') { handleKey('⌫'); return; }
+  if (e.key === 'Enter') { handleKey('↵'); return; }
+  if (/^[a-zA-Z]$/.test(e.key)) { handleKey(e.key.toUpperCase()); }
+});
+
+function updateKeyboard() {
+  // Reset all
+  document.querySelectorAll('.kb-key').forEach(b => {
+    b.className = b.className.replace(/state-\w+/g,'').trim();
+  });
+  const best = {};
+  rows.forEach(row => {
+    row.letters.forEach((l, i) => {
+      if (!l) return;
+      const s = row.states[i];
+      const prev = best[l];
+      if (!prev) best[l] = s;
+      else if (prev==='grey' && (s==='yellow'||s==='green')) best[l]=s;
+      else if (prev==='yellow' && s==='green') best[l]=s;
+    });
+  });
+  Object.entries(best).forEach(([l,s]) => {
+    const btn = document.getElementById(`kb-${l}`);
+    if (btn && s) btn.classList.add(`state-${s}`);
+  });
+}
+
+// ════════════════════════════════════════════
+// SOLVER ENGINE
+// ════════════════════════════════════════════
+function solve() {
+  const constraints = buildConstraints();
+  const wordList = WORD_LISTS[wordLen] || WORDS_5;
+  let candidates = wordList.filter(w => matchesConstraints(w, constraints));
+
+  // Score words
+  candidates = candidates.map(w => ({word:w, score:scoreWord(w, constraints)}));
+
+  if (sortMode === 'freq') candidates.sort((a,b) => b.score - a.score);
+  else if (sortMode === 'alpha') candidates.sort((a,b) => a.word.localeCompare(b.word));
+  else candidates.sort((a,b) => b.score - a.score);
+
+  renderSuggestions(candidates);
+
+  // Update topbar
+  document.getElementById('topbar-meta').textContent =
+    candidates.length === 0 ? 'NO MATCHES' :
+    candidates.length === 1 ? '1 WORD LEFT' :
+    `${candidates.length} WORDS`;
+
+  // Word count
+  document.getElementById('wc-num').textContent = candidates.length;
+  const wcEl = document.getElementById('word-count');
+  wcEl.innerHTML = `<b id="wc-num">${candidates.length}</b> possible word${candidates.length!==1?'s':''}`;
+}
+
+function buildConstraints() {
+  // Returns {greens:[{pos,letter}], yellows:[{pos,letter}], greys:Set<letter>, yellowLetters:Set<letter>}
+  const greens = [];
+  const yellows = [];
+  const greys = new Set();
+  const yellowLetters = new Set();
+  const greenLetters = new Set();
+
+  rows.forEach(row => {
+    row.letters.forEach((l, i) => {
+      if (!l) return;
+      const s = row.states[i];
+      if (s === 'green') { greens.push({pos:i, letter:l}); greenLetters.add(l); }
+      else if (s === 'yellow') { yellows.push({pos:i, letter:l}); yellowLetters.add(l); }
+      else if (s === 'grey') {
+        // only mark grey if not also green/yellow elsewhere
+        greys.add(l);
+      }
+    });
+  });
+
+  // Remove from greys any letter that is also green/yellow somewhere
+  greenLetters.forEach(l => greys.delete(l));
+  yellowLetters.forEach(l => greys.delete(l));
+
+  return {greens, yellows, greys, yellowLetters, greenLetters};
+}
+
+function matchesConstraints(word, {greens, yellows, greys, yellowLetters}) {
+  const w = word.toUpperCase();
+
+  // Must have greens in correct position
+  for (const {pos, letter} of greens) {
+    if (w[pos] !== letter) return false;
+  }
+
+  // Yellows: letter must exist, but NOT in that position
+  for (const {pos, letter} of yellows) {
+    if (!w.includes(letter)) return false;
+    if (w[pos] === letter) return false;
+  }
+
+  // Greys: letter must not appear
+  for (const letter of greys) {
+    if (w.includes(letter)) return false;
+  }
+
+  return true;
+}
+
+function scoreWord(word, constraints) {
+  const w = word.toUpperCase();
+  let score = 0;
+  const seen = new Set();
+  for (const ch of w) {
+    if (!seen.has(ch)) {
+      score += (LETTER_FREQ[ch.toLowerCase()] || 0);
+      seen.add(ch);
+    }
+  }
+  // Bonus for covering unknown positions
+  const knownPos = new Set(constraints.greens.map(g=>g.pos));
+  for (let i=0;i<w.length;i++) {
+    if (!knownPos.has(i)) score += 1;
+  }
+  return score;
+}
+
+// ════════════════════════════════════════════
+// RENDER SUGGESTIONS
+// ════════════════════════════════════════════
+function renderSuggestions(candidates) {
+  const grid = document.getElementById('word-grid');
+  grid.innerHTML = '';
+
+  if (candidates.length === 0) {
+    grid.innerHTML = `<div class="empty-state">
+      <div class="empty-icon">🔍</div>
+      <div class="empty-title">No matches found</div>
+      <div class="empty-sub">Try adjusting your constraints — some combination may be impossible.</div>
+    </div>`;
+    return;
+  }
+
+  const constraints = buildConstraints();
+  const display = candidates.slice(0, 120); // Show up to 120
+
+  display.forEach(({word, score}, idx) => {
+    const card = document.createElement('div');
+    card.className = `word-card ${idx < 3 ? 'best' : ''}`;
+    card.style.animationDelay = `${Math.min(idx * 0.02, 0.4)}s`;
+    card.title = `Click to use "${word.toUpperCase()}"`;
+    card.onclick = () => useWord(word);
+
+    const tiles = document.createElement('div');
+    tiles.className = 'word-card-letters';
+    word.toUpperCase().split('').forEach(letter => {
+      const t = document.createElement('div');
+      let cls = '';
+      // Color based on constraints
+      const greenHere = constraints.greens.some(g => g.letter === letter);
+      const yellowHere = constraints.yellows.some(y => y.letter === letter);
+      if (greenHere) cls = 'g';
+      else if (yellowHere) cls = 'y';
+      t.className = `wc-tile ${cls}`;
+      t.textContent = letter;
+      tiles.appendChild(t);
+    });
+
+    const scoreEl = document.createElement('div');
+    scoreEl.className = 'word-card-score';
+    scoreEl.textContent = idx < 3 ? `★ top pick` : `${Math.round(score)} pts`;
+
+    card.appendChild(tiles);
+    card.appendChild(scoreEl);
+    grid.appendChild(card);
+  });
+
+  if (candidates.length > 120) {
+    const more = document.createElement('div');
+    more.style.cssText = 'grid-column:1/-1;text-align:center;padding:12px;font-size:12px;color:var(--muted);font-family:DM Mono,monospace;';
+    more.textContent = `+ ${candidates.length - 120} more words not shown`;
+    grid.appendChild(more);
+  }
+}
+
+// ════════════════════════════════════════════
+// USE WORD (click suggestion → fill it in)
+// ════════════════════════════════════════════
+function useWord(word) {
+  const w = word.toUpperCase();
+  // Find a free row or add one
+  let targetRow = rows.findIndex(r => r.letters.every(l => !l));
+  if (targetRow === -1) {
+    addRow();
+    targetRow = rows.length - 1;
+  }
+  rows[targetRow].letters = w.split('');
+  rows[targetRow].states = Array(wordLen).fill('grey');
+  activeCell = {rowIdx: targetRow, colIdx: 0};
+  renderRows();
+  updateKeyboard();
+  showToast(`"${w}" added — click tiles to mark green/yellow`);
+}
+
+// ════════════════════════════════════════════
+// CONTROLS
+// ════════════════════════════════════════════
+function setSortMode(mode) {
+  sortMode = mode;
+  document.querySelectorAll('.sort-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById(`sort-${mode}`).classList.add('active');
+  solve();
+}
+
+function resetAll() {
+  init();
+  showToast('Reset!');
+}
+
+// ════════════════════════════════════════════
+// TOAST
+// ════════════════════════════════════════════
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(window._toastTimer);
+  window._toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ════════════════════════════════════════════
+// TOPBAR PILLS
+// ════════════════════════════════════════════
+document.querySelectorAll('#wlen-pills .pill').forEach(p => {
+  p.addEventListener('click', () => setWordLen(parseInt(p.dataset.len)));
+});
+
+// Default active = 5
+document.querySelectorAll('#wlen-pills .pill').forEach(p => {
+  p.classList.toggle('active', parseInt(p.dataset.len) === 5);
+});
+
+// ════════════════════════════════════════════
+// BOOT
+// ════════════════════════════════════════════
+init();
+fetchDictionary();
+</script>
+</body>
+</html>
