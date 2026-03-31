@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FoxView - Viewer</title>
+</head>
+<body>
+  <h2>FoxView - Viewer</h2>
+  <video id="video" autoplay playsinline style="width:90%; border:1px solid #000;"></video>
+
+  <script>
+    const GITHUB_TOKEN = "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";
+    const OWNER = "patrickcoder32";
+    const REPO = "foxurl.github.io";
+    const SIGNAL_PATH = "tools/viewer/admin/signal.json";
+
+    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${SIGNAL_PATH}`;
+
+    async function getSignal() {
+      const res = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
+      });
+      if (!res.ok) throw new Error("Failed to fetch signal.json");
+      const data = await res.json();
+      const content = atob(data.content.replace(/\n/g, ""));
+      return { json: JSON.parse(content), sha: data.sha };
+    }
+
+    async function updateSignal(newJson, msg) {
+      const { sha } = await getSignal();
+      const content = btoa(JSON.stringify(newJson, null, 2));
+      const res = await fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: msg,
+          content,
+          sha
+        })
+      });
+      if (!res.ok) throw new Error("Failed to update signal.json");
+    }
+
+    async function main() {
+      const video = document.getElementById("video");
+
+      let offer;
+      let lastUpdated = 0;
+
+      // Wait for offer
+      while (true) {
+        const { json } = await getSignal();
+        if (json.offer && json.updatedAt !== lastUpdated) {
+          offer = json.offer;
+          lastUpdated = json.updatedAt;
+          break;
+        }
+        await new Promise(r => setTimeout(r, 2000));
+      }
+
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      pc.ontrack = (event) => {
+        video.srcObject = event.streams[0];
+      };
+
+      await pc.setRemoteDescription(offer);
+      await pc.setLocalDescription(await pc.createAnswer());
+
+      await new Promise(resolve => {
+        if (pc.iceGatheringState === "complete") return resolve();
+        pc.addEventListener("icegatheringstatechange", () => {
+          if (pc.iceGatheringState === "complete") resolve();
+        });
+      });
+
+      const answer = pc.localDescription;
+
+      const newSignal = {
+        offer: offer,
+        answer: answer,
+        updatedAt: Date.now()
+      };
+
+      await updateSignal(newSignal, "Update signal.json (answer)");
+    }
+
+    main().catch(console.error);
+  </script>
+</body>
+</html>
