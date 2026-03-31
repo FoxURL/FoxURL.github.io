@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>FoxView - Screen Sender</title>
+</head>
+<body>
+  <h2>FoxView - Screen Sender</h2>
+  <p>Sharing your screen…</p>
+
+  <script>
+    const GITHUB_TOKEN = "PASTE_YOUR_TOKEN_HERE";
+    const OWNER = "patrickcoder32";
+    const REPO = "foxurl.github.io";
+    const SIGNAL_PATH = "tools/viewer/admin/signal.json";
+
+    const apiUrl = `https://api.github.com/repos/${OWNER}/${REPO}/contents/${SIGNAL_PATH}`;
+
+    async function getSignal() {
+      const res = await fetch(apiUrl, {
+        headers: { Authorization: `Bearer ${GITHUB_TOKEN}` }
+      });
+      if (!res.ok) throw new Error("Failed to fetch signal.json");
+      const data = await res.json();
+      const content = atob(data.content.replace(/\n/g, ""));
+      return { json: JSON.parse(content), sha: data.sha };
+    }
+
+    async function updateSignal(newJson) {
+      const { sha } = await getSignal();
+      const content = btoa(JSON.stringify(newJson, null, 2));
+      const res = await fetch(apiUrl, {
+        method: "PUT",
+        headers: {
+          Authorization: `Bearer ${GITHUB_TOKEN}`,
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          message: "Update signal.json (offer)",
+          content,
+          sha
+        })
+      });
+      if (!res.ok) throw new Error("Failed to update signal.json");
+    }
+
+    async function main() {
+      let stream;
+      try {
+        stream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+      } catch (e) {
+        window.close();
+        return;
+      }
+
+      const pc = new RTCPeerConnection({
+        iceServers: [{ urls: "stun:stun.l.google.com:19302" }]
+      });
+
+      stream.getTracks().forEach(t => pc.addTrack(t, stream));
+
+      await pc.setLocalDescription(await pc.createOffer());
+
+      await new Promise(resolve => {
+        if (pc.iceGatheringState === "complete") return resolve();
+        pc.addEventListener("icegatheringstatechange", () => {
+          if (pc.iceGatheringState === "complete") resolve();
+        });
+      });
+
+      const offer = pc.localDescription;
+
+      const signal = {
+        offer: offer,
+        answer: null,
+        updatedAt: Date.now()
+      };
+      await updateSignal(signal);
+
+      const pollAnswer = setInterval(async () => {
+        try {
+          const { json } = await getSignal();
+          if (json.answer && !pc.currentRemoteDescription) {
+            await pc.setRemoteDescription(json.answer);
+            clearInterval(pollAnswer);
+          }
+        } catch (e) {
+          console.error(e);
+        }
+      }, 2000);
+    }
+
+    main().catch(console.error);
+  </script>
+</body>
+</html>
