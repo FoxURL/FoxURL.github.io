@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Silent Google Form Submit + Autocomplete + Validation</title>
+
+  <style>
+    #suggestions {
+      border: 1px solid #ccc;
+      max-width: 300px;
+      background: white;
+      position: absolute;
+      display: none;
+    }
+    #suggestions div {
+      padding: 6px;
+      cursor: pointer;
+    }
+    #suggestions div:hover {
+      background: #eee;
+    }
+
+    /* Modal */
+    #invalidModal {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      justify-content: center;
+      align-items: center;
+    }
+    #invalidBox {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      width: 300px;
+      text-align: center;
+    }
+    button {
+      margin: 5px;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>Send message</h1>
+
+  <form id="msgForm">
+    <label>Sender</label><br>
+    <input type="text" id="sender" name="entry.1792394526" required><br><br>
+
+    <label>Recipient</label><br>
+    <input type="text" id="recipient" name="entry.1100116445" autocomplete="off" required>
+    <div id="suggestions"></div>
+    <br><br>
+
+    <label>Subject</label><br>
+    <input type="text" id="subject" name="entry.1157753284" required><br><br>
+
+    <label>Content</label><br>
+    <textarea id="content" name="entry.1741213628" rows="6" required></textarea><br><br>
+
+    <button type="submit">Send</button>
+  </form>
+
+  <p id="status"></p>
+
+  <!-- Modal -->
+  <div id="invalidModal">
+    <div id="invalidBox">
+      <h3>Invalid Email</h3>
+      <p>This email is not in your approved list.</p>
+      <button id="fixBtn">Fix Email</button>
+      <button id="composeBtn">Compose Outside</button>
+    </div>
+  </div>
+
+  <script>
+    let emailList = [];
+
+    // Load JSON from GitHub
+    fetch("https://FoxURL.github.io/FoxMail/emails.json")
+      .then(res => res.json())
+      .then(data => emailList = data.emails)
+      .catch(err => console.error("JSON load error", err));
+
+    const recipientInput = document.getElementById("recipient");
+    const suggestionsBox = document.getElementById("suggestions");
+
+    // Autocomplete
+    recipientInput.addEventListener("input", () => {
+      const query = recipientInput.value.toLowerCase();
+      suggestionsBox.innerHTML = "";
+
+      if (!query) {
+        suggestionsBox.style.display = "none";
+        return;
+      }
+
+      const matches = emailList.filter(item =>
+        item.name.toLowerCase().includes(query) ||
+        item.email.toLowerCase().includes(query)
+      );
+
+      if (matches.length === 0) {
+        suggestionsBox.style.display = "none";
+        return;
+      }
+
+      matches.forEach(item => {
+        const div = document.createElement("div");
+        div.textContent = `${item.name} <${item.email}>`;
+        div.onclick = () => {
+          recipientInput.value = item.email;
+          suggestionsBox.style.display = "none";
+        };
+        suggestionsBox.appendChild(div);
+      });
+
+      suggestionsBox.style.display = "block";
+    });
+
+    // Modal elements
+    const modal = document.getElementById("invalidModal");
+    const fixBtn = document.getElementById("fixBtn");
+    const composeBtn = document.getElementById("composeBtn");
+
+    // Silent submit
+    const form = document.getElementById("msgForm");
+    const status = document.getElementById("status");
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const sender = document.getElementById("sender").value;
+      const recipient = recipientInput.value;
+      const subject = document.getElementById("subject").value;
+      const content = document.getElementById("content").value;
+
+      // Check if email is in JSON list
+      const valid = emailList.some(item => item.email.toLowerCase() === recipient.toLowerCase());
+
+      if (!valid) {
+        modal.style.display = "flex";
+
+        // Fix email
+        fixBtn.onclick = () => {
+          modal.style.display = "none";
+        };
+
+        // Compose outside
+        composeBtn.onclick = () => {
+          const mailto = `mailto:${recipient}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(content)}`;
+          window.location.href = mailto;
+        };
+
+        return; // stop submission
+      }
+
+      // Submit to Google Form
+      const formData = new FormData(form);
+      const url = "https://docs.google.com/forms/d/e/1FAIpQLSfhk60SgabC9DqfZBxMGtKbPeFP3OetrbVDqDwx1IGwcsXnrg/formResponse";
+
+      try {
+        await fetch(url, { method: "POST", mode: "no-cors", body: formData });
+        status.textContent = "Message sent.";
+        form.reset();
+      } catch {
+        status.textContent = "Error sending message.";
+      }
+    });
+  </script>
+
+</body>
+</html>
