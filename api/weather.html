@@ -1,53 +1,47 @@
 <!DOCTYPE html>
-<html>
-<head>
 <meta charset="UTF-8">
-<title>Weather JSON API</title>
+
 <script>
-async function run() {
-    // Parse query parameters
+(async () => {
     const params = new URLSearchParams(location.search);
-    const query = params.get("q") || "";
-    
-    // If no location provided
+    const query = params.get("q");
+
+    // If no ?q= provided
     if (!query) {
-        output({ error: "Missing ?q= parameter" });
-        return;
+        return output({ error: "Missing ?q= parameter" });
     }
 
     try {
-        // 1. Geocode the location → get lat/lon
-        const geoURL = "https://geocoding-api.open-meteo.com/v1/search?name=" 
-                        + encodeURIComponent(query) 
-                        + "&count=1";
+        // 1. Geocode
+        const geoURL =
+            "https://geocoding-api.open-meteo.com/v1/search?name=" +
+            encodeURIComponent(query) +
+            "&count=1";
 
         const geo = await fetch(geoURL).then(r => r.json());
 
         if (!geo.results || geo.results.length === 0) {
-            output({ error: "Location not found", query });
-            return;
+            return output({ error: "Location not found", query });
         }
 
         const loc = geo.results[0];
-        const lat = loc.latitude;
-        const lon = loc.longitude;
 
-        // 2. Fetch weather data
+        // 2. Weather
         const weatherURL =
-            "https://api.open-meteo.com/v1/forecast?latitude=" + lat +
-            "&longitude=" + lon +
+            "https://api.open-meteo.com/v1/forecast?latitude=" + loc.latitude +
+            "&longitude=" + loc.longitude +
             "&current=temperature_2m,relative_humidity_2m,uv_index,wind_speed_10m";
 
         const weather = await fetch(weatherURL).then(r => r.json());
 
-        // 3. Build JSON response
+        // 3. Build JSON
         const result = {
-            query: query,
+            query,
             resolved_location: {
                 name: loc.name,
                 country: loc.country,
-                latitude: lat,
-                longitude: lon
+                latitude: loc.latitude,
+                longitude: loc.longitude
             },
             weather: {
                 temperature: weather.current.temperature_2m,
@@ -63,21 +57,15 @@ async function run() {
     } catch (err) {
         output({ error: "Internal error", details: err.toString() });
     }
-}
+})();
 
-// Output JSON to the page
+// Output JSON ONLY
 function output(obj) {
     const json = JSON.stringify(obj, null, 2);
-    document.body.innerText = json;
 
-    // Set JSON MIME type
-    const blob = new Blob([json], { type: "application/json" });
-    const url = URL.createObjectURL(blob);
-    history.replaceState(null, "", url);
+    // Replace entire document with JSON text
+    document.open("application/json");
+    document.write(json);
+    document.close();
 }
-
-run();
 </script>
-</head>
-<body></body>
-</html>
