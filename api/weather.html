@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Weather JSON API</title>
+<script>
+async function run() {
+    // Parse query parameters
+    const params = new URLSearchParams(location.search);
+    const query = params.get("q") || "";
+    
+    // If no location provided
+    if (!query) {
+        output({ error: "Missing ?q= parameter" });
+        return;
+    }
+
+    try {
+        // 1. Geocode the location → get lat/lon
+        const geoURL = "https://geocoding-api.open-meteo.com/v1/search?name=" 
+                        + encodeURIComponent(query) 
+                        + "&count=1";
+
+        const geo = await fetch(geoURL).then(r => r.json());
+
+        if (!geo.results || geo.results.length === 0) {
+            output({ error: "Location not found", query });
+            return;
+        }
+
+        const loc = geo.results[0];
+        const lat = loc.latitude;
+        const lon = loc.longitude;
+
+        // 2. Fetch weather data
+        const weatherURL =
+            "https://api.open-meteo.com/v1/forecast?latitude=" + lat +
+            "&longitude=" + lon +
+            "&current=temperature_2m,relative_humidity_2m,uv_index,wind_speed_10m";
+
+        const weather = await fetch(weatherURL).then(r => r.json());
+
+        // 3. Build JSON response
+        const result = {
+            query: query,
+            resolved_location: {
+                name: loc.name,
+                country: loc.country,
+                latitude: lat,
+                longitude: lon
+            },
+            weather: {
+                temperature: weather.current.temperature_2m,
+                humidity: weather.current.relative_humidity_2m,
+                uv_index: weather.current.uv_index,
+                wind_speed: weather.current.wind_speed_10m,
+                time: weather.current.time
+            }
+        };
+
+        output(result);
+
+    } catch (err) {
+        output({ error: "Internal error", details: err.toString() });
+    }
+}
+
+// Output JSON to the page
+function output(obj) {
+    const json = JSON.stringify(obj, null, 2);
+    document.body.innerText = json;
+
+    // Set JSON MIME type
+    const blob = new Blob([json], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    history.replaceState(null, "", url);
+}
+
+run();
+</script>
+</head>
+<body></body>
+</html>
