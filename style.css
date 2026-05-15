@@ -20,10 +20,14 @@ body {
     color: white;
 }
 
-.topbar img {
-    height: 48px;
+/* Circular logo fix */
+.topbar img,
+.logo {
     width: 48px;
+    height: 48px;
     border-radius: 50%;
+    object-fit: cover;
+    display: block;
 }
 
 /* Hero section */
