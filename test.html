@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxURL Encryption Test</title>
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #0b1e33;
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            margin-bottom: 20px;
+        }
+
+        textarea {
+            width: 80%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 6px;
+            border: none;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 12px 20px;
+            margin: 10px;
+            border: none;
+            border-radius: 6px;
+            background: #1a73e8;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #155bb5;
+        }
+
+        .output {
+            margin-top: 20px;
+            padding: 15px;
+            background: #11263f;
+            border-radius: 6px;
+            width: 80%;
+            margin-left: auto;
+            margin-right: auto;
+            word-wrap: break-word;
+        }
+    </style>
+
+    <script src="encrypt.js" defer></script>
+</head>
+<body>
+
+    <h1>FoxURL Encryption Tester</h1>
+
+    <textarea id="inputText" rows="3" placeholder="Type text to encrypt or decrypt..."></textarea>
+
+    <br>
+
+    <button onclick="runEncrypt()">Encrypt</button>
+    <button onclick="runDecrypt()">Decrypt</button>
+
+    <div class="output" id="outputBox">Output will appear here...</div>
+
+    <script>
+        function runEncrypt() {
+            const text = document.getElementById("inputText").value;
+            const encrypted = foxEncrypt(text);
+            document.getElementById("outputBox").innerText = encrypted;
+        }
+
+        function runDecrypt() {
+            const text = document.getElementById("inputText").value;
+            const decrypted = foxDecrypt(text);
+            document.getElementById("outputBox").innerText = decrypted || "[decryption failed]";
+        }
+    </script>
+
+</body>
+</html>
