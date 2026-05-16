@@ -1,6 +1,40 @@
+/* CSV PARSER — REQUIRED */
+function parseCSVLine(line) {
+    const result = [];
+    let current = "";
+    let insideQuotes = false;
+
+    for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+
+        if (char === '"' && line[i + 1] === '"') {
+            current += '"';
+            i++;
+        } else if (char === '"') {
+            insideQuotes = !insideQuotes;
+        } else if (char === ',' && !insideQuotes) {
+            result.push(current);
+            current = "";
+        } else {
+            current += char;
+        }
+    }
+
+    result.push(current);
+    return result;
+}
+
+/* CLEAN CSV VALUES (fixes Google Sheets escaping) */
+function cleanCSVValue(v) {
+    return v
+        .trim()
+        .replace(/^"|"$/g, "")   // remove wrapping quotes
+        .replace(/""/g, '"');    // unescape double quotes
+}
+
 let FOX_API = null;
 
-// Load API config
+/* Load API config */
 async function loadConfig() {
     if (FOX_API) return FOX_API;
     const res = await fetch("/api.json");
@@ -8,7 +42,7 @@ async function loadConfig() {
     return FOX_API;
 }
 
-// Fetch and decrypt all users
+/* Parse + return encrypted users */
 async function getUsers() {
     const config = await loadConfig();
     const csvUrl = config.services.foxcloud.sheet_url;
@@ -18,39 +52,75 @@ async function getUsers() {
 
     const rows = text.split("\n").slice(1);
 
-    const users = rows
-        .map(r => r.split(","))
-        .filter(c => c.length >= 2)
+    return rows
+        .map(r => parseCSVLine(r))
+        .filter(c => c.length >= 2 && c[0].trim() !== "" && c[1].trim() !== "")
         .map(c => ({
-            email: foxDecrypt(c[0].trim()),
-            password: foxDecrypt(c[1].trim())
+            encryptedEmail: cleanCSVValue(c[0]),
+            encryptedPassword: cleanCSVValue(c[1])
         }));
-
-    return users;
 }
 
-// Login handler
-document.getElementById("loginForm").addEventListener("submit", async (e) => {
+/* Disable UI */
+function disableAll(disabled) {
+    document.querySelectorAll("input, button").forEach(el => el.disabled = disabled);
+}
+
+/* STEP 1 — EMAIL */
+document.getElementById("emailStep").addEventListener("submit", async (e) => {
     e.preventDefault();
+    disableAll(true);
 
     const email = document.getElementById("email").value.trim();
-    const password = document.getElementById("password").value;
-
-    const encryptedPassword = foxEncrypt(password);
+    const encryptedEmail = foxEncrypt(email);
 
     const users = await getUsers();
-    const user = users.find(u => u.email === email);
+    const user = users.find(u => u.encryptedEmail === encryptedEmail);
 
     if (!user) {
+        disableAll(false);
         alert("No account found with that email");
         return;
     }
 
-    if (user.password === encryptedPassword) {
-        alert("Login successful");
+    document.getElementById("emailStep").style.display = "none";
+    document.getElementById("passwordStep").style.display = "block";
+    document.getElementById("emailDisplay").innerText = email;
+
+    disableAll(false);
+});
+
+/* Password strength meter */
+document.getElementById("password").addEventListener("input", () => {
+    const val = document.getElementById("password").value;
+    const bar = document.getElementById("strength");
+
+    bar.className = "strength";
+
+    if (val.length > 8) bar.classList.add("good");
+    if (val.length > 12 && /[A-Z]/.test(val) && /\d/.test(val)) {
+        bar.classList.add("strong");
+    }
+});
+
+/* STEP 2 — PASSWORD */
+document.getElementById("passwordStep").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    disableAll(true);
+
+    const email = document.getElementById("emailDisplay").innerText;
+    const encryptedEmail = foxEncrypt(email);
+    const password = document.getElementById("password").value;
+    const encryptedPassword = foxEncrypt(password);
+
+    const users = await getUsers();
+    const user = users.find(u => u.encryptedEmail === encryptedEmail);
+
+    if (user && user.encryptedPassword === encryptedPassword) {
         localStorage.setItem("foxurl_user", email);
         window.location.href = "../dashboard/";
     } else {
+        disableAll(false);
         alert("Incorrect password");
     }
 });

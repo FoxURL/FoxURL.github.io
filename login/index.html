@@ -17,16 +17,26 @@
 </div>
 
 <div class="card">
-    <img src="/assets/logo/fox.png" class="logo" alt="FoxURL">
 
-    <h1>Sign in</h1>
-    <p class="subtitle">to continue to FoxURL</p>
+    <img src="/assets/logo/fox.png" class="logo">
 
-    <form id="loginForm">
+    <h1 id="title">Sign in</h1>
+    <p id="subtitle">to continue to FoxURL</p>
+
+    <!-- STEP 1: EMAIL -->
+    <form id="emailStep">
         <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Password" required>
-
         <button type="submit">Next</button>
+    </form>
+
+    <!-- STEP 2: PASSWORD -->
+    <form id="passwordStep" style="display:none;">
+        <p class="email-display" id="emailDisplay"></p>
+        <input type="password" id="password" placeholder="Enter your password" required>
+
+        <div id="strength" class="strength"></div>
+
+        <button type="submit">Login</button>
     </form>
 
     <p class="link">
