@@ -1,40 +1,6 @@
-/* CSV PARSER — REQUIRED */
-function parseCSVLine(line) {
-    const result = [];
-    let current = "";
-    let insideQuotes = false;
-
-    for (let i = 0; i < line.length; i++) {
-        const char = line[i];
-
-        if (char === '"' && line[i + 1] === '"') {
-            current += '"';
-            i++;
-        } else if (char === '"') {
-            insideQuotes = !insideQuotes;
-        } else if (char === ',' && !insideQuotes) {
-            result.push(current);
-            current = "";
-        } else {
-            current += char;
-        }
-    }
-
-    result.push(current);
-    return result;
-}
-
-/* CLEAN CSV VALUES (fixes Google Sheets escaping) */
-function cleanCSVValue(v) {
-    return v
-        .trim()
-        .replace(/^"|"$/g, "")   // remove wrapping quotes
-        .replace(/""/g, '"');    // unescape double quotes
-}
-
+/* Load config */
 let FOX_API = null;
 
-/* Load API config */
 async function loadConfig() {
     if (FOX_API) return FOX_API;
     const res = await fetch("/api.json");
@@ -42,23 +8,15 @@ async function loadConfig() {
     return FOX_API;
 }
 
-/* Parse + return encrypted users */
+/* Fetch users from JSON API */
 async function getUsers() {
     const config = await loadConfig();
-    const csvUrl = config.services.foxcloud.sheet_url;
+    const apiUrl = config.services.foxapi.endpoint;
 
-    const res = await fetch(csvUrl);
-    const text = await res.text();
+    const res = await fetch(apiUrl);
+    const data = await res.json();
 
-    const rows = text.split("\n").slice(1);
-
-    return rows
-        .map(r => parseCSVLine(r))
-        .filter(c => c.length >= 2 && c[0].trim() !== "" && c[1].trim() !== "")
-        .map(c => ({
-            encryptedEmail: cleanCSVValue(c[0]),
-            encryptedPassword: cleanCSVValue(c[1])
-        }));
+    return data.users || [];
 }
 
 /* Disable UI */
@@ -92,7 +50,7 @@ document.getElementById("registerForm").addEventListener("submit", async (e) => 
 
     const users = await getUsers();
 
-    if (users.find(u => u.encryptedEmail === encryptedEmail)) {
+    if (users.find(u => u.email === encryptedEmail)) {
         disableAll(false);
         alert("Email already exists — log in?");
         return;
