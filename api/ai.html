@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<body>
+<script>
+async function run() {
+  const q = new URL(location).searchParams.get("q") || "Hello";
+
+  const response = await fetch("https://text.pollinations.ai/", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: q })
+  });
+
+  const text = await response.text();
+
+  document.body.innerText = text;
+}
+run();
+</script>
+</body>
+</html>
