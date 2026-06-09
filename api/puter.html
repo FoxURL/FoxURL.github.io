@@ -13,8 +13,14 @@
 
         // Send it to Puter AI
         puter.ai.chat(userQuery, { model: "gpt-5.4-nano" })
-            .then(puter.print)
-            .catch(console.error);
+            .then(response => {
+                // Send the AI response back to TurboWarp
+                window.parent.postMessage(response, "*");
+            })
+            .catch(error => {
+                // Send error back too (so reporter doesn't hang)
+                window.parent.postMessage("Error: " + error, "*");
+            });
     </script>
 </body>
 </html>
