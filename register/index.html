@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Create your FoxURL Account</title>
+    <link rel="stylesheet" href="style.css?v=2">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+    body { background: #ffcccc !important; }
+</style>
+
+</head>
+
+<body>
+
+<div class="google-wrapper">
+
+    <div class="google-card">
+
+        <!-- LOGO INSIDE CARD -->
+        <img src="https://foxurl.github.io/assets/logo/circular.png" class="google-logo">
+
+        <!-- LEFT SIDE -->
+        <div class="left-panel">
+            <h1 class="left-title">Create your FoxURL Account</h1>
+            <p class="left-text">A single account for everything FoxURL.</p>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="right-panel">
+
+            <p class="subtitle" id="subtitle">Enter your name</p>
+
+            <div class="steps-container" id="stepsContainer">
+
+                <!-- STEP 1 -->
+                <div class="step">
+                    <div class="column">
+                        <input id="firstName" placeholder="First name">
+                        <input id="lastName" placeholder="Last name">
+                    </div>
+                </div>
+
+                <!-- STEP 2 -->
+                <div class="step">
+                    <div class="column">
+                        <input id="existingEmail" placeholder="Your existing email address">
+                    </div>
+                </div>
+
+                <!-- STEP 3 -->
+                <div class="step">
+                    <div class="column">
+                        <input id="reg_username" placeholder="Username (for signing in)">
+                        <div class="foxmail-row">
+                            <input id="foxmailUser" placeholder="FoxMAIL username">
+                            <span class="foxmail-domain">@FoxURL-mail.github.io</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- STEP 4 -->
+                <div class="step">
+                    <div class="column">
+                        <input id="reg_password" type="password" placeholder="Password">
+                        <input id="reg_password_confirm" type="password" placeholder="Confirm password">
+                        <label class="show-pass">
+                            <input type="checkbox" id="showPassword"> Show password
+                        </label>
+                    </div>
+                </div>
+
+            </div>
+
+            <div class="nav-row">
+                <button id="backBtn" class="text-btn" onclick="prevStep()">Back</button>
+                <button id="nextBtn" class="primary-btn" onclick="nextStep()">Next</button>
+            </div>
+
+            <button class="text-link" onclick="goBackToLogin()">Back to login</button>
+
+        </div>
+    </div>
+</div>
+
+
+<script src="script.js?v=2"></script>
+</body>
+</html>
