@@ -18,7 +18,7 @@
                 window.parent.postMessage(response, "*");
             })
             .catch(error => {
-                // Send error back too (so reporter doesn't hang)
+                // Send error back so the reporter doesn't hang
                 window.parent.postMessage("Error: " + error, "*");
             });
     </script>
