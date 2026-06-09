@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>Gateway</title>
+</head>
+<body>
+
+<pre id="out"></pre>
+
+<script>
+  // Read the ?q= parameter
+  const q = new URLSearchParams(location.search).get("q") || "";
+
+  const out = document.getElementById("out");
+
+  if (!q) {
+    out.textContent = "";
+  } else {
+    // Request body for your AI endpoint
+    const body = {
+      model: "openai/gpt-5.4-nano",
+      messages: [{ role: "user", content: q }]
+    };
+
+    // Insert YOUR endpoint here
+    const ENDPOINT = "https://api.puter.com/ai/chat";
+
+    fetch(ENDPOINT, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body)
+    })
+    .then(r => r.json())
+    .then(data => {
+      // Extract the AI answer
+      const answer =
+        data?.choices?.[0]?.message?.content ||
+        data?.response ||
+        "";
+
+      // Output ONLY the answer
+      out.textContent = answer;
+    })
+    .catch(() => {
+      // Fail silently
+      out.textContent = "";
+    });
+  }
+</script>
+
+</body>
+</html>
