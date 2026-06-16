@@ -6,35 +6,76 @@
     <title>FoxURL</title>
 
     <link rel="stylesheet" href="style.css">
-
-    <!-- Global FoxURL scripts -->
     <script src="FoxURL.js" defer></script>
     <script src="main.js" defer></script>
-
-    <!-- Home‑page script -->
     <script src="script.js" defer></script>
 </head>
 <body>
-
     <header class="topbar">
-        <img src="assets/logo/circular.png" class="logo" alt="FoxURL Logo">
-        <h1>FoxURL</h1>
+        <div class="brand">
+            <img src="assets/logo/circular.png" class="logo" alt="FoxURL Logo">
+            <div>
+                <p class="brand-label">FoxURL</p>
+                <p class="brand-subtitle">A smarter home for every Fox app</p>
+            </div>
+        </div>
+        <nav class="topnav">
+            <a href="https://foxurl.github.io/apps/Cat-feeding/">Cat Feeding</a>
+            <a href="https://foxurl.github.io/apps/wordle-solver-10/">Wordle Solver</a>
+            <a href="https://foxurl.github.io/apps/simple-scoring-app/">Scoring</a>
+        </nav>
     </header>
 
-    <section class="hero">
-        <h2>Welcome to FoxURL</h2>
-        <p>Your central hub for all Fox apps, tools, and services.</p>
+    <main class="page-content">
+        <section class="hero">
+            <div class="hero-copy">
+                <span class="eyebrow">Welcome to FoxURL</span>
+                <h1>One place for every Fox tool, game, and utility.</h1>
+                <p>Discover apps designed to help you play, track, and manage tasks with a clean experience built for fast access.</p>
 
-        <div class="home-buttons">
-            <button onclick="window.location.href='https://foxurl.github.io/apps/Cat-feeding/'">Cat Feeding App</button>
-            <button onclick="window.location.href='https://foxurl.github.io/apps/wordle-solver-10/'">Wordle Solver</button>
-            <button onclick="window.location.href='https://foxurl.github.io/apps/simple-scoring-app/'">Simple Scoring App</button>
-        </div>
-    </section>
+                <div class="hero-actions">
+                        <button onclick="openFoxApp('catFeeding', 'https://foxurl.github.io/apps/Cat-feeding/')">Cat Feeding</button>
+                        <button onclick="openFoxApp('wordleSolver', 'https://foxurl.github.io/apps/wordle-solver-10/')">Wordle Solver</button>
+                        <button onclick="openFoxApp('scoringApp', 'https://foxurl.github.io/apps/simple-scoring-app/')">Scoring App</button>
+                </div>
+            </div>
+
+            <div class="hero-panel">
+                    <div class="recent-card">
+                        <h2>Recently launched</h2>
+                        <p class="recent-copy">Your two most recently opened apps appear here for quick relaunch.</p>
+                        <div id="recentApps" class="recent-list"></div>
+                    </div>
+            </div>
+        </section>
+
+        <section class="apps">
+            <div class="section-header">
+                <h2>Featured apps</h2>
+                <p>Quick links to the projects that make FoxURL shine.</p>
+            </div>
+
+            <div class="app-grid">
+                <a class="app-card" href="https://foxurl.github.io/apps/Cat-feeding/">
+                    <span class="app-title">Cat Feeding</span>
+                    <span class="app-description">Manage your pet's meals and score your caretaking efforts.</span>
+                </a>
+
+                <a class="app-card" href="https://foxurl.github.io/apps/wordle-solver-10/">
+                    <span class="app-title">Wordle Solver</span>
+                    <span class="app-description">Get help solving Wordle quickly with a clean solver interface.</span>
+                </a>
+
+                <a class="app-card" href="https://foxurl.github.io/apps/simple-scoring-app/">
+                    <span class="app-title">Simple Scoring</span>
+                    <span class="app-description">Track points and keep scores with a lightweight, fast scoring app. simplified for the elderely</span>
+                </a>
+            </div>
+        </section>
+    </main>
 
     <footer>
-        <p>© 2026 FoxURL</p>
+        <p>© 2026 FoxURL • Built for fast access and easy discovery.</p>
     </footer>
-
 </body>
 </html>
