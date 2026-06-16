@@ -1,7 +1,7 @@
 // script.js
 // Homepage-only logic
 
-function openFoxApp(appName) {
+function openFoxApp(appName, overrideUrl, overrideDisplayName) {
     const appRoutes = {
         catFeeding: {
             name: 'Cat Feeding',
@@ -14,17 +14,24 @@ function openFoxApp(appName) {
         scoringApp: {
             name: 'Simple Scoring',
             url: 'https://foxurl.github.io/apps/simple-scoring-app/'
+        },
+        internetSpeed: {
+            name: 'Internet Speed Test',
+            url: 'https://foxurl.github.io/apps/internet-speed/'
         }
     };
 
-    const app = appRoutes[appName];
-    if (!app) {
+    const mapped = appRoutes[appName];
+    const url = (mapped && mapped.url) || overrideUrl;
+    const displayName = (mapped && mapped.name) || overrideDisplayName || humanizeAppName(appName) || url;
+
+    if (!url) {
         alert('This Fox app is not available yet.');
         return;
     }
 
-    saveRecentApp(appName, app.name, app.url);
-    window.location.href = app.url;
+    saveRecentApp(appName, displayName, url);
+    window.location.href = url;
 }
 
 function saveRecentApp(id, displayName, url) {
@@ -33,6 +40,12 @@ function saveRecentApp(id, displayName, url) {
     filtered.unshift({ id, displayName, url, launchedAt: Date.now() });
     const latest = filtered.slice(0, 2);
     localStorage.setItem('foxurlRecentApps', JSON.stringify(latest));
+}
+
+function humanizeAppName(key) {
+    if (!key) return '';
+    const s = key.replace(/([a-z0-9])([A-Z])/g, '$1 $2').replace(/[-_]/g, ' ');
+    return s.charAt(0).toUpperCase() + s.slice(1);
 }
 
 function loadRecentApps() {
