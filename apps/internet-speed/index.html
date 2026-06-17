@@ -3,27 +3,22 @@
 <head>
 <meta charset="UTF-8">
 <title>Internet Speed Test</title>
-
 <style>
 :root {
     --bg: #190a02;
     --glass-bg: rgba(255,235,220,0.07);
-    --glass-bg-strong: rgba(255,240,220,0.11);
     --glass-tint: rgba(255,140,60,0.06);
     --glass-border: rgba(255,200,140,0.14);
     --surface: rgba(255, 240, 210, 0.12);
-    --surface-strong: rgba(255, 245, 220, 0.18);
     --text: #fff7ef;
     --muted: #ffe8c9;
     --primary: #ff7a18;
-    --primary-strong: #ffd39a;
+    --success: #4dffb5;
     --shadow: 0 18px 50px rgba(18, 8, 0, 0.38);
     --glass-blur: 12px;
 }
 
-* {
-    box-sizing: border-box;
-}
+* { box-sizing: border-box; }
 
 body {
     margin: 0;
@@ -36,25 +31,24 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px;
+    padding: 40px 20px;
 }
 
-.speed-panel {
+.panel {
     width: 100%;
-    max-width: 880px;
-    padding: 32px;
+    max-width: 720px;
+    padding: 28px 26px 26px;
     border-radius: 26px;
     background: linear-gradient(180deg, var(--glass-bg), var(--glass-tint));
     border: 1px solid var(--glass-border);
-    box-shadow: 0 18px 60px rgba(0,0,0,0.45), 0 0 40px rgba(255,120,30,0.06) inset;
+    box-shadow: var(--shadow);
     backdrop-filter: blur(var(--glass-blur));
     position: relative;
-    transform-style: preserve-3d;
-    perspective: 900px;
+    overflow: hidden;
 }
 
-.speed-panel::before,
-.speed-panel::after {
+.panel::before,
+.panel::after {
     content: "";
     position: absolute;
     inset: 0;
@@ -62,201 +56,387 @@ body {
     pointer-events: none;
 }
 
-.speed-panel::before {
+.panel::before {
     background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
     border: 1px solid rgba(255,255,255,0.03);
     box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    transform-origin: center;
-    transition: transform 0.6s ease, opacity 0.5s ease;
     z-index: 0;
 }
 
-.speed-panel::after {
+.panel::after {
     inset: 6px;
     background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.045), transparent 20%);
     filter: blur(2px);
-    transform-origin: center;
-    transition: transform 0.8s ease, opacity 0.5s ease;
     z-index: 1;
 }
 
-.speed-panel:hover {
-    transform: translateY(-10px) rotateX(3deg);
-    box-shadow: 0 30px 80px rgba(0,0,0,0.5);
+.panel-inner {
+    position: relative;
+    z-index: 2;
 }
 
-.speed-panel:hover::before {
-    transform: translate3d(0,-10px,36px) scale(1.02);
-    opacity: 0.95;
+.header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
 }
 
-.speed-panel:hover::after {
-    transform: translate3d(0,-22px,64px) scale(1.04);
-    opacity: 0.9;
+.header img {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    object-fit: cover;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.12);
 }
 
-h1 {
-    margin: 0 0 18px;
-    font-size: 2.6rem;
+.header-text h1 {
+    margin: 0;
+    font-size: 1.6rem;
     font-weight: 800;
 }
 
-p {
-    margin: 0 0 22px;
+.header-text p {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
     color: var(--muted);
-    line-height: 1.7;
+}
+
+.main {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.speed-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+}
+
+.speed-value {
+    font-size: 3.2rem;
+    font-weight: 800;
+    transition: color 0.4s ease, opacity 0.25s ease;
+    opacity: 1;
+}
+
+.speed-value.updating {
+    opacity: 0.35;
+}
+
+.speed-unit {
+    font-size: 0.9rem;
+    color: var(--muted);
+    margin-top: 2px;
+}
+
+.status {
+    margin-top: 16px;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.status-strong {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--text);
+    margin-bottom: 4px;
+}
+
+.eta {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.summary {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 0.95rem;
+    color: var(--muted);
+    text-align: left;
+}
+
+.summary-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
+.actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
 }
 
 button {
     border: none;
     border-radius: 999px;
-    padding: 14px 26px;
-    background: linear-gradient(180deg, rgba(255,125,45,0.14), rgba(255,190,120,0.06));
+    padding: 10px 22px;
+    background: linear-gradient(180deg, rgba(255,125,45,0.18), rgba(255,190,120,0.08));
     color: var(--text);
-    font-size: 1rem;
+    font-size: 0.95rem;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.42), inset 0 -6px 18px rgba(0,0,0,0.12);
-    border: 1px solid rgba(255,190,120,0.08);
-    transition: transform 0.22s ease, box-shadow 0.22s ease;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.42), inset 0 -5px 14px rgba(0,0,0,0.12);
+    border: 1px solid rgba(255,190,120,0.12);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, opacity 0.18s ease;
 }
 
-button:hover {
-    transform: translateY(-3px);
-    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.5);
 }
 
 button:disabled {
-    opacity: 0.5;
+    opacity: 0.45;
     cursor: default;
+    box-shadow: none;
 }
 
-.result-box {
-    margin-top: 26px;
-    padding: 22px;
-    border-radius: 20px;
-    background: var(--surface);
-    border: 1px solid rgba(255,255,255,0.06);
-    backdrop-filter: blur(8px);
-}
-
-.result-value {
-    font-size: 2.4rem;
-    font-weight: 800;
-    margin-bottom: 6px;
-}
-
-.log {
-    margin-top: 20px;
-    max-height: 160px;
-    overflow-y: auto;
-    padding: 14px;
-    border-radius: 14px;
-    background: rgba(255,255,255,0.04);
-    border: 1px solid rgba(255,255,255,0.06);
+.footer-note {
+    margin-top: 14px;
+    font-size: 0.78rem;
     color: var(--muted);
-    font-size: 0.9rem;
-    white-space: pre-wrap;
+    text-align: center;
 }
 </style>
 </head>
-
 <body>
-
-<div class="speed-panel">
-    <h1>Internet Speed Test</h1>
-    <p>Using a real 100&nbsp;MB file hosted at <code>FoxURL.github.io</code>.</p>
-
-    <div style="margin-top:22px; display:flex; gap:14px;">
-        <button id="start">Start Test</button>
-        <button id="cancel" disabled>Cancel</button>
+<div class="panel">
+  <div class="panel-inner">
+    <div class="header">
+      <img src="https://ts4.mm.bing.net/th?id=OIP.LIualX0FrLhCtRJ2_BivlQHaHP&pid=15.1&o=7&rm=3" alt="Speed icon">
+      <div class="header-text">
+        <h1>Internet Speed Test</h1>
+        <p>Multi‑phase test using real files from GitHub and File.Garden.</p>
+      </div>
     </div>
 
-    <div class="result-box">
-        <div class="result-value" id="speed">0.00 Mbps</div>
-        <div id="status">Idle</div>
-    </div>
+    <div class="main">
+      <div class="speed-label">Download speed</div>
+      <div id="speedValue" class="speed-value">0.00</div>
+      <div class="speed-unit">Mbps</div>
 
-    <div class="log" id="log"></div>
+      <div class="status">
+        <span class="status-strong" id="statusText">Idle</span>
+        <span class="eta" id="etaText">Ready when you are.</span>
+      </div>
+
+      <div class="summary" id="summaryBox" style="display:none;">
+        <div class="summary-title" id="summaryTitle"></div>
+        <div id="summaryBody"></div>
+      </div>
+
+      <div class="actions">
+        <button id="startBtn">Start test</button>
+        <button id="cancelBtn" disabled>Cancel</button>
+      </div>
+
+      <div class="footer-note">
+        Uses 1MB, 10MB, 25MB, 50MB and 100MB files from both hosts for a more accurate estimate.
+      </div>
+    </div>
+  </div>
 </div>
 
 <script>
-const TEST_URL = "https://FoxURL.github.io/bin/100MB.bin";
-const TEST_SIZE_BYTES = 100 * 1024 * 1024;
+const FILES = [
+  { host: "GitHub", sizeMB: 1,   url: "https://foxurl.github.io/bin/1MB.bin" },
+  { host: "File.Garden", sizeMB: 1,   url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/1MB.txt" },
+  { host: "GitHub", sizeMB: 10,  url: "https://foxurl.github.io/bin/10MB.bin" },
+  { host: "File.Garden", sizeMB: 10,  url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/10MB.txt" },
+  { host: "GitHub", sizeMB: 25,  url: "https://foxurl.github.io/bin/25MB.bin" },
+  { host: "File.Garden", sizeMB: 25,  url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/25MB.txt" },
+  { host: "GitHub", sizeMB: 50,  url: "https://foxurl.github.io/bin/50MB.bin" },
+  { host: "File.Garden", sizeMB: 50,  url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/50MB.txt" },
+  { host: "GitHub", sizeMB: 100, url: "https://foxurl.github.io/bin/100MB.bin" },
+  { host: "File.Garden", sizeMB: 100, url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/100MB.txt" }
+];
 
-function log(msg) {
-    const box = document.getElementById("log");
-    box.textContent += msg + "\n";
-    box.scrollTop = box.scrollHeight;
+const VERIFY_GROUPS = [
+  [
+    { host: "GitHub", sizeMB: 10, url: "https://foxurl.github.io/bin/10MB.bin" },
+    { host: "GitHub", sizeMB: 25, url: "https://foxurl.github.io/bin/25MB.bin" }
+  ],
+  [
+    { host: "File.Garden", sizeMB: 10, url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/10MB.txt" },
+    { host: "File.Garden", sizeMB: 25, url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/25MB.txt" }
+  ]
+];
+
+const WEIGHTS = { 1: 0.05, 10: 0.15, 25: 0.25, 50: 0.25, 100: 0.30 };
+
+const speedEl = document.getElementById("speedValue");
+const statusEl = document.getElementById("statusText");
+const etaEl = document.getElementById("etaText");
+const summaryBox = document.getElementById("summaryBox");
+const summaryTitle = document.getElementById("summaryTitle");
+const summaryBody = document.getElementById("summaryBody");
+const startBtn = document.getElementById("startBtn");
+const cancelBtn = document.getElementById("cancelBtn");
+
+let abortController = null;
+
+function setSpeedDisplay(mbps, done = false) {
+  speedEl.classList.add("updating");
+  setTimeout(() => {
+    speedEl.textContent = mbps.toFixed(2);
+    speedEl.style.color = done ? "var(--success)" : "var(--text)";
+    speedEl.classList.remove("updating");
+  }, 120);
 }
 
-function formatMbps(bps) {
-    return (bps / 1_000_000).toFixed(2);
+function estimateEta(index, total) {
+  const remaining = total - index;
+  if (remaining <= 0) return "Almost done.";
+  const approxSeconds = remaining * 3; // rough guess
+  return `~${approxSeconds}s remaining`;
 }
 
-let aborter = null;
+async function downloadFile(entry, signal) {
+  const expectedBytes = entry.sizeMB * 1024 * 1024;
+  const t0 = performance.now();
+  let bytes = 0;
+
+  const resp = await fetch(entry.url, { cache: "no-store", signal });
+  if (!resp.ok) throw new Error("HTTP " + resp.status);
+  const reader = resp.body.getReader();
+
+  while (true) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    bytes += value.byteLength;
+    if (bytes >= expectedBytes) break;
+  }
+
+  const t1 = performance.now();
+  const seconds = (t1 - t0) / 1000;
+  const bps = (bytes * 8) / seconds;
+  return { bps, seconds, bytes };
+}
+
+async function runSequential(signal, results) {
+  for (let i = 0; i < FILES.length; i++) {
+    const f = FILES[i];
+    statusEl.textContent = `Testing ${f.host} ${f.sizeMB}MB…`;
+    etaEl.textContent = estimateEta(i, FILES.length + VERIFY_GROUPS.length * 2);
+
+    const { bps } = await downloadFile(f, signal);
+    const mbps = bps / 1_000_000;
+    setSpeedDisplay(mbps);
+    if (!results[f.sizeMB]) results[f.sizeMB] = [];
+    results[f.sizeMB].push(mbps);
+  }
+}
+
+async function runVerify(signal, results) {
+  for (let g = 0; g < VERIFY_GROUPS.length; g++) {
+    const group = VERIFY_GROUPS[g];
+    statusEl.textContent = `Verification ${g + 1} of ${VERIFY_GROUPS.length}…`;
+    etaEl.textContent = estimateEta(FILES.length + g, FILES.length + VERIFY_GROUPS.length * 2);
+
+    const promises = group.map(f => downloadFile(f, signal));
+    const res = await Promise.all(promises);
+    res.forEach((r, idx) => {
+      const f = group[idx];
+      const mbps = r.bps / 1_000_000;
+      setSpeedDisplay(mbps);
+      if (!results[f.sizeMB]) results[f.sizeMB] = [];
+      results[f.sizeMB].push(mbps);
+    });
+  }
+}
+
+function computeFinalMbps(results) {
+  let totalWeight = 0;
+  let weighted = 0;
+  for (const sizeStr in results) {
+    const size = Number(sizeStr);
+    const arr = results[size];
+    if (!arr || !arr.length || !WEIGHTS[size]) continue;
+    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
+    const w = WEIGHTS[size];
+    weighted += avg * w;
+    totalWeight += w;
+  }
+  if (totalWeight === 0) return 0;
+  return weighted / totalWeight;
+}
+
+function buildSummary(mbps) {
+  let title, body;
+  if (mbps >= 200) {
+    title = "Your internet is very fast.";
+    body = "You can easily stream 4K video, play cloud games, and download large files quickly on multiple devices.";
+  } else if (mbps >= 80) {
+    title = "Your internet is fast.";
+    body = "HD streaming, video calls, and online gaming should feel smooth on most devices.";
+  } else if (mbps >= 25) {
+    title = "Your internet is okay.";
+    body = "HD streaming and video calls will usually work, but multiple devices or 4K video may cause buffering.";
+  } else {
+    title = "Your internet is slow.";
+    body = "Basic browsing and SD streaming will work, but HD video, large downloads, and gaming may struggle.";
+  }
+  summaryTitle.textContent = title;
+  summaryBody.textContent = body;
+  summaryBox.style.display = "block";
+}
 
 async function runTest() {
-    document.getElementById("start").disabled = true;
-    document.getElementById("cancel").disabled = false;
-    document.getElementById("log").textContent = "";
-    document.getElementById("status").textContent = "Running…";
+  startBtn.disabled = true;
+  cancelBtn.disabled = true;
+  summaryBox.style.display = "none";
+  speedEl.style.color = "var(--text)";
+  setSpeedDisplay(0);
+  statusEl.textContent = "Starting test…";
+  etaEl.textContent = "Estimating time…";
 
-    aborter = new AbortController();
-    const results = [];
+  abortController = new AbortController();
+  const signal = abortController.signal;
+  cancelBtn.disabled = false;
 
-    for (let i = 1; i <= 3; i++) {
-        if (aborter.signal.aborted) break;
+  const results = {};
 
-        log(`Run ${i}/3…`);
+  try {
+    await runSequential(signal, results);
+    await runVerify(signal, results);
 
-        const t0 = performance.now();
-        let bytes = 0;
-
-        try {
-            const resp = await fetch(TEST_URL, { signal: aborter.signal, cache: "no-store" });
-            if (!resp.ok) {
-                log(`HTTP error: ${resp.status}`);
-                break;
-            }
-            const reader = resp.body.getReader();
-
-            while (true) {
-                const { done, value } = await reader.read();
-                if (done) break;
-                bytes += value.byteLength;
-                if (bytes >= TEST_SIZE_BYTES) break;
-            }
-        } catch (e) {
-            log("Cancelled or failed: " + (e.message || e));
-            break;
-        }
-
-        const t1 = performance.now();
-        const seconds = (t1 - t0) / 1000;
-        const bps = (bytes * 8) / seconds;
-
-        results.push(bps);
-        document.getElementById("speed").textContent = formatMbps(bps) + " Mbps";
-        log(`Run ${i}: ${(bytes / (1024*1024)).toFixed(1)} MB in ${seconds.toFixed(2)} s → ${formatMbps(bps)} Mbps`);
-    }
-
-    if (results.length > 0) {
-        const avg = results.reduce((a,b)=>a+b,0) / results.length;
-        document.getElementById("speed").textContent = formatMbps(avg) + " Mbps";
-        document.getElementById("status").textContent = "Complete";
-        log(`Average: ${formatMbps(avg)} Mbps`);
+    const finalMbps = computeFinalMbps(results);
+    setSpeedDisplay(finalMbps, true);
+    statusEl.textContent = "Test complete";
+    etaEl.textContent = "Done.";
+    buildSummary(finalMbps);
+  } catch (e) {
+    if (signal.aborted) {
+      statusEl.textContent = "Test cancelled";
+      etaEl.textContent = "You stopped the test.";
     } else {
-        document.getElementById("status").textContent = "Cancelled or failed";
+      statusEl.textContent = "Test failed";
+      etaEl.textContent = e.message || "Unknown error.";
     }
-
-    document.getElementById("start").disabled = false;
-    document.getElementById("cancel").disabled = true;
+  } finally {
+    startBtn.disabled = false;
+    cancelBtn.disabled = true;
+    abortController = null;
+  }
 }
 
-document.getElementById("start").onclick = runTest;
-document.getElementById("cancel").onclick = () => aborter?.abort();
-</script>
+startBtn.addEventListener("click", () => {
+  if (!abortController) runTest();
+});
 
+cancelBtn.addEventListener("click", () => {
+  if (abortController) abortController.abort();
+});
+</script>
 </body>
 </html>
