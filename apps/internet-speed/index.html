@@ -5,7 +5,6 @@
 <title>Internet Speed Test</title>
 
 <style>
-/* ——— YOUR THEME VARIABLES ——— */
 :root {
     --bg: #190a02;
     --glass-bg: rgba(255,235,220,0.07);
@@ -40,7 +39,6 @@ body {
     padding: 40px;
 }
 
-/* ——— MAIN PANEL ——— */
 .speed-panel {
     width: 100%;
     max-width: 880px;
@@ -55,7 +53,6 @@ body {
     perspective: 900px;
 }
 
-/* Layered glass planes */
 .speed-panel::before,
 .speed-panel::after {
     content: "";
@@ -98,7 +95,6 @@ body {
     opacity: 0.9;
 }
 
-/* ——— HEADINGS ——— */
 h1 {
     margin: 0 0 18px;
     font-size: 2.6rem;
@@ -111,32 +107,6 @@ p {
     line-height: 1.7;
 }
 
-/* ——— INPUTS ——— */
-label {
-    font-size: 0.9rem;
-    color: var(--muted);
-    margin-bottom: 6px;
-    display: block;
-}
-
-input {
-    width: 100%;
-    padding: 12px 14px;
-    border-radius: 14px;
-    border: 1px solid rgba(255,255,255,0.08);
-    background: rgba(255,255,255,0.04);
-    color: var(--text);
-    font-size: 1rem;
-    outline: none;
-    backdrop-filter: blur(6px);
-}
-
-input:focus {
-    border-color: var(--primary);
-    box-shadow: 0 0 0 3px rgba(255,120,30,0.25);
-}
-
-/* ——— BUTTONS ——— */
 button {
     border: none;
     border-radius: 999px;
@@ -161,7 +131,6 @@ button:disabled {
     cursor: default;
 }
 
-/* ——— RESULTS ——— */
 .result-box {
     margin-top: 26px;
     padding: 22px;
@@ -196,16 +165,7 @@ button:disabled {
 
 <div class="speed-panel">
     <h1>Internet Speed Test</h1>
-    <p>Runs entirely in your browser. No server required.</p>
-
-    <label>Test File URL</label>
-    <input id="url" placeholder="https://example.com/100MB.bin">
-
-    <label style="margin-top:14px;">File Size (MB)</label>
-    <input id="size" type="number" value="100">
-
-    <label style="margin-top:14px;">Runs</label>
-    <input id="runs" type="number" value="3">
+    <p>Using a real 100&nbsp;MB file hosted at <code>FoxURL.github.io</code>.</p>
 
     <div style="margin-top:22px; display:flex; gap:14px;">
         <button id="start">Start Test</button>
@@ -221,6 +181,9 @@ button:disabled {
 </div>
 
 <script>
+const TEST_URL = "https://FoxURL.github.io/bin/100MB.bin";
+const TEST_SIZE_BYTES = 100 * 1024 * 1024;
+
 function log(msg) {
     const box = document.getElementById("log");
     box.textContent += msg + "\n";
@@ -234,42 +197,38 @@ function formatMbps(bps) {
 let aborter = null;
 
 async function runTest() {
-    const url = document.getElementById("url").value.trim();
-    const sizeMB = parseFloat(document.getElementById("size").value);
-    const runs = parseInt(document.getElementById("runs").value);
-
-    if (!url) return alert("Enter a URL");
-
     document.getElementById("start").disabled = true;
     document.getElementById("cancel").disabled = false;
     document.getElementById("log").textContent = "";
     document.getElementById("status").textContent = "Running…";
 
     aborter = new AbortController();
-
-    const expectedBytes = sizeMB * 1024 * 1024;
     const results = [];
 
-    for (let i = 1; i <= runs; i++) {
+    for (let i = 1; i <= 3; i++) {
         if (aborter.signal.aborted) break;
 
-        log(`Run ${i}/${runs}…`);
+        log(`Run ${i}/3…`);
 
         const t0 = performance.now();
         let bytes = 0;
 
         try {
-            const resp = await fetch(url, { signal: aborter.signal, cache: "no-store" });
+            const resp = await fetch(TEST_URL, { signal: aborter.signal, cache: "no-store" });
+            if (!resp.ok) {
+                log(`HTTP error: ${resp.status}`);
+                break;
+            }
             const reader = resp.body.getReader();
 
             while (true) {
                 const { done, value } = await reader.read();
                 if (done) break;
                 bytes += value.byteLength;
-                if (bytes >= expectedBytes) break;
+                if (bytes >= TEST_SIZE_BYTES) break;
             }
         } catch (e) {
-            log("Cancelled or failed.");
+            log("Cancelled or failed: " + (e.message || e));
             break;
         }
 
@@ -279,15 +238,16 @@ async function runTest() {
 
         results.push(bps);
         document.getElementById("speed").textContent = formatMbps(bps) + " Mbps";
-        log(`Result: ${formatMbps(bps)} Mbps`);
+        log(`Run ${i}: ${(bytes / (1024*1024)).toFixed(1)} MB in ${seconds.toFixed(2)} s → ${formatMbps(bps)} Mbps`);
     }
 
     if (results.length > 0) {
         const avg = results.reduce((a,b)=>a+b,0) / results.length;
         document.getElementById("speed").textContent = formatMbps(avg) + " Mbps";
         document.getElementById("status").textContent = "Complete";
+        log(`Average: ${formatMbps(avg)} Mbps`);
     } else {
-        document.getElementById("status").textContent = "Cancelled";
+        document.getElementById("status").textContent = "Cancelled or failed";
     }
 
     document.getElementById("start").disabled = false;
