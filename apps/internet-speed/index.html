@@ -47,29 +47,6 @@ body {
     overflow: hidden;
 }
 
-.panel::before,
-.panel::after {
-    content: "";
-    position: absolute;
-    inset: 0;
-    border-radius: inherit;
-    pointer-events: none;
-}
-
-.panel::before {
-    background: linear-gradient(180deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
-    border: 1px solid rgba(255,255,255,0.03);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-    z-index: 0;
-}
-
-.panel::after {
-    inset: 6px;
-    background: radial-gradient(circle at 10% 10%, rgba(255,255,255,0.045), transparent 20%);
-    filter: blur(2px);
-    z-index: 1;
-}
-
 .panel-inner {
     position: relative;
     z-index: 2;
@@ -201,6 +178,23 @@ button:disabled {
     box-shadow: none;
 }
 
+.result-box {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 1rem;
+    color: var(--muted);
+    text-align: left;
+}
+
+.result-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
 .footer-note {
     margin-top: 14px;
     font-size: 0.78rem;
@@ -221,7 +215,7 @@ button:disabled {
     </div>
 
     <div class="main">
-      <div class="speed-label">Download speed</div>
+      <div class="speed-label">Live speed</div>
       <div id="speedValue" class="speed-value">0.00</div>
       <div class="speed-unit">Mbps</div>
 
@@ -230,20 +224,32 @@ button:disabled {
         <span class="eta" id="etaText">Ready when you are.</span>
       </div>
 
-      <div class="summary" id="summaryBox" style="display:none;">
-        <div class="summary-title" id="summaryTitle"></div>
-        <div id="summaryBody"></div>
+      <!-- TRUE SPEED -->
+      <div id="trueBox" class="result-box" style="display:none;">
+        <div class="result-title">True Speed (100MB only)</div>
+        <div id="trueSpeed">0 Mbps</div>
+      </div>
+
+      <!-- FOXURL SPEED -->
+      <div id="foxurlBox" class="result-box" style="display:none;">
+        <div class="result-title">FoxURL Connection Speed (All raw speeds)</div>
+        <div id="foxurlSpeed">0 Mbps</div>
+      </div>
+
+      <!-- REFERENCE SPEED -->
+      <div id="referenceBox" class="result-box" style="display:none;">
+        <div class="result-title">Reference Speed (Normalized formula)</div>
+        <div id="referenceSpeed">0 Mbps</div>
       </div>
 
       <div class="actions">
-    <button id="startBtn">Start test</button>
-    <button id="legacyBtn" onclick="window.location.href='https://foxurl.github.io/apps/internet-speed/legacy.html'">Legacy</button>
-    <button id="cancelBtn" disabled>Cancel</button>
-</div>
-
+        <button id="startBtn">Start test</button>
+        <button id="legacyBtn" onclick="window.location.href='https://foxurl.github.io/apps/internet-speed/legacy.html'">Legacy</button>
+        <button id="cancelBtn" disabled>Cancel</button>
+      </div>
 
       <div class="footer-note">
-        Uses 1MB, 10MB, 25MB, 50MB and 100MB files from both hosts for a more accurate estimate.
+        Uses 1MB, 10MB, 25MB, 50MB and 100MB files from both hosts.
       </div>
     </div>
   </div>
@@ -251,15 +257,15 @@ button:disabled {
 
 <script>
 const FILES = [
-  { host: "GitHub", sizeMB: 1,   url: "https://foxurl.github.io/bin/1MB.bin" },
+  { host: "GitHub",      sizeMB: 1,   url: "https://foxurl.github.io/bin/1MB.bin" },
   { host: "File.Garden", sizeMB: 1,   url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/1MB.txt" },
-  { host: "GitHub", sizeMB: 10,  url: "https://foxurl.github.io/bin/10MB.bin" },
+  { host: "GitHub",      sizeMB: 10,  url: "https://foxurl.github.io/bin/10MB.bin" },
   { host: "File.Garden", sizeMB: 10,  url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/10MB.txt" },
-  { host: "GitHub", sizeMB: 25,  url: "https://foxurl.github.io/bin/25MB.bin" },
+  { host: "GitHub",      sizeMB: 25,  url: "https://foxurl.github.io/bin/25MB.bin" },
   { host: "File.Garden", sizeMB: 25,  url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/25MB.txt" },
-  { host: "GitHub", sizeMB: 50,  url: "https://foxurl.github.io/bin/50MB.bin" },
+  { host: "GitHub",      sizeMB: 50,  url: "https://foxurl.github.io/bin/50MB.bin" },
   { host: "File.Garden", sizeMB: 50,  url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/50MB.txt" },
-  { host: "GitHub", sizeMB: 100, url: "https://foxurl.github.io/bin/100MB.bin" },
+  { host: "GitHub",      sizeMB: 100, url: "https://foxurl.github.io/bin/100MB.bin" },
   { host: "File.Garden", sizeMB: 100, url: "https://file.garden/aIcUbFCOH3ttg6K4/bin/100MB.txt" }
 ];
 
@@ -274,14 +280,18 @@ const VERIFY_GROUPS = [
   ]
 ];
 
-const WEIGHTS = { 1: 0.05, 10: 0.15, 25: 0.25, 50: 0.25, 100: 0.30 };
-
 const speedEl = document.getElementById("speedValue");
 const statusEl = document.getElementById("statusText");
 const etaEl = document.getElementById("etaText");
-const summaryBox = document.getElementById("summaryBox");
-const summaryTitle = document.getElementById("summaryTitle");
-const summaryBody = document.getElementById("summaryBody");
+
+const trueBox = document.getElementById("trueBox");
+const foxurlBox = document.getElementById("foxurlBox");
+const referenceBox = document.getElementById("referenceBox");
+
+const trueSpeedEl = document.getElementById("trueSpeed");
+const foxurlSpeedEl = document.getElementById("foxurlSpeed");
+const referenceSpeedEl = document.getElementById("referenceSpeed");
+
 const startBtn = document.getElementById("startBtn");
 const cancelBtn = document.getElementById("cancelBtn");
 
@@ -299,7 +309,7 @@ function setSpeedDisplay(mbps, done = false) {
 function estimateEta(index, total) {
   const remaining = total - index;
   if (remaining <= 0) return "Almost done.";
-  const approxSeconds = remaining * 3; // rough guess
+  const approxSeconds = remaining * 4;
   return `~${approxSeconds}s remaining`;
 }
 
@@ -334,6 +344,7 @@ async function runSequential(signal, results) {
     const { bps } = await downloadFile(f, signal);
     const mbps = bps / 1_000_000;
     setSpeedDisplay(mbps);
+
     if (!results[f.sizeMB]) results[f.sizeMB] = [];
     results[f.sizeMB].push(mbps);
   }
@@ -347,56 +358,57 @@ async function runVerify(signal, results) {
 
     const promises = group.map(f => downloadFile(f, signal));
     const res = await Promise.all(promises);
+
     res.forEach((r, idx) => {
       const f = group[idx];
       const mbps = r.bps / 1_000_000;
+
       setSpeedDisplay(mbps);
-      if (!results[f.sizeMB]) results[f.sizeMB] = [];
-      results[f.sizeMB].push(mbps);
+
+      const key = `verify_${f.sizeMB}`;
+      if (!results[key]) results[key] = [];
+      results[key].push(mbps);
     });
   }
 }
 
-function computeFinalMbps(results) {
-  let totalWeight = 0;
-  let weighted = 0;
-  for (const sizeStr in results) {
-    const size = Number(sizeStr);
-    const arr = results[size];
-    if (!arr || !arr.length || !WEIGHTS[size]) continue;
-    const avg = arr.reduce((a, b) => a + b, 0) / arr.length;
-    const w = WEIGHTS[size];
-    weighted += avg * w;
-    totalWeight += w;
-  }
-  if (totalWeight === 0) return 0;
-  return weighted / totalWeight;
+function computeTrueSpeed(results) {
+  if (!results[100] || results[100].length === 0) return 0;
+  const arr = results[100];
+  return arr.reduce((a, b) => a + b, 0) / arr.length;
 }
 
-function buildSummary(mbps) {
-  let title, body;
-  if (mbps >= 200) {
-    title = "Your internet is very fast.";
-    body = "You can easily stream 4K video, play cloud games, and download large files quickly on multiple devices.";
-  } else if (mbps >= 80) {
-    title = "Your internet is fast.";
-    body = "HD streaming, video calls, and online gaming should feel smooth on most devices.";
-  } else if (mbps >= 25) {
-    title = "Your internet is okay.";
-    body = "HD streaming and video calls will usually work, but multiple devices or 4K video may cause buffering.";
-  } else {
-    title = "Your internet is slow.";
-    body = "Basic browsing and SD streaming will work, but HD video, large downloads, and gaming may struggle.";
+function computeFoxURLSpeed(results) {
+  let all = [];
+  for (const size in results) {
+    if (!isNaN(size)) all = all.concat(results[size]);
   }
-  summaryTitle.textContent = title;
-  summaryBody.textContent = body;
-  summaryBox.style.display = "block";
+  if (all.length === 0) return 0;
+  return all.reduce((a, b) => a + b, 0) / all.length;
+}
+
+function computeReferenceSpeed(results) {
+  function avg(arr) {
+    return arr.reduce((a, b) => a + b, 0) / arr.length;
+  }
+
+  const s1   = results[1]   ? avg(results[1])   / 100 : 0;
+  const s10  = results[10]  ? avg(results[10])  / 10  : 0;
+  const s25  = results[25]  ? avg(results[25])  / 4   : 0;
+  const s50  = results[50]  ? avg(results[50])  / 2   : 0;
+  const s100 = results[100] ? avg(results[100]) / 1   : 0;
+
+  return (s1 + s10 + s25 + s50 + s100) / 5;
 }
 
 async function runTest() {
   startBtn.disabled = true;
   cancelBtn.disabled = true;
-  summaryBox.style.display = "none";
+
+  trueBox.style.display = "none";
+  foxurlBox.style.display = "none";
+  referenceBox.style.display = "none";
+
   speedEl.style.color = "var(--text)";
   setSpeedDisplay(0);
   statusEl.textContent = "Starting test…";
@@ -412,33 +424,15 @@ async function runTest() {
     await runSequential(signal, results);
     await runVerify(signal, results);
 
-    const finalMbps = computeFinalMbps(results);
-    setSpeedDisplay(finalMbps, true);
-    statusEl.textContent = "Test complete";
-    etaEl.textContent = "Done.";
-    buildSummary(finalMbps);
-  } catch (e) {
-    if (signal.aborted) {
-      statusEl.textContent = "Test cancelled";
-      etaEl.textContent = "You stopped the test.";
-    } else {
-      statusEl.textContent = "Test failed";
-      etaEl.textContent = e.message || "Unknown error.";
-    }
-  } finally {
-    startBtn.disabled = false;
-    cancelBtn.disabled = true;
-    abortController = null;
-  }
-}
+    const trueSpeed = computeTrueSpeed(results);
+    const foxurlSpeed = computeFoxURLSpeed(results);
+    const referenceSpeed = computeReferenceSpeed(results);
 
-startBtn.addEventListener("click", () => {
-  if (!abortController) runTest();
-});
+    setSpeedDisplay(trueSpeed, true);
 
-cancelBtn.addEventListener("click", () => {
-  if (abortController) abortController.abort();
-});
-</script>
-</body>
-</html>
+    trueSpeedEl.textContent = trueSpeed.toFixed(2) + " Mbps";
+    foxurlSpeedEl.textContent = foxurlSpeed.toFixed(2) + " Mbps";
+    referenceSpeedEl.textContent = referenceSpeed.toFixed(2) + " Mbps";
+
+    trueBox.style.display = "block";
+    foxurlBox.style.display = "
