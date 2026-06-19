@@ -1,0 +1,195 @@
+:root {
+    --bg: #190a02;
+    --glass-bg: rgba(255,235,220,0.07);
+    --glass-tint: rgba(255,140,60,0.06);
+    --glass-border: rgba(255,200,140,0.14);
+    --surface: rgba(255, 240, 210, 0.12);
+    --text: #fff7ef;
+    --muted: #ffe8c9;
+    --primary: #ff7a18;
+    --success: #4dffb5;
+    --shadow: 0 18px 50px rgba(18, 8, 0, 0.38);
+    --glass-blur: 12px;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    font-family: Inter, Arial, sans-serif;
+    background: radial-gradient(circle at top left, rgba(255, 170, 85, 0.20), transparent 28%),
+                radial-gradient(circle at bottom right, rgba(255, 125, 35, 0.12), transparent 30%),
+                linear-gradient(180deg, #ff9b53 10%, #ff7a18 36%, #2b0f05 100%);
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+}
+
+.panel {
+    width: 100%;
+    max-width: 720px;
+    padding: 28px 26px 26px;
+    border-radius: 26px;
+    background: linear-gradient(180deg, var(--glass-bg), var(--glass-tint));
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--shadow);
+    backdrop-filter: blur(var(--glass-blur));
+}
+
+.header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 18px;
+}
+
+.header img {
+    width: 52px;
+    height: 52px;
+    border-radius: 16px;
+    object-fit: cover;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.5);
+    border: 1px solid rgba(255,255,255,0.12);
+}
+
+.header-text h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    font-weight: 800;
+}
+
+.header-text p {
+    margin: 4px 0 0;
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.main {
+    margin-top: 10px;
+    text-align: center;
+}
+
+.speed-label {
+    font-size: 0.8rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--muted);
+}
+
+.speed-value {
+    font-size: 3.2rem;
+    font-weight: 800;
+    transition: color 0.4s ease, opacity 0.25s ease;
+}
+
+.speed-value.updating {
+    opacity: 0.35;
+}
+
+.speed-unit {
+    font-size: 0.9rem;
+    color: var(--muted);
+}
+
+.status {
+    margin-top: 16px;
+    font-size: 0.95rem;
+    color: var(--muted);
+}
+
+.status-strong {
+    display: block;
+    font-size: 0.95rem;
+    color: var(--text);
+}
+
+.eta {
+    margin-top: 6px;
+    font-size: 0.85rem;
+    color: var(--muted);
+}
+
+.result-box {
+    margin-top: 18px;
+    padding: 14px 16px;
+    border-radius: 18px;
+    background: var(--surface);
+    border: 1px solid rgba(255,255,255,0.08);
+    font-size: 1rem;
+    color: var(--muted);
+    text-align: left;
+}
+
+.result-title {
+    font-weight: 700;
+    margin-bottom: 4px;
+    color: var(--text);
+}
+
+.actions {
+    margin-top: 20px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+}
+
+button {
+    border: none;
+    border-radius: 999px;
+    padding: 10px 22px;
+    background: linear-gradient(180deg, rgba(255,125,45,0.18), rgba(255,190,120,0.08));
+    color: var(--text);
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 26px rgba(0,0,0,0.42), inset 0 -5px 14px rgba(0,0,0,0.12);
+    border: 1px solid rgba(255,190,120,0.12);
+}
+
+button:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 18px 34px rgba(0,0,0,0.5);
+}
+
+button:disabled {
+    opacity: 0.45;
+}
+
+.footer-note {
+    margin-top: 14px;
+    font-size: 0.78rem;
+    color: var(--muted);
+    text-align: center;
+}
+/* Restore panel hover extrusion effect */
+.panel {
+    transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+
+.panel:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 26px 60px rgba(0,0,0,0.55);
+}
+
+/* Make the inner glass layer shift slightly */
+.panel::before {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.panel:hover::before {
+    opacity: 0.5;
+    transform: scale(1.015);
+}
+
+/* Add a subtle highlight shift */
+.panel::after {
+    transition: opacity 0.25s ease, transform 0.25s ease;
+}
+
+.panel:hover::after {
+    opacity: 0.35;
+    transform: translateY(-2px);
+}
