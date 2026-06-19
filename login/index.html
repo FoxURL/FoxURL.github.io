@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoxURL – Login</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="card-wrapper">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <img src="https://foxurl.github.io/assets/logo/favicon.png" class="side-logo" alt="FoxURL Logo">
+      <h1>FoxURL</h1>
+      <p class="side-text">
+        Welcome back to FoxURL.<br><br>
+        Enter your email and password to continue.
+      </p>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <h2>Sign in</h2>
+      <p class="subtitle">Use your FoxURL account</p>
+
+      <form id="loginForm">
+
+        <div class="step active" id="step-1">
+          <input type="email" id="email" placeholder="Email address" required>
+          <input type="text" id="password" placeholder="Password (text only)" required>
+
+          <div class="actions">
+            <span></span>
+            <button type="submit">Next</button>
+          </div>
+        </div>
+
+      </form>
+
+      <div id="result" style="margin-top:20px; display:none;"></div>
+
+      <footer>
+        <a href="#">Privacy</a>
+        <a href="#">Terms</a>
+        <a href="#">Help</a>
+      </footer>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

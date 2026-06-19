@@ -1,13 +1,3 @@
 {
-  "version": "1.0",
-  "services": {
-    "foxcloud": {
-      "name": "FoxCloud Sheet CSV",
-      "sheet_url": "https://docs.google.com/spreadsheets/d/e/2PACX-1vTHAEU_tMSyftrWglmdMq0yRXYNPOl02oWsms9PB42uVGmGgbfVrN1Od_9IYQS6KXMoKDmbbuEsIsh1/pub?output=tsv"
-    },
-    "foxapi": {
-      "name": "FoxURL Authentication API",
-      "endpoint": "https://script.google.com/macros/s/AKfycbzJ-ovxKsJlLnuWizuhs1DdqC6Up_GqfaSSEn4YBIXIRIDMTDA2eIyebvO2BY_BFAb60Q/exec"
-    }
-  }
+  "AccountsReadGet": "https://script.google.com/macros/s/AKfycbzDq0AXdMhIlL4NhaycZT1eA4EE6QyzMFMtaweEMJCcs4_Wjl7Js6IjI15lBXK2Sg4r/exec"
 }

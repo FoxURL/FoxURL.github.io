@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoxURL – Create Account</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div class="card-wrapper">
+
+    <!-- LEFT PANEL -->
+    <div class="left-panel">
+      <img src="https://foxurl.github.io/assets/logo/favicon.png" class="side-logo" alt="FoxURL Logo">
+      <h1>FoxURL</h1>
+      <p class="side-text">
+        Your links. Your world. Organized.<br><br>
+        Create an account to securely store, shorten, and manage your URLs across all your devices.
+      </p>
+    </div>
+
+    <!-- RIGHT PANEL -->
+    <div class="right-panel">
+      <h2>Create your FoxURL Account</h2>
+      <p class="subtitle">A simple, secure way to manage your links.</p>
+
+      <form id="registerForm"
+            action="https://docs.google.com/forms/d/e/1FAIpQLScmlJvZuABkgGSNHwCZyktXeyCuh0dN9-3UmJQLikx5MbV49g/viewform"
+            method="GET">
+
+        <!-- HIDDEN FIELDS FOR GOOGLE FORM -->
+        <input type="hidden" name="usp" value="pp_url">
+        <input type="hidden" id="gFirst" name="entry.1250599026">
+        <input type="hidden" id="gLast" name="entry.167595914">
+        <input type="hidden" id="gEmail" name="entry.53770560">
+        <input type="hidden" id="gPassword" name="entry.443791735">
+        <input type="hidden" id="gToken" name="entry.1889541250">
+
+        <div class="steps">
+
+          <!-- STEP 1: NAME -->
+          <div class="step active" id="step-1">
+            <div class="row">
+              <input type="text" id="firstName" placeholder="First name" required>
+              <input type="text" id="lastName" placeholder="Last name" required>
+            </div>
+            <div class="actions">
+              <span></span>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- STEP 2: EMAIL -->
+          <div class="step" id="step-2">
+            <input type="email" id="email" placeholder="Email address" required>
+            <div class="actions">
+              <button type="button" class="back-btn">Back</button>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- STEP 3: PASSWORD -->
+          <div class="step" id="step-3">
+            <input type="text" id="password" placeholder="Choose a password (text only)" required>
+            <small class="hint">This is a text field labeled “password”.</small>
+            <div class="actions">
+              <button type="button" class="back-btn">Back</button>
+              <button type="button" class="next-btn">Next</button>
+            </div>
+          </div>
+
+          <!-- STEP 4: TERMS & PERKS -->
+          <div class="step" id="step-4">
+            <div class="terms">
+              <h3>FoxURL perks</h3>
+              <ul>
+                <li>Fast, simple link management.</li>
+                <li>Access your URLs from any device.</li>
+                <li>Organize links into collections.</li>
+              </ul>
+              <h3>Terms</h3>
+              <p>
+                By creating a FoxURL account, you agree that this is a demo-style registration
+                and that the “password” and “token” fields are simple text values.
+              </p>
+              <label class="checkbox">
+                <input type="checkbox" id="agree" required>
+                <span>I agree to the terms and understand the nature of this demo.</span>
+              </label>
+            </div>
+            <div class="actions">
+              <button type="button" class="back-btn">Back</button>
+              <button type="submit" class="submit-btn">Create account</button>
+            </div>
+          </div>
+
+        </div>
+
+        <footer>
+          <a href="#">Privacy</a>
+          <a href="#">Terms</a>
+          <a href="#">Help</a>
+        </footer>
+      </form>
+    </div>
+
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
