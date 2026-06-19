@@ -110,6 +110,45 @@ footer {
     transform: translateY(-1px);
 }
 
+.topbar-login-button {
+    border: none;
+    border-radius: 999px;
+    padding: 14px 26px;
+    background: linear-gradient(180deg, rgba(255,125,45,0.14), rgba(255,190,120,0.06));
+    color: var(--text);
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.42), inset 0 -6px 18px rgba(0,0,0,0.12);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(255,190,120,0.08);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.22s cubic-bezier(.2,.9,.28,1), box-shadow 0.22s ease;
+}
+
+.topbar-login-button::after {
+    content: '';
+    position: absolute;
+    left: -60%;
+    top: -40%;
+    width: 220%;
+    height: 220%;
+    background: radial-gradient(circle at 30% 20%, rgba(255,220,170,0.12), transparent 20%);
+    transform: rotate(18deg);
+    transition: transform 0.8s ease;
+    opacity: 0.8;
+}
+
+.topbar-login-button:hover::after {
+    transform: translateX(12%) rotate(18deg);
+}
+
+.topbar-login-button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+}
+
 .page-content {
     max-width: 1180px;
     margin: 0 auto;

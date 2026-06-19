@@ -18,6 +18,14 @@ function openFoxApp(appName, overrideUrl, overrideDisplayName) {
         internetSpeed: {
             name: 'Internet Speed Test',
             url: 'https://foxurl.github.io/apps/internet-speed/'
+        },
+        login: {
+            name: 'Login',
+            url: 'https://foxurl.github.io/login/'
+        },
+        register: {
+            name: 'Register',
+            url: 'https://foxurl.github.io/register/'
         }
     };
 
