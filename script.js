@@ -7,9 +7,13 @@ function openFoxApp(appName, overrideUrl, overrideDisplayName) {
             name: 'Cat Feeding',
             url: 'https://foxurl.github.io/apps/Cat-feeding/'
         },
-        wordleSolver: {
-            name: 'Wordle Solver',
+        wordleSolver10: {
+            name: 'Wordle Solver 10',
             url: 'https://foxurl.github.io/apps/wordle-solver-10/'
+        },
+        wordleSolver11: {
+            name: 'Wordle Solver 11',
+            url: 'https://foxurl.github.io/apps/wordle-solver-11/'
         },
         scoringApp: {
             name: 'Simple Scoring',
