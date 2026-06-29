@@ -1,0 +1,20 @@
+[
+  {
+    "name": "A Mine Song (A Minecraft Parody)",
+    "author": "indawgnito",
+    "lyrics": "foxurl.github.io/search/lyrics/xf74a0e-1c3f-4b7d-8e5b-9f6c2d1e2a3b.txt",
+    "wheretolisten": "Spotify, YouTube, Apple Music"
+  },
+  {
+    "name": "SONG_NAME",
+    "author": "SONG_ARTIST",
+    "lyrics": "SONG_LYRICS",
+    "wheretolisten": "SONG_PLATFORM"
+  },
+  {
+    "name": "SONG_NAME",
+    "author": "SONG_ARTIST",
+    "lyrics": "SONG_LYRICS",
+    "wheretolisten": "SONG_PLATFORM"
+  }
+]

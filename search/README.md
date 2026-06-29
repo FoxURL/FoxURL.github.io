@@ -1,0 +1,1 @@
+fox search is an advanced search that searches lyrics, websites, an a dictionary. to let you find what you need to fast.
