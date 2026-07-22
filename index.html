@@ -1,1 +1,558 @@
-Renovations are accuring at a rapid pace, transforming the old structure into a modern and functional space. The team is working diligently to ensure that every detail is meticulously crafted, from the flooring to the lighting fixtures. The goal is to create an environment that is both aesthetically pleasing and highly efficient for its intended use.
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>FoxURL — Advanced Digital Ecosystem</title>
+    <style>
+      :root {
+        --bg: #190a02;
+        --glass-bg: rgba(255, 235, 220, 0.07);
+        --glass-bg-strong: rgba(255, 240, 220, 0.11);
+        --glass-tint: rgba(255, 140, 60, 0.06);
+        --glass-border: rgba(255, 200, 140, 0.14);
+        --surface: rgba(255, 240, 210, 0.12);
+        --surface-strong: rgba(255, 245, 220, 0.18);
+        --text: #fff7ef;
+        --muted: #ffe8c9;
+        --primary: #ff7a18;
+        --primary-strong: #ffd39a;
+        --shadow: 0 18px 50px rgba(18, 8, 0, 0.38);
+        --glass-blur: 12px;
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        font-family: Inter, -apple-system, BlinkMacSystemFont, Arial, sans-serif;
+        background: radial-gradient(circle at top left, rgba(255, 170, 85, 0.2), transparent 28%),
+          radial-gradient(circle at bottom right, rgba(255, 125, 35, 0.12), transparent 30%),
+          linear-gradient(180deg, #ff9b53 10%, #ff7a18 36%, #2b0f05 100%);
+        color: var(--text);
+        text-align: left;
+        overflow-x: hidden;
+      }
+
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: linear-gradient(135deg, rgba(255, 180, 80, 0.14), transparent 36%),
+          radial-gradient(circle at 80% 10%, rgba(255, 245, 210, 0.14), transparent 22%);
+        pointer-events: none;
+      }
+
+      .page-content,
+      .topbar,
+      footer {
+        position: relative;
+        z-index: 1;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 18px;
+        padding: 18px 28px;
+        margin: 20px auto 0;
+        max-width: 1180px;
+        background: var(--glass-bg-strong);
+        border: 1px solid var(--glass-border);
+        backdrop-filter: blur(var(--glass-blur));
+        box-shadow: 0 6px 30px rgba(0, 0, 0, 0.45);
+        border-radius: 18px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+
+      .logo {
+        width: 56px;
+        height: 56px;
+        border-radius: 14px;
+        object-fit: cover;
+        flex-shrink: 0;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.38), 0 0 18px rgba(255, 120, 30, 0.12) inset;
+        border: 1px solid rgba(255, 200, 140, 0.06);
+      }
+
+      .brand-label {
+        margin: 0;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: var(--text);
+      }
+
+      .brand-subtitle {
+        margin: 4px 0 0;
+        color: var(--muted);
+        font-size: 0.95rem;
+      }
+
+      .topnav {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+      }
+
+      .topnav a {
+        color: var(--muted);
+        text-decoration: none;
+        font-weight: 600;
+        transition: color 0.18s ease, transform 0.18s ease;
+        padding: 8px 12px;
+        border-radius: 10px;
+      }
+
+      .topnav a:hover {
+        color: var(--text);
+        background: rgba(255, 255, 255, 0.03);
+        transform: translateY(-1px);
+      }
+
+      .topbar-login-button {
+        border: none;
+        border-radius: 999px;
+        padding: 14px 26px;
+        background: linear-gradient(180deg, rgba(255, 125, 45, 0.14), rgba(255, 190, 120, 0.06));
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.42), inset 0 -6px 18px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 190, 120, 0.08);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.28, 1), box-shadow 0.22s ease;
+      }
+
+      .topbar-login-button::after {
+        content: '';
+        position: absolute;
+        left: -60%;
+        top: -40%;
+        width: 220%;
+        height: 220%;
+        background: radial-gradient(circle at 30% 20%, rgba(255, 220, 170, 0.12), transparent 20%);
+        transform: rotate(18deg);
+        transition: transform 0.8s ease;
+        opacity: 0.8;
+      }
+
+      .topbar-login-button:hover::after {
+        transform: translateX(12%) rotate(18deg);
+      }
+
+      .topbar-login-button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .page-content {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 40px 36px 60px;
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1.2fr 0.8fr;
+        gap: 28px;
+        align-items: center;
+        padding: 36px 0 20px;
+      }
+
+      .eyebrow {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 14px;
+        border-radius: 999px;
+        background: rgba(255, 181, 112, 0.18);
+        color: var(--primary-strong);
+        font-size: 0.85rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        margin-bottom: 24px;
+      }
+
+      .hero-copy h1 {
+        margin: 0 0 18px;
+        font-size: clamp(2.8rem, 4vw, 4.25rem);
+        line-height: 1.02;
+        max-width: 10ch;
+      }
+
+      .hero-copy p {
+        margin: 0 0 32px;
+        color: var(--muted);
+        font-size: 1.08rem;
+        line-height: 1.75;
+        max-width: 44rem;
+      }
+
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .hero-actions button {
+        border: none;
+        border-radius: 999px;
+        padding: 14px 26px;
+        background: linear-gradient(180deg, rgba(255, 125, 45, 0.14), rgba(255, 190, 120, 0.06));
+        color: var(--text);
+        font-size: 1rem;
+        font-weight: 700;
+        cursor: pointer;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.42), inset 0 -6px 18px rgba(0, 0, 0, 0.12);
+        backdrop-filter: blur(6px);
+        border: 1px solid rgba(255, 190, 120, 0.08);
+        position: relative;
+        overflow: hidden;
+        transition: transform 0.22s cubic-bezier(0.2, 0.9, 0.28, 1), box-shadow 0.22s ease;
+      }
+
+      .hero-actions button::after {
+        content: '';
+        position: absolute;
+        left: -60%;
+        top: -40%;
+        width: 220%;
+        height: 220%;
+        background: radial-gradient(circle at 30% 20%, rgba(255, 220, 170, 0.12), transparent 20%);
+        transform: rotate(18deg);
+        transition: transform 0.8s ease;
+        opacity: 0.8;
+      }
+
+      .hero-actions button:hover::after {
+        transform: translateX(12%) rotate(18deg);
+      }
+
+      .hero-actions button:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5);
+      }
+
+      .hero-panel {
+        display: flex;
+        justify-content: center;
+      }
+
+      .hero-card {
+        width: 100%;
+        min-height: 280px;
+        border-radius: 20px;
+        padding: 28px;
+        background: linear-gradient(180deg, var(--glass-bg), var(--glass-tint));
+        border: 1px solid rgba(255, 200, 140, 0.08);
+        box-shadow: 0 12px 48px rgba(0, 0, 0, 0.42), 0 0 40px rgba(255, 120, 30, 0.03) inset;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        backdrop-filter: blur(var(--glass-blur));
+      }
+
+      .recent-card {
+        width: 100%;
+        min-height: 260px;
+        border-radius: 20px;
+        padding: 22px;
+        background: linear-gradient(180deg, var(--glass-bg), rgba(255, 255, 255, 0.02));
+        border: 1px solid rgba(255, 190, 120, 0.08);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.42);
+        backdrop-filter: blur(var(--glass-blur));
+      }
+
+      .recent-copy {
+        margin: 0 0 22px;
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      .recent-list {
+        display: grid;
+        gap: 14px;
+      }
+
+      .recent-button {
+        width: 100%;
+        padding: 14px 18px;
+        border-radius: 14px;
+        border: 1px solid rgba(255, 255, 255, 0.04);
+        text-align: left;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+        color: var(--text);
+        cursor: pointer;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        transition: background 0.18s ease, transform 0.15s ease;
+        backdrop-filter: blur(6px);
+      }
+
+      .recent-button:hover {
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+        transform: translateY(-3px);
+      }
+
+      .recent-name {
+        font-size: 1.05rem;
+        font-weight: 700;
+      }
+
+      .recent-button small {
+        color: var(--muted);
+      }
+
+      .hero-card,
+      .recent-card,
+      .app-card,
+      .recent-button,
+      .hero-actions button {
+        position: relative;
+        transform-style: preserve-3d;
+        perspective: 900px;
+        transition: transform 0.45s cubic-bezier(0.2, 0.9, 0.28, 1), box-shadow 0.35s ease;
+      }
+
+      .hero-card::before,
+      .recent-card::before,
+      .app-card::before,
+      .recent-button::before,
+      .hero-actions button::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+        border: 1px solid rgba(255, 255, 255, 0.03);
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        transform-origin: center;
+        transition: transform 0.6s cubic-bezier(0.2, 0.9, 0.28, 1), filter 0.6s ease, opacity 0.5s ease;
+        pointer-events: none;
+        z-index: 0;
+      }
+
+      .hero-card::after,
+      .recent-card::after,
+      .app-card::after,
+      .recent-button::after,
+      .hero-actions button::after {
+        content: "";
+        position: absolute;
+        inset: 6px;
+        border-radius: inherit;
+        background: radial-gradient(circle at 10% 10%, rgba(255, 255, 255, 0.045), transparent 20%);
+        filter: blur(2px);
+        transform-origin: center;
+        transition: transform 0.8s cubic-bezier(0.2, 0.9, 0.28, 1), opacity 0.5s ease;
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      .hero-card:hover,
+      .recent-card:hover,
+      .app-card:hover,
+      .recent-button:hover,
+      .hero-actions button:hover {
+        transform: translateY(-10px) rotateX(3deg);
+        box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+      }
+
+      .hero-card:hover::before,
+      .recent-card:hover::before,
+      .app-card:hover::before,
+      .recent-button:hover::before,
+      .hero-actions button:hover::before {
+        transform: translate3d(0, -10px, 36px) scale(1.02);
+        filter: blur(6px);
+        opacity: 0.95;
+      }
+
+      .hero-card:hover::after,
+      .recent-card:hover::after,
+      .app-card:hover::after,
+      .recent-button:hover::after,
+      .hero-actions button:hover::after {
+        transform: translate3d(0, -22px, 64px) scale(1.04);
+        opacity: 0.9;
+      }
+
+      .hero-card > *,
+      .recent-card > *,
+      .app-card > *,
+      .recent-button > *,
+      .hero-actions button > * {
+        position: relative;
+        z-index: 2;
+      }
+
+      .hero-card h2 {
+        margin: 0 0 16px;
+        font-size: 1.75rem;
+        color: var(--text);
+      }
+
+      .hero-card p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1rem;
+        line-height: 1.8;
+      }
+
+      .apps {
+        margin-top: 46px;
+      }
+
+      .section-header h2 {
+        margin: 0 0 8px;
+        font-size: 2rem;
+      }
+
+      .section-header p {
+        margin: 0;
+        color: var(--muted);
+        font-size: 1rem;
+        max-width: 680px;
+      }
+
+      .app-grid {
+        margin-top: 24px;
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 20px;
+      }
+
+      .app-card {
+        display: block;
+        padding: 24px;
+        border-radius: 26px;
+        background: linear-gradient(180deg, rgba(255, 160, 90, 0.14), rgba(255, 140, 60, 0.06));
+        border: 1px solid rgba(255, 140, 60, 0.22);
+        text-decoration: none;
+        color: inherit;
+        transition: transform 0.25s ease, border-color 0.25s ease, background 0.25s ease, box-shadow 0.25s ease;
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.32) inset;
+      }
+
+      .app-card:hover {
+        transform: translateY(-8px) rotateX(1deg);
+        border-color: rgba(255, 160, 80, 0.34);
+        background: linear-gradient(180deg, rgba(255, 185, 120, 0.18), rgba(255, 150, 80, 0.08));
+        box-shadow: 0 30px 70px rgba(0, 0, 0, 0.42);
+      }
+
+      .app-title {
+        display: block;
+        margin-bottom: 12px;
+        font-size: 1.25rem;
+        font-weight: 700;
+      }
+
+      .app-description {
+        color: var(--muted);
+        line-height: 1.7;
+      }
+
+      footer {
+        margin: 0 auto;
+        padding: 28px 36px 40px;
+        max-width: 1180px;
+        color: rgba(255, 255, 255, 0.65);
+        text-align: center;
+      }
+
+      @media (max-width: 940px) {
+        .hero { grid-template-columns: 1fr; }
+        .hero-card { min-height: auto; }
+        .app-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      }
+
+      @media (max-width: 680px) {
+        .topbar { flex-direction: column; align-items: flex-start; }
+        .topnav { width: 100%; }
+        .hero-actions { flex-direction: column; }
+        .app-grid { display: grid; grid-template-columns: 1fr; }
+        .hero-copy h1 { font-size: clamp(2.4rem, 8vw, 3.2rem); }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="brand">
+        <img class="logo" src="https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=300&q=80" alt="FoxURL logo" />
+        <div>
+          <p class="brand-label">FoxURL</p>
+          <p class="brand-subtitle">Advanced product company</p>
+        </div>
+      </div>
+      <nav class="topnav">
+        <a href="#apps">Apps</a>
+        <a href="#about">About</a>
+        <a href="#vision">Vision</a>
+      </nav>
+      <button class="topbar-login-button">Launch Platform</button>
+    </header>
+
+    <main class="page-content">
+      <section class="hero">
+        <div class="hero-copy">
+          <div class="eyebrow">Liquid glass • AI-first • scalable</div>
+          <h1>The future of software is built here.</h1>
+          <p>
+            FoxURL is an ambitious digital company creating hundreds of intelligent apps, platforms, and tools designed to feel fast, elegant, and deeply useful. Every experience is shaped with premium glassy depth and orange light.
+          </p>
+          <div class="hero-actions">
+            <button>Explore Products</button>
+            <button>See Our Vision</button>
+          </div>
+        </div>
+
+        <div class="hero-panel">
+          <div class="hero-card">
+            <h2>Built for scale and beauty</h2>
+            <p>
+              From utility apps to AI experiences, FoxURL is expanding into a full ecosystem with a polished, modern identity that feels as advanced as the products it creates.
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <section class="apps" id="apps">
+        <div class="section-header">
+          <h2>Products and experiences</h2>
+          <p>FoxURL is growing into a broad collection of tools that combine performance, design, and utility.</p>
+        </div>
+        <div class="app-grid">
+          <a class="app-card" href="#">
+            <span class="app-title">Fox Apps</span>
+            <span class="app-description">A wide collection of practical tools that feel effortless and refined.</span>
+          </a>
+          <a class="app-card" href="#">
+            <span class="app-title">AI Experience</span>
+            <span class="app-description">Intelligent systems designed to help users move faster and think clearer.</span>
+          </a>
+          <a class="app-card" href="#">
+            <span class="app-title">Digital Ecosystem</span>
+            <span class="app-description">A connected platform approach where every product feels part of one future.</span>
+          </a>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      FoxURL © 2026 • Crafted for the next era of the web.
+    </footer>
+  </body>
+</html>
