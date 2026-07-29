@@ -17,6 +17,9 @@ function iconMarkup(type) {
   return `<span class="file-icon" style="background:${i.color}"><svg viewBox="0 0 18 18" fill="currentColor">${i.svg}</svg></span>`;
 }
 
+const PAW_SVG = `<svg class="paw" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="12.5" r="3.4"/><circle cx="5.2" cy="7.5" r="1.7"/><circle cx="9.2" cy="4.8" r="1.7"/><circle cx="13.4" cy="4.9" r="1.7"/><circle cx="15.6" cy="8.3" r="1.7"/></svg>`;
+
+// Free plan is capped at 5 MB per user — demo file sizes are scaled to match.
 const QUICK_ACCESS = [
   { name: 'Q3 Budget Review.xlsx', type: 'sheet', meta: 'Opened 10:14 AM' },
   { name: 'Client Onboarding Deck.pptx', type: 'slide', meta: 'Opened yesterday' },
@@ -25,27 +28,28 @@ const QUICK_ACCESS = [
 ];
 
 const FOLDERS = [
-  { name: 'Marketing', count: 24 },
-  { name: 'Engineering', count: 61 },
-  { name: 'Contracts', count: 12 },
-  { name: 'Team Photos', count: 138 },
+  { name: 'Marketing', count: 6 },
+  { name: 'Engineering', count: 11 },
+  { name: 'Contracts', count: 3 },
+  { name: 'Team Photos', count: 4 },
 ];
 
 const FILES = [
-  { name: 'Q3 Budget Review.xlsx', type: 'sheet', owner: 'me', modified: 'Jul 30, 2026', size: '842 KB' },
-  { name: 'Client Onboarding Deck.pptx', type: 'slide', owner: 'me', modified: 'Jul 29, 2026', size: '5.1 MB' },
-  { name: 'Site Redesign Brief.docx', type: 'doc', owner: 'Marcus Lee', modified: 'Jul 29, 2026', size: '128 KB' },
-  { name: 'Contract — Signed.pdf', type: 'pdf', owner: 'me', modified: 'Jul 22, 2026', size: '2.3 MB' },
-  { name: 'Homepage mockups.zip', type: 'zip', owner: 'Priya Nair', modified: 'Jul 18, 2026', size: '18.4 MB' },
-  { name: 'Team offsite.jpg', type: 'image', owner: 'me', modified: 'Jul 12, 2026', size: '3.7 MB' },
-  { name: 'Vendor comparison.xlsx', type: 'sheet', owner: 'Marcus Lee', modified: 'Jul 9, 2026', size: '221 KB' },
-  { name: 'Brand guidelines.pdf', type: 'pdf', owner: 'me', modified: 'Jun 30, 2026', size: '4.9 MB' },
+  { name: 'Q3 Budget Review.xlsx', type: 'sheet', owner: 'me', modified: 'Jul 30, 2026', size: '412 KB' },
+  { name: 'Client Onboarding Deck.pptx', type: 'slide', owner: 'me', modified: 'Jul 29, 2026', size: '980 KB' },
+  { name: 'Site Redesign Brief.docx', type: 'doc', owner: 'Marcus Lee', modified: 'Jul 29, 2026', size: '96 KB' },
+  { name: 'Contract — Signed.pdf', type: 'pdf', owner: 'me', modified: 'Jul 22, 2026', size: '340 KB' },
+  { name: 'Homepage mockups.zip', type: 'zip', owner: 'Priya Nair', modified: 'Jul 18, 2026', size: '1.1 MB' },
+  { name: 'Team offsite.jpg', type: 'image', owner: 'me', modified: 'Jul 12, 2026', size: '210 KB' },
+  { name: 'Vendor comparison.xlsx', type: 'sheet', owner: 'Marcus Lee', modified: 'Jul 9, 2026', size: '88 KB' },
+  { name: 'Brand guidelines.pdf', type: 'pdf', owner: 'me', modified: 'Jun 30, 2026', size: '190 KB' },
 ];
 
 function renderQuickAccess() {
   const grid = document.getElementById('quickGrid');
-  grid.innerHTML = QUICK_ACCESS.map(item => `
-    <div class="quick-card" tabindex="0" role="button" aria-label="Open ${item.name}">
+  grid.innerHTML = QUICK_ACCESS.map((item, i) => `
+    <div class="quick-card enter" style="animation-delay:${i * 60}ms" tabindex="0" role="button" aria-label="Open ${item.name}">
+      ${PAW_SVG}
       <div class="quick-card-top">
         ${iconMarkup(item.type)}
         <div>
@@ -59,22 +63,26 @@ function renderQuickAccess() {
 
 function renderFolders() {
   const grid = document.getElementById('folderGrid');
-  grid.innerHTML = FOLDERS.map(f => `
-    <div class="folder-card" tabindex="0" role="button" aria-label="Open folder ${f.name}">
-      <svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.5 2h7.5A1.5 1.5 0 0 1 18 7.5v8A1.5 1.5 0 0 1 16.5 17h-13A1.5 1.5 0 0 1 2 15.5v-10Z"/></svg>
+  grid.innerHTML = FOLDERS.map((f, i) => `
+    <div class="folder-card enter" style="animation-delay:${i * 60}ms" tabindex="0" role="button" aria-label="Open folder ${f.name}">
+      <svg class="folder-icon" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
+        <path class="folder-back" d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.5 2h7.5A1.5 1.5 0 0 1 18 7.5v8A1.5 1.5 0 0 1 16.5 17h-13A1.5 1.5 0 0 1 2 15.5v-10Z"/>
+        <path class="folder-flap" d="M2.3 7.2h15.4a1.4 1.4 0 0 1 1.36 1.75l-1.4 5.6a1.4 1.4 0 0 1-1.36 1.05H3.7a1.4 1.4 0 0 1-1.36-1.05l-1.4-5.6A1.4 1.4 0 0 1 2.3 7.2Z"/>
+      </svg>
       <span>${f.name}</span>
       <span class="folder-count">${f.count}</span>
       <button class="row-menu-btn" aria-label="More actions for ${f.name}">
         <svg viewBox="0 0 20 20" fill="currentColor"><circle cx="10" cy="4.5" r="1.4"/><circle cx="10" cy="10" r="1.4"/><circle cx="10" cy="15.5" r="1.4"/></svg>
       </button>
+      ${PAW_SVG}
     </div>
   `).join('');
 }
 
 function renderFiles(list) {
   const body = document.getElementById('fileTableBody');
-  body.innerHTML = list.map(f => `
-    <tr tabindex="0">
+  body.innerHTML = list.map((f, i) => `
+    <tr class="enter" style="animation-delay:${i * 45}ms" tabindex="0">
       <td>
         <div class="file-name-cell">
           ${iconMarkup(f.type)}
