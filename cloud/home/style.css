@@ -196,7 +196,6 @@ a { color: inherit; text-decoration: none; }
 .storage {
   margin-top: auto;
   padding: 14px 12px 4px;
-  border-top: 1px solid rgba(244, 241, 233, 0.1);
 }
 .storage-label {
   display: flex;
