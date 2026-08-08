@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>On Device Health</title>
+  <style>
+    body { margin: 0; font-family:Segoe UI, Arial, sans-serif; background:#f4f7fb; color:#1a1a1a; }
+    .page { max-width:1000px; margin:0 auto; padding:28px; }
+    header { text-align:center; padding:18px 0; }
+    h1 { margin:0; font-size:2.4rem; }
+    p { line-height:1.65; margin:18px 0; }
+    .card { background:#fff; border-radius:18px; box-shadow:0 18px 35px rgba(15,25,45,.08); padding:24px; margin-top:24px; }
+    .links { column-count: 3; column-gap: 24px; max-width:100%; }
+    .links a { display:block; margin-bottom:10px; color:#2563eb; text-decoration:none; }
+    .links a:hover { text-decoration:underline; }
+    footer { text-align:center; margin-top:32px; color:#555; font-size:.95rem; }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <header>
+      <h1>On Device Health</h1>
+      <p>A small local health check. No data leaves your browser. Answer a few statements, tap calculate, and get an instant score from 0 (unlikely) to 5 (likely).</p>
+    </header>
+    <div class="card">
+      <h2>Start a test</h2>
+      <div class="links">
+        <a href="tests/test001.html">Attention Check</a>
+        <a href="tests/test002.html">Attention Survey</a>
+        <a href="tests/test003.html">Attention Score</a>
+        <a href="tests/test004.html">Attention Review</a>
+        <a href="tests/test005.html">Attention Insight</a>
+        <a href="tests/test006.html">Social Interaction Check</a>
+        <a href="tests/test007.html">Social Interaction Survey</a>
+        <a href="tests/test008.html">Social Interaction Score</a>
+        <a href="tests/test009.html">Social Interaction Review</a>
+        <a href="tests/test010.html">Social Interaction Insight</a>
+        <a href="tests/test011.html">Stress Check</a>
+        <a href="tests/test012.html">Stress Survey</a>
+        <a href="tests/test013.html">Stress Score</a>
+        <a href="tests/test014.html">Stress Review</a>
+        <a href="tests/test015.html">Stress Insight</a>
+        <a href="tests/test016.html">Sleep Check</a>
+        <a href="tests/test017.html">Sleep Survey</a>
+        <a href="tests/test018.html">Sleep Score</a>
+        <a href="tests/test019.html">Sleep Review</a>
+        <a href="tests/test020.html">Sleep Insight</a>
+        <a href="tests/test021.html">Memory Check</a>
+        <a href="tests/test022.html">Memory Survey</a>
+        <a href="tests/test023.html">Memory Score</a>
+        <a href="tests/test024.html">Memory Review</a>
+        <a href="tests/test025.html">Memory Insight</a>
+        <a href="tests/test026.html">Focus Check</a>
+        <a href="tests/test027.html">Focus Survey</a>
+        <a href="tests/test028.html">Focus Score</a>
+        <a href="tests/test029.html">Focus Review</a>
+        <a href="tests/test030.html">Focus Insight</a>
+        <a href="tests/test031.html">Mood Check</a>
+        <a href="tests/test032.html">Mood Survey</a>
+        <a href="tests/test033.html">Mood Score</a>
+        <a href="tests/test034.html">Mood Review</a>
+        <a href="tests/test035.html">Mood Insight</a>
+        <a href="tests/test036.html">Energy Check</a>
+        <a href="tests/test037.html">Energy Survey</a>
+        <a href="tests/test038.html">Energy Score</a>
+        <a href="tests/test039.html">Energy Review</a>
+        <a href="tests/test040.html">Energy Insight</a>
+        <a href="tests/test041.html">Clarity Check</a>
+        <a href="tests/test042.html">Clarity Survey</a>
+        <a href="tests/test043.html">Clarity Score</a>
+        <a href="tests/test044.html">Clarity Review</a>
+        <a href="tests/test045.html">Clarity Insight</a>
+        <a href="tests/test046.html">Routine Check</a>
+        <a href="tests/test047.html">Routine Survey</a>
+        <a href="tests/test048.html">Routine Score</a>
+        <a href="tests/test049.html">Routine Review</a>
+        <a href="tests/test050.html">Routine Insight</a>
+        <a href="tests/test051.html">Hydration Check</a>
+        <a href="tests/test052.html">Hydration Survey</a>
+        <a href="tests/test053.html">Hydration Score</a>
+        <a href="tests/test054.html">Hydration Review</a>
+        <a href="tests/test055.html">Hydration Insight</a>
+        <a href="tests/test056.html">Vision Comfort Check</a>
+        <a href="tests/test057.html">Vision Comfort Survey</a>
+        <a href="tests/test058.html">Vision Comfort Score</a>
+        <a href="tests/test059.html">Vision Comfort Review</a>
+        <a href="tests/test060.html">Vision Comfort Insight</a>
+        <a href="tests/test061.html">Posture Check</a>
+        <a href="tests/test062.html">Posture Survey</a>
+        <a href="tests/test063.html">Posture Score</a>
+        <a href="tests/test064.html">Posture Review</a>
+        <a href="tests/test065.html">Posture Insight</a>
+        <a href="tests/test066.html">Noise Sensitivity Check</a>
+        <a href="tests/test067.html">Noise Sensitivity Survey</a>
+        <a href="tests/test068.html">Noise Sensitivity Score</a>
+        <a href="tests/test069.html">Noise Sensitivity Review</a>
+        <a href="tests/test070.html">Noise Sensitivity Insight</a>
+        <a href="tests/test071.html">Task Planning Check</a>
+        <a href="tests/test072.html">Task Planning Survey</a>
+        <a href="tests/test073.html">Task Planning Score</a>
+        <a href="tests/test074.html">Task Planning Review</a>
+        <a href="tests/test075.html">Task Planning Insight</a>
+        <a href="tests/test076.html">Work Pace Check</a>
+        <a href="tests/test077.html">Work Pace Survey</a>
+        <a href="tests/test078.html">Work Pace Score</a>
+        <a href="tests/test079.html">Work Pace Review</a>
+        <a href="tests/test080.html">Work Pace Insight</a>
+        <a href="tests/test081.html">Recovery Check</a>
+        <a href="tests/test082.html">Recovery Survey</a>
+        <a href="tests/test083.html">Recovery Score</a>
+        <a href="tests/test084.html">Recovery Review</a>
+        <a href="tests/test085.html">Recovery Insight</a>
+        <a href="tests/test086.html">Balance Check</a>
+        <a href="tests/test087.html">Balance Survey</a>
+        <a href="tests/test088.html">Balance Score</a>
+        <a href="tests/test089.html">Balance Review</a>
+        <a href="tests/test090.html">Balance Insight</a>
+        <a href="tests/test091.html">Impulse Control Check</a>
+        <a href="tests/test092.html">Impulse Control Survey</a>
+        <a href="tests/test093.html">Impulse Control Score</a>
+        <a href="tests/test094.html">Impulse Control Review</a>
+        <a href="tests/test095.html">Impulse Control Insight</a>
+        <a href="tests/test096.html">Learning Check</a>
+        <a href="tests/test097.html">Learning Survey</a>
+        <a href="tests/test098.html">Learning Score</a>
+        <a href="tests/test099.html">Learning Review</a>
+        <a href="tests/test100.html">Learning Insight</a>
+      </div>
+      <p>Each page is a local test stored only in your browser session. The score is a fast estimate only, not a diagnosis.</p>
+    </div>
+    <div class="card">
+      <h2>How it works</h2>
+      <p>Answer five questions on the selected page. When you finish, press Calculate. The tool adds your answers and shows a value from 0 to 5.</p>
+      <p>0 = unlikely, 5 = likely. No waiting, no network requests, and no data is sent anywhere.</p>
+    </div>
+    <footer>Built for fast local use only. No server needed.</footer>
+  </div>
+</body>
+</html>
