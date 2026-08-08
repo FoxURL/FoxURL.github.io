@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Offline ProcessingJS</title>
+    <!-- Load the ProcessingJS Library -->
+    <script src="enviroments/ProccesingJS.js"></script> 
+</head>
+<body>
+    <!-- The canvas element where your code will draw -->
+    <canvas id="mycanvas"></canvas> 
+
+    <script type="application/processing" data-processing-target="mycanvas">
+        // Write your exact Khan Academy code here
+        void setup() {
+            size(400, 400);
+            background(255);
+        }
+
+        void draw() {
+            fill(0, 200, 255);
+            ellipse(mouseX, mouseY, 30, 30);
+        }
+    </script>
+</body>
+</html>
