@@ -1,0 +1,28 @@
+If your fox account is hacked, taken over, or you have loist accses to your account, then first you will need to
+verify account ownership, either with past passwords, emails, or any security info. this does not include:
+- current emails
+- public name
+
+even if information is updated, if you can provide us with the date or time of lost accses,
+we can get information that would have been correct at that time.
+
+please note, full Fox Account Recovery MUST be submitted within 7 days of atack, otherwise, we cannot help you.
+if your fox account Recovery form was submitted, their is no date of full accoount loss, as your account would be frozen.
+
+if you can't provide us with your
+- full name at account creation
+- any 2fa factors. 
+- account creation date
+- past passwords.
+- past emails
+- past interactions, emails, files, etc
+- Your FoxACCOUNT Recovery Pin.
+
+then we will also be unable to assist you in the recovery of your account.
+if your account is able to be recovered, then you will be able to have any changes, (files, emails,passwords,etc) undone and reverted to
+a chosen date.
+if any changes where made to your account by you beforethe hack, eg a file upload, that will unfortuneatly be non recoverable.
+
+
+if a fox account is hacked and the hacker removes your account, then FoxURL will try and recover it to the best of out abilities.
+some accounts may be un recoverable by out Engineers.
