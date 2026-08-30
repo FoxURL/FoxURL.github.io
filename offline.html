@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxURL - Offline Mode & Mini-Pong</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --card-bg: #161b22;
+            --border-color: #30363d;
+            --text-primary: #f0f6fc;
+            --text-secondary: #8b949e;
+            --accent-color: #ff7b72;
+            --button-bg: #238636;
+            --button-hover: #2ea043;
+            --success-color: #3fb950;
+            --warning-color: #d29922;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-primary);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        /* Split Screen Layout */
+        .split-pane {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 24px;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .left-pane {
+            border-right: 1px solid var(--border-color);
+            background-color: #090d12;
+            flex-direction: column;
+            cursor: pointer;
+        }
+
+        .right-pane {
+            overflow-y: auto;
+        }
+
+        .error-container {
+            width: 100%;
+            max-width: 480px;
+        }
+
+        .brand {
+            font-size: 14px;
+            font-weight: 650;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 8px;
+        }
+
+        h1 {
+            font-size: 22px;
+            margin-top: 0;
+            margin-bottom: 20px;
+            line-height: 1.4;
+            font-weight: 500;
+        }
+
+        h1 span {
+            color: var(--accent-color);
+        }
+
+        /* GitHub Styled Box */
+        .status-box {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        .status-header {
+            padding: 12px 16px;
+            background-color: rgba(110, 118, 129, 0.1);
+            border-bottom: 1px solid var(--border-color);
+            font-size: 14px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .status-item {
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid var(--border-color);
+            font-size: 13px;
+        }
+
+        .status-item:last-child {
+            border-bottom: none;
+        }
+
+        .status-label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .indicator.error {
+            background-color: var(--accent-color);
+            box-shadow: 0 0 8px rgba(255, 123, 114, 0.4);
+        }
+
+        .indicator.warning {
+            background-color: var(--warning-color);
+        }
+
+        .indicator.success {
+            background-color: var(--success-color);
+        }
+
+        .status-value {
+            color: var(--text-secondary);
+            font-family: ui-monospace, SFMono-Regular, SF Mono, Menlo, Consolas, monospace;
+            font-size: 12px;
+        }
+
+        /* Action Buttons */
+        .actions {
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            background-color: var(--button-bg);
+            color: white;
+            border: 1px solid rgba(27, 31, 36, 0.15);
+            padding: 10px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn:hover {
+            background-color: var(--button-hover);
+        }
+
+        .btn-secondary {
+            background-color: #21262d;
+            border-color: var(--border-color);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background-color: #30363d;
+        }
+
+        /* Pong Game Canvas Styles */
+        #pong-canvas {
+            background: #05070b;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            box-shadow: 0 0 20px rgba(0, 255, 128, 0.05);
+            max-width: 100%;
+        }
+
+        .pong-ui {
+            text-align: center;
+            margin-top: 15px;
+            color: var(--text-secondary);
+            font-size: 13px;
+        }
+
+        .pong-ui span {
+            color: var(--success-color);
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- LEFT PANE: Interactive Tech Pong Game -->
+    <div class="split-pane left-pane" id="game-pane">
+        <canvas id="pong-canvas" width="450" height="300"></canvas>
+        <div class="pong-ui" id="pong-instruction">
+            <span>Click here</span> to activate & play Tech Pong<br>(Move mouse up/down to control paddle)
+        </div>
+    </div>
+
+    <!-- RIGHT PANE: Real Network Status Dashboard -->
+    <div class="split-pane right-pane">
+        <div class="error-container">
+            <div class="brand">FoxURL</div>
+            <h1>Innovate your conne—, <span>Oh No!</span> It seems we can't find your internet connection.</h1>
+
+            <div class="status-box">
+                <div class="status-header">
+                    <svg aria-hidden="true" height="16" viewBox="0 0 16 16" version="1.1" width="16" fill="currentColor">
+                        <path d="M8 0c-4.42 0-8 3.58-8 8a8.013 8.013 0 0 0 5 7.44v-1.11A6.999 6.999 0 0 1 1 8C1 4.13 4.13 1 8 1s7 3.13 7 7a6.999 6.999 0 0 1-4 6.33v1.11A8.013 8.013 0 0 0 16 8c0-4.42-3.58-8-8-8zm0 3a1 1 0 1 0 0 2 1 1 0 0 0 0-2zm-1 4h2v6H7V7z"></path>
+                    </svg>
+                    Real-Time Diagnostics Overview
+                </div>
+                
+                <div class="status-item">
+                    <div class="status-label">
+                        <span id="conn-indicator" class="indicator error"></span>
+                        Browser Network Status
+                    </div>
+                    <div id="conn-status" class="status-value">Checking...</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-label">
+                        <span id="type-indicator" class="indicator warning"></span>
+                        Connection Type
+                    </div>
+                    <div id="type-status" class="status-value">Detecting...</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-label">
+                        <span id="speed-indicator" class="indicator warning"></span>
+                        Effective Downlink Speed
+                    </div>
+                    <div id="speed-status" class="status-value">Unknown</div>
+                </div>
+
+                <div class="status-item">
+                    <div class="status-label">
+                        <span class="indicator success"></span>
+                        FoxURL Core Engine
+                    </div>
+                    <div class="status-value">Operational</div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="btn" onclick="window.location.reload();">Try Again</button>
+                <button class="btn btn-secondary" onclick="runRealTimeCheck();">Refresh Diagnostics</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* --- REAL NETWORK DIAGNOSTICS SCRIPT --- */
+        function runRealTimeCheck() {
+            const isOnline = navigator.onLine;
+            const connIndicator = document.getElementById('conn-indicator');
+            const connStatus = document.getElementById('conn-status');
+
+            if (isOnline) {
+                connIndicator.className = "indicator success";
+                connStatus.textContent = "ONLINE";
+            } else {
+                connIndicator.className = "indicator error";
+                connStatus.textContent = "OFFLINE";
+            }
+
+            const connection = navigator.connection || navigator.mozConnection || navigator.webkitConnection;
+            const typeIndicator = document.getElementById('type-indicator');
+            const typeStatus = document.getElementById('type-status');
+            const speedIndicator = document.getElementById('speed-indicator');
+            const speedStatus = document.getElementById('speed-status');
+
+            if (connection) {
+                const effectiveType = connection.effectiveType ? connection.effectiveType.toUpperCase() : 'UNKNOWN';
+                const type = connection.type ? connection.type : 'Unknown';
+                
+                typeStatus.textContent = `${type.toUpperCase()} (${effectiveType})`;
+
+                if (type === 'none' || !isOnline) {
+                    typeIndicator.className = "indicator error";
+                } else {
+                    typeIndicator.className = "indicator success";
+                }
+
+                if (connection.downlink !== undefined) {
+                    speedStatus.textContent = `${connection.downlink} Mbps`;
+                    speedIndicator.className = connection.downlink > 0 ? "indicator success" : "indicator error";
+                } else {
+                    speedStatus.textContent = "Not Provided";
+                    speedIndicator.className = "indicator warning";
+                }
+
+                connection.onchange = runRealTimeCheck;
+            } else {
+                typeStatus.textContent = "API Not Supported";
+                typeIndicator.className = "indicator warning";
+                speedStatus.textContent = "N/A";
+                speedIndicator.className = "indicator warning";
+            }
+        }
+
+        window.addEventListener('load', runRealTimeCheck);
+        window.addEventListener('online', runRealTimeCheck);
+        window.addEventListener('offline', runRealTimeCheck);
+
+
+        /* --- TECH PONG GAME SCRIPT --- */
+        const canvas = document.getElementById('pong-canvas');
+        const ctx = canvas.getContext('2d');
+        const gamePane = document.getElementById('game-pane');
+        const instruction = document.getElementById('pong-instruction');
+
+        let gameRunning = false;
+
+        // Game objects
+        const paddleWidth = 10, paddleHeight = 60;
+        let player = { x: 15, y: canvas.height / 2 - 30, score: 0 };
+        let ai = { x: canvas.width - 25, y: canvas.height / 2 - 30, score: 0 };
+        // Slower initial speeds here (speedX: 2.5, speedY: 1.5)
+        let ball = { x: canvas.width / 2, y: canvas.height / 2, radius: 6, speedX: 2.5, speedY: 1.5 };
+
+        // Mouse tracking for player paddle inside left pane
+        gamePane.addEventListener('mousemove', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            let rootY = e.clientY - rect.top;
+            player.y = rootY - paddleHeight / 2;
+            if (player.y < 0) player.y = 0;
+            if (player.y > canvas.height - paddleHeight) player.y = canvas.height - paddleHeight;
+        });
+
+        // Click to start game
+        gamePane.addEventListener('click', () => {
+            if (!gameRunning) {
+                gameRunning = true;
+                instruction.innerHTML = "<span>Game Active!</span> Defeat the AI terminal.";
+                loop();
+            }
+        });
+
+        function drawRect(x, y, w, h, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, w, h);
+        }
+
+        function drawCircle(x, y, r, color) {
+            ctx.fillStyle = color;
+            ctx.beginPath();
+            ctx.arc(x, y, r, 0, Math.PI * 2, false);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        function drawText(text, x, y, color) {
+            ctx.fillStyle = color;
+            ctx.font = "20px ui-monospace, monospace";
+            ctx.fillText(text, x, y);
+        }
+
+        function update() {
+            ball.x += ball.speedX;
+            ball.y += ball.speedY;
+
+            // Slightly slower AI tracking as well so it's a fair match
+            let aiTarget = ball.y - paddleHeight / 2;
+            ai.y += (aiTarget - ai.y) * 0.05;
+            if (ai.y < 0) ai.y = 0;
+            if (ai.y > canvas.height - paddleHeight) ai.y = canvas.height - paddleHeight;
+
+            // Wall collision (Top & Bottom)
+            if (ball.y - ball.radius < 0 || ball.y + ball.radius > canvas.height) {
+                ball.speedY = -ball.speedY;
+            }
+
+            // Paddle Collisions
+            let activePaddle = (ball.x < canvas.width / 2) ? player : ai;
+            let hitTest = (
+                ball.x - ball.radius < activePaddle.x + paddleWidth &&
+                ball.x + ball.radius > activePaddle.x &&
+                ball.y > activePaddle.y &&
+                ball.y < activePaddle.y + paddleHeight
+            );
+
+            if (hitTest) {
+                ball.speedX = -ball.speedX * 1.03; // Gentle speed scaling
+                let deltaY = ball.y - (activePaddle.y + paddleHeight / 2);
+                ball.speedY = deltaY * 0.2;
+            }
+
+            // Scoring points
+            if (ball.x < 0) {
+                ai.score++;
+                resetBall();
+            } else if (ball.x > canvas.width) {
+                player.score++;
+                resetBall();
+            }
+        }
+
+        function resetBall() {
+            ball.x = canvas.width / 2;
+            ball.y = canvas.height / 2;
+            ball.speedX = -ball.speedX;
+            ball.speedX = 2.5 * (ball.speedX > 0 ? 1 : -1);
+            ball.speedY = (Math.random() - 0.5) * 3;
+        }
+
+        function render() {
+            drawRect(0, 0, canvas.width, canvas.height, '#05070b');
+
+            for (let i = 0; i < canvas.height; i += 15) {
+                drawRect(canvas.width / 2 - 1, i, 2, 8, '#1f2937');
+            }
+
+            drawText(player.score, canvas.width / 4, 30, '#30363d');
+            drawText(ai.score, canvas.width * 3 / 4, 30, '#30363d');
+
+            drawRect(player.x, player.y, paddleWidth, paddleHeight, '#3fb950');
+            drawRect(ai.x, ai.y, paddleWidth, paddleHeight, '#ff7b72');
+            drawCircle(ball.x, ball.y, ball.radius, '#f0f6fc');
+        }
+
+        function loop() {
+            if (gameRunning) {
+                update();
+                render();
+                requestAnimationFrame(loop);
+            }
+        }
+
+        render();
+    </script>
+</body>
+</html>
