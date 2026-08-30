@@ -1,167 +1,350 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Home · FoxURL Cloud</title>
-<link rel="stylesheet" href="style.css">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FoxCloud — Ultimate Liquid Glass Storage</title>
+  <link rel="icon" type="image/png" href="https://FoxURL.github.io/assets/FoxCloud.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    body {
+      background: radial-gradient(circle at top left, #fff4ec 0%, #f5f7fa 50%, #eef2f7 100%);
+      color: #1a1a1a;
+      min-height: 100vh;
+      display: flex;
+      overflow-x: hidden;
+    }
+
+    /* Sidebar Navigation */
+    aside {
+      width: 280px;
+      background: rgba(255, 255, 255, 0.7);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border-right: 1px solid rgba(255, 85, 0, 0.2);
+      padding: 32px 24px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      box-shadow: 15px 0 40px rgba(0, 0, 0, 0.03);
+      z-index: 10;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 40px;
+    }
+
+    .brand img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+      filter: drop-shadow(0 8px 16px rgba(255, 85, 0, 0.3));
+    }
+
+    .brand h1 {
+      font-size: 22px;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      background: linear-gradient(135deg, #1a1a1a 30%, #FF5500 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .nav-links {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      list-style: none;
+    }
+
+    .nav-links li a {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      text-decoration: none;
+      color: #444;
+      font-weight: 500;
+      transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+    }
+
+    .nav-links li.active a, .nav-links li a:hover {
+      background: rgba(255, 85, 0, 0.1);
+      color: #FF5500;
+      border: 1px solid rgba(255, 85, 0, 0.3);
+      box-shadow: 0 10px 25px rgba(255, 85, 0, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+    }
+
+    /* Main Content Canvas */
+    main {
+      flex: 1;
+      padding: 40px 48px;
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+      max-width: 1400px;
+    }
+
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .search-bar {
+      position: relative;
+      width: 450px;
+    }
+
+    .search-bar input {
+      width: 100%;
+      padding: 16px 24px 16px 52px;
+      background: rgba(255, 255, 255, 0.8);
+      backdrop-filter: blur(20px);
+      border: 2px solid rgba(255, 85, 0, 0.2);
+      border-radius: 30px;
+      outline: none;
+      font-size: 15px;
+      color: #1a1a1a;
+      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.05), inset 0 2px 4px rgba(255, 255, 255, 0.9);
+      transition: all 0.3s ease;
+    }
+
+    .search-bar input:focus {
+      border-color: #FF5500;
+      box-shadow: 0 20px 40px rgba(255, 85, 0, 0.18), inset 0 2px 6px rgba(255, 255, 255, 1);
+    }
+
+    .search-bar svg {
+      position: absolute;
+      left: 20px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 20px;
+      height: 20px;
+      fill: #FF5500;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      background: rgba(255, 255, 255, 0.8);
+      padding: 8px 18px 8px 8px;
+      border-radius: 30px;
+      border: 2px solid rgba(255, 85, 0, 0.2);
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+    }
+
+    .user-profile img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+      border: 2px solid #FF5500;
+    }
+
+    /* Dashboard Grid Section */
+    .section-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #1a1a1a;
+      letter-spacing: -0.3px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+      gap: 24px;
+    }
+
+    .aether-card {
+      background: rgba(255, 255, 255, 0.85);
+      backdrop-filter: blur(25px);
+      -webkit-backdrop-filter: blur(25px);
+      border: 2px solid rgba(255, 85, 0, 0.35);
+      border-radius: 24px;
+      padding: 24px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.08), 
+                  inset 0 2px 6px rgba(255, 255, 255, 0.9);
+      transform: perspective(1000px) rotateX(1deg);
+      transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1);
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .aether-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 4px;
+      background: linear-gradient(90deg, #FF5500, #ff8833);
+      opacity: 0.8;
+    }
+
+    .aether-card:hover {
+      transform: perspective(1000px) rotateX(0deg) translateY(-8px);
+      border-color: #FF5500;
+      box-shadow: 0 35px 70px rgba(255, 85, 0, 0.22), 
+                  inset 0 2px 8px rgba(255, 255, 255, 1);
+    }
+
+    .file-icon {
+      font-size: 32px;
+      filter: drop-shadow(0 4px 8px rgba(0, 0, 0, 0.1));
+    }
+
+    .aether-card h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .aether-card p {
+      font-size: 13px;
+      color: #777;
+    }
+
+    /* Loading Overlay Animation */
+    #loader-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      background: rgba(255, 248, 245, 0.85);
+      backdrop-filter: blur(40px);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      gap: 20px;
+      z-index: 9999;
+      animation: fadeOut 0.6s ease 1.2s forwards;
+      pointer-events: none;
+    }
+
+    .prism-loader {
+      position: relative;
+      width: 80px;
+      height: 80px;
+      animation: spin 2s linear infinite;
+    }
+
+    .prism-sphere {
+      position: absolute;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      border: 2px solid #FF5500;
+      box-shadow: 0 10px 25px rgba(255, 85, 0, 0.3), inset 0 2px 4px rgba(255, 255, 255, 1);
+    }
+
+    .prism-sphere:nth-child(1) { top: 0; left: 22px; }
+    .prism-sphere:nth-child(2) { bottom: 0; left: 0; }
+    .prism-sphere:nth-child(3) { bottom: 0; right: 0; }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    @keyframes fadeOut {
+      to { opacity: 0; visibility: hidden; }
+    }
+  </style>
 </head>
 <body>
 
-<div class="app">
-
-  <!-- ===================== SIDEBAR ===================== -->
-  <aside class="sidebar">
-    <a class="brand" href="/cloud/home/index.html" aria-label="FoxCLOUD, home">
-      <img class="brand-mark" src="/assets/FoxCLOUD.png" alt="" aria-hidden="true">
-      <span class="brand-name">Fox<em>CLOUD</em></span>
-    </a>
-
-    <div class="new-menu">
-      <button class="btn-new" id="newBtn" aria-haspopup="true" aria-expanded="false">
-        <svg viewBox="0 0 20 20" fill="none" aria-hidden="true"><path d="M10 4v12M4 10h12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-        New
-      </button>
-      <svg class="fox-peek" viewBox="0 0 60 44" aria-hidden="true">
-        <path class="fox-peek-ear" d="M10 20 L4 4 L20 14 Z" fill="var(--accent)"/>
-        <path class="fox-peek-ear" d="M50 20 L56 4 L40 14 Z" fill="var(--accent)"/>
-        <path d="M8 20 C8 8 20 2 30 2 C40 2 52 8 52 20 C52 32 42 34 30 34 C18 34 8 32 8 20 Z" fill="var(--accent)"/>
-        <path d="M30 16 C24 16 20 20 20 26 C20 31 25 34 30 34 C35 34 40 31 40 26 C40 20 36 16 30 16 Z" fill="#F9F1E7"/>
-        <circle class="fox-peek-eye" cx="24" cy="19" r="2" fill="#20140C"/>
-        <circle class="fox-peek-eye" cx="36" cy="19" r="2" fill="#20140C"/>
-        <path d="M30 24 L27 27 L33 27 Z" fill="#20140C"/>
-      </svg>
-      <div class="new-dropdown" id="newDropdown" hidden>
-        <button data-action="folder"><svg viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.5 2h7.5A1.5 1.5 0 0 1 18 7.5v8A1.5 1.5 0 0 1 16.5 17h-13A1.5 1.5 0 0 1 2 15.5v-10Z" fill="currentColor"/></svg>New folder</button>
-        <span class="dropdown-divider"></span>
-        <button data-action="file"><svg viewBox="0 0 20 20"><path d="M5 2.5h6.5L15 6v11.5H5V2.5Z" stroke="currentColor" stroke-width="1.3" fill="none"/><path d="M11.5 2.5V6H15" stroke="currentColor" stroke-width="1.3" fill="none"/></svg>File upload</button>
-        <button data-action="uploadfolder"><svg viewBox="0 0 20 20"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.5 2h7.5A1.5 1.5 0 0 1 18 7.5v8A1.5 1.5 0 0 1 16.5 17h-13A1.5 1.5 0 0 1 2 15.5v-10Z" fill="currentColor"/><path d="M10 8.5v5M7.7 10.8 10 8.5l2.3 2.3" stroke="var(--sidebar-bg)" stroke-width="1.3" stroke-linecap="round" fill="none"/></svg>Folder upload</button>
-      </div>
+  <div id="loader-overlay">
+    <div class="prism-loader">
+      <div class="prism-sphere"></div>
+      <div class="prism-sphere"></div>
+      <div class="prism-sphere"></div>
     </div>
+    <span style="font-weight: 600; color: #FF5500; letter-spacing: 1px; font-size: 14px;">INITIALIZING FOXCLOUD...</span>
+  </div>
 
-    <nav class="nav" aria-label="Cloud sections">
-      <a href="/cloud/home/index.html" class="nav-item is-active">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 10.5 10 4l7 6.5M5 9v7h4v-4.5h2V16h4V9" stroke="currentColor" stroke-width="1.5" fill="none" stroke-linejoin="round"/></svg>
-        Home
-        <svg class="paw" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="12.5" r="3.4"/><circle cx="5.2" cy="7.5" r="1.7"/><circle cx="9.2" cy="4.8" r="1.7"/><circle cx="13.4" cy="4.9" r="1.7"/><circle cx="15.6" cy="8.3" r="1.7"/></svg>
-      </a>
-      <a href="#" class="nav-item">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M2 5.5A1.5 1.5 0 0 1 3.5 4h4l1.5 2h7.5A1.5 1.5 0 0 1 18 7.5v8A1.5 1.5 0 0 1 16.5 17h-13A1.5 1.5 0 0 1 2 15.5v-10Z" stroke="currentColor" stroke-width="1.4" fill="none"/></svg>
-        My Drive
-        <svg class="paw" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="12.5" r="3.4"/><circle cx="5.2" cy="7.5" r="1.7"/><circle cx="9.2" cy="4.8" r="1.7"/><circle cx="13.4" cy="4.9" r="1.7"/><circle cx="15.6" cy="8.3" r="1.7"/></svg>
-      </a>
-      <a href="/cloud/recent/index.html" class="nav-item">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="7.3" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M10 6v4.3l3 2" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" fill="none"/></svg>
-        Recent
-        <svg class="paw" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="12.5" r="3.4"/><circle cx="5.2" cy="7.5" r="1.7"/><circle cx="9.2" cy="4.8" r="1.7"/><circle cx="13.4" cy="4.9" r="1.7"/><circle cx="15.6" cy="8.3" r="1.7"/></svg>
-      </a>
-      <a href="/cloud/shared/index.html" class="nav-item">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="6" cy="6" r="2.3" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="14.5" cy="5" r="2" stroke="currentColor" stroke-width="1.4" fill="none"/><circle cx="14.5" cy="15" r="2" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M8 7.2 12.7 5.9M8 8 12.7 14" stroke="currentColor" stroke-width="1.4"/></svg>
-        Shared with me
-        <svg class="paw" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="12.5" r="3.4"/><circle cx="5.2" cy="7.5" r="1.7"/><circle cx="9.2" cy="4.8" r="1.7"/><circle cx="13.4" cy="4.9" r="1.7"/><circle cx="15.6" cy="8.3" r="1.7"/></svg>
-      </a>
-      <a href="/cloud/trash/index.html" class="nav-item">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4 6h12M8 6V4.6c0-.6.4-1 1-1h2c.6 0 1 .4 1 1V6M5.5 6l.6 9.4c0 .6.5 1 1 1h5.8c.5 0 1-.4 1-1L15.5 6" stroke="currentColor" stroke-width="1.4" fill="none" stroke-linecap="round"/></svg>
-        Trash
-        <svg class="paw" viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="12.5" r="3.4"/><circle cx="5.2" cy="7.5" r="1.7"/><circle cx="9.2" cy="4.8" r="1.7"/><circle cx="13.4" cy="4.9" r="1.7"/><circle cx="15.6" cy="8.3" r="1.7"/></svg>
-      </a>
-    </nav>
-
-    <div class="storage">
-      <div class="storage-label">
-        <span>Storage</span>
-        <span class="storage-amount">3.4 MB of 5 MB · Free plan</span>
+  <aside>
+    <div>
+      <div class="brand">
+        <img src="https://FoxURL.github.io/assets/FoxCloud.png" alt="FoxCloud Logo">
+        <h1>FoxCloud</h1>
       </div>
-      <div class="tail-meter" role="img" aria-label="68 percent of storage used">
-        <svg viewBox="0 0 120 40" aria-hidden="true">
-          <path class="tail-track" d="M4 34 C 20 6, 60 6, 116 20" stroke-linecap="round" fill="none"/>
-          <path class="tail-fill" d="M4 34 C 20 6, 60 6, 116 20" stroke-linecap="round" fill="none"/>
-          <g class="tail-tip" transform="translate(116,20)">
-            <path d="M-9,-4 C-2,-9 7,-9 10,0 C7,7 -2,7 -9,4 C-11,2 -11,-2 -9,-4 Z" fill="var(--accent-soft)"/>
-          </g>
-        </svg>
+      <ul class="nav-links">
+        <li class="active"><a href="#">📁 My Vault</a></li>
+        <li><a href="#">⚡ Recent Syncs</a></li>
+        <li><a href="#">✨ Shared Spaces</a></li>
+        <li><a href="#">🗑️ Trash Bin</a></li>
+      </ul>
+    </div>
+    <div style="background: rgba(255, 255, 255, 0.6); padding: 16px; border-radius: 18px; border: 1px solid rgba(255, 85, 0, 0.2);">
+      <p style="font-size: 12px; font-weight: 600; color: #444; margin-bottom: 8px;">Storage Space</p>
+      <div style="width: 100%; height: 8px; background: rgba(0,0,0,0.05); border-radius: 4px; overflow: hidden; margin-bottom: 8px;">
+        <div style="width: 65%; height: 100%; background: linear-gradient(90deg, #FF5500, #ff8833); border-radius: 4px;"></div>
       </div>
-      <a href="#" class="storage-cta">Upgrade for more space</a>
+      <p style="font-size: 11px; color: #777;">650 GB of 1 TB used</p>
     </div>
   </aside>
 
-  <!-- ===================== MAIN ===================== -->
-  <div class="main">
-
-    <header class="topbar">
-      <div class="search">
-        <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="9" cy="9" r="6.2" stroke="currentColor" stroke-width="1.6" fill="none"/><path d="m14 14 4 4" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg>
-        <input type="search" placeholder="Search in FoxURL Cloud" aria-label="Search files and folders">
+  <main>
+    <header>
+      <div class="search-bar">
+        <svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg>
+        <input type="text" placeholder="Search files, folders, tags...">
       </div>
-      <div class="topbar-actions">
-        <button class="icon-btn" aria-label="View options" id="viewToggle">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><rect x="3" y="3" width="6" height="6" rx="1" fill="currentColor"/><rect x="11" y="3" width="6" height="6" rx="1" fill="currentColor"/><rect x="3" y="11" width="6" height="6" rx="1" fill="currentColor"/><rect x="11" y="11" width="6" height="6" rx="1" fill="currentColor"/></svg>
-        </button>
-        <button class="icon-btn" aria-label="Settings">
-          <svg viewBox="0 0 20 20" aria-hidden="true"><circle cx="10" cy="10" r="2.6" stroke="currentColor" stroke-width="1.4" fill="none"/><path d="M10 2.8v2M10 15.2v2M17.2 10h-2M4.8 10h-2M15.1 4.9l-1.4 1.4M6.3 13.7l-1.4 1.4M15.1 15.1l-1.4-1.4M6.3 6.3 4.9 4.9" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
-        </button>
-        <button class="avatar" aria-label="Account menu">JV</button>
+      <div class="user-profile">
+        <img src="https://FoxURL.github.io/assets/FoxCloud.png" alt="Avatar">
+        <span style="font-size: 14px; font-weight: 600;">Fox Master</span>
       </div>
     </header>
 
-    <main class="content">
-
-      <section class="quick-access" aria-labelledby="quickHeading">
-        <h1 id="quickHeading">Good afternoon, Jana</h1>
-        <div class="quick-grid" id="quickGrid"></div>
-      </section>
-
-      <section class="folders-section" aria-labelledby="foldersHeading">
-        <div class="section-head">
-          <h2 id="foldersHeading">Folders</h2>
-          <button class="text-link" data-view="mydrive">My Drive <svg viewBox="0 0 20 20" aria-hidden="true"><path d="m7.5 4.5 5 5.5-5 5.5" stroke="currentColor" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg></button>
+    <section>
+      <h2 class="section-title" style="margin-bottom: 20px;">Quick Access</h2>
+      <div class="grid">
+        <div class="aether-card">
+          <div class="file-icon">📦</div>
+          <h3>Project_Apex_v3.zip</h3>
+          <p>4.2 GB • Synced 2m ago</p>
         </div>
-        <div class="folder-grid" id="folderGrid"></div>
-      </section>
-
-      <section class="files-section" aria-labelledby="filesHeading">
-        <div class="section-head">
-          <h2 id="filesHeading">Files</h2>
-          <div class="sort-control">
-            <label for="sortSelect" class="sr-only">Sort by</label>
-            <select id="sortSelect">
-              <option value="modified">Last modified</option>
-              <option value="name">Name</option>
-              <option value="size">File size</option>
-            </select>
-          </div>
+        <div class="aether-card">
+          <div class="file-icon">🎬</div>
+          <h3>Keynote_Final_Cut.mov</h3>
+          <p>1.8 GB • Synced 1h ago</p>
         </div>
+        <div class="aether-card">
+          <div class="file-icon">📊</div>
+          <h3>Q3_Financial_Models.xlsx</h3>
+          <p>45 MB • Synced yesterday</p>
+        </div>
+        <div class="aether-card">
+          <div class="file-icon">🎨</div>
+          <h3>Liquid_Glass_Assets.fig</h3>
+          <p>820 MB • Synced 3d ago</p>
+        </div>
+      </div>
+    </section>
+  </main>
 
-        <table class="file-table" id="fileTable">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Owner</th>
-              <th scope="col">Last modified</th>
-              <th scope="col">File size</th>
-              <th scope="col"><span class="sr-only">Actions</span></th>
-            </tr>
-          </thead>
-          <tbody id="fileTableBody"></tbody>
-        </table>
-      </section>
-
-    </main>
-  </div>
-</div>
-
-<div class="context-menu" id="contextMenu" hidden>
-  <button data-action="open">Open</button>
-  <button data-action="share">Share</button>
-  <button data-action="rename">Rename</button>
-  <button data-action="download">Download</button>
-  <span class="dropdown-divider"></span>
-  <button data-action="trash" class="danger">Move to trash</button>
-</div>
-
-<script src="script.js"></script>
 </body>
 </html>
