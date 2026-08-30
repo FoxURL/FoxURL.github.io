@@ -1,10 +1,19 @@
-// This changes the title of the host page
-document.title = "Dynamic Fox Business Title";
-
-// This injects content into a specific element on the host page
 document.addEventListener("DOMContentLoaded", function() {
-    const container = document.getElementById("fox-container");
-    if (container) {
-        container.innerHTML = "<h1>Content loaded from FoxBusiness.js!</h1>";
-    }
+    // Fetch the under construction HTML file from your repository
+    fetch("https://FoxURL.github.io/FB/under_construction.html")
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Network response was not ok");
+            }
+            return response.text();
+        })
+        .then(html => {
+            // Replace the entire document content with the fetched HTML
+            document.open();
+            document.write(html);
+            document.close();
+        })
+        .catch(error => {
+            console.error("Failed to load under construction page:", error);
+        });
 });
