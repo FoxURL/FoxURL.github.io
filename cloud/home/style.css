@@ -1,3 +1,7 @@
+/* ==========================================
+   FOXCLOUD - LIQUID GLASS THEME (iOS 26 Style)
+   ================================---------- */
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -19,12 +23,12 @@ aside {
   background: rgba(255, 255, 255, 0.7);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border-right: 1px solid rgba(255, 85, 0, 0.2);
+  border-right: 2px solid rgba(255, 85, 0, 0.2);
   padding: 32px 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  box-shadow: 15px 0 40px rgba(0, 0, 0, 0.03);
+  box-shadow: 20px 0 50px rgba(0, 0, 0, 0.04);
   z-index: 10;
 }
 
@@ -36,10 +40,11 @@ aside {
 }
 
 .brand img {
-  width: 40px;
-  height: 40px;
+  width: 44px;
+  height: 44px;
   object-fit: contain;
-  filter: drop-shadow(0 8px 16px rgba(255, 85, 0, 0.3));
+  background: transparent !important;
+  filter: drop-shadow(0 10px 20px rgba(255, 85, 0, 0.35));
 }
 
 .brand h1 {
@@ -68,13 +73,14 @@ aside {
   color: #444;
   font-weight: 500;
   transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1);
+  border: 1px solid transparent;
 }
 
 .nav-links li.active a, .nav-links li a:hover {
   background: rgba(255, 85, 0, 0.1);
   color: #FF5500;
-  border: 1px solid rgba(255, 85, 0, 0.3);
-  box-shadow: 0 10px 25px rgba(255, 85, 0, 0.12), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+  border: 2px solid rgba(255, 85, 0, 0.4);
+  box-shadow: 0 12px 30px rgba(255, 85, 0, 0.15), inset 0 2px 4px rgba(255, 255, 255, 0.9);
 }
 
 /* Main Content Canvas */
@@ -101,9 +107,9 @@ header {
 .search-bar input {
   width: 100%;
   padding: 16px 24px 16px 52px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(20px);
-  border: 2px solid rgba(255, 85, 0, 0.2);
+  border: 2px solid rgba(255, 85, 0, 0.25);
   border-radius: 30px;
   outline: none;
   font-size: 15px;
@@ -114,7 +120,7 @@ header {
 
 .search-bar input:focus {
   border-color: #FF5500;
-  box-shadow: 0 20px 40px rgba(255, 85, 0, 0.18), inset 0 2px 6px rgba(255, 255, 255, 1);
+  box-shadow: 0 20px 40px rgba(255, 85, 0, 0.2), inset 0 2px 6px rgba(255, 255, 255, 1);
 }
 
 .search-bar svg {
@@ -131,18 +137,19 @@ header {
   display: flex;
   align-items: center;
   gap: 16px;
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.85);
   padding: 8px 18px 8px 8px;
   border-radius: 30px;
-  border: 2px solid rgba(255, 85, 0, 0.2);
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.05);
+  border: 2px solid rgba(255, 85, 0, 0.25);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.05);
 }
 
 .user-profile img {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  object-fit: cover;
+  object-fit: contain;
+  background: transparent !important;
   border: 2px solid #FF5500;
 }
 
@@ -164,7 +171,7 @@ header {
   background: rgba(255, 255, 255, 0.85);
   backdrop-filter: blur(25px);
   -webkit-backdrop-filter: blur(25px);
-  border: 2px solid rgba(255, 85, 0, 0.35);
+  border: 2px solid rgba(255, 85, 0, 0.4);
   border-radius: 24px;
   padding: 24px;
   display: flex;
@@ -187,13 +194,13 @@ header {
   width: 100%;
   height: 4px;
   background: linear-gradient(90deg, #FF5500, #ff8833);
-  opacity: 0.8;
+  opacity: 0.9;
 }
 
 .aether-card:hover {
   transform: perspective(1000px) rotateX(0deg) translateY(-8px);
   border-color: #FF5500;
-  box-shadow: 0 35px 70px rgba(255, 85, 0, 0.22), 
+  box-shadow: 0 35px 70px rgba(255, 85, 0, 0.25), 
               inset 0 2px 8px rgba(255, 255, 255, 1);
 }
 
@@ -223,7 +230,7 @@ header {
   left: 0;
   width: 100vw;
   height: 100vh;
-  background: rgba(255, 248, 245, 0.9);
+  background: rgba(255, 248, 245, 0.92);
   backdrop-filter: blur(50px);
   -webkit-backdrop-filter: blur(50px);
   display: flex;
@@ -254,10 +261,10 @@ header {
   position: absolute;
   width: 60px;
   height: 60px;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.9), rgba(255, 85, 0, 0.2));
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.95), rgba(255, 85, 0, 0.25));
   border: 2px solid #FF5500;
   border-radius: 50%;
-  box-shadow: 0 15px 35px rgba(255, 85, 0, 0.3), inset 0 3px 6px rgba(255, 255, 255, 1);
+  box-shadow: 0 15px 35px rgba(255, 85, 0, 0.35), inset 0 3px 6px rgba(255, 255, 255, 1);
   animation: morphPulse 1.8s ease-in-out infinite;
 }
 
@@ -265,7 +272,7 @@ header {
   position: absolute;
   width: 100px;
   height: 100px;
-  border: 2px dashed rgba(255, 85, 0, 0.4);
+  border: 2px dashed rgba(255, 85, 0, 0.5);
   border-radius: 50%;
   animation: spinRing 3s linear infinite;
 }
@@ -278,7 +285,7 @@ header {
   50% {
     transform: scale(1.15) rotate(180deg);
     border-radius: 40% 60% 70% 30% / 50% 40% 60% 50%;
-    box-shadow: 0 25px 50px rgba(255, 85, 0, 0.5), inset 0 4px 8px rgba(255, 255, 255, 1);
+    box-shadow: 0 25px 50px rgba(255, 85, 0, 0.55), inset 0 4px 8px rgba(255, 255, 255, 1);
   }
 }
 
