@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign in with Google Demo</title>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+</head>
+<body>
+
+    <h1>Welcome to My Website</h1>
+    <p>Please sign in using your Google account below:</p>
+
+    <div id="g_id_onload"
+         data-client_id="293011781658-m596lqdijdm5l96rljn2a47edh6gbctm.apps.googleusercontent.com"
+         data-callback="handleCredentialResponse">
+    </div>
+
+    <div class="g_id_signin"
+         data-type="standard"
+         data-shape="rectangular"
+         data-theme="outline"
+         data-text="sign_in_with"
+         data-size="large"
+         data-logo_alignment="left">
+    </div>
+
+    <script>
+        function handleCredentialResponse(response) {
+            // This function runs after a successful sign-in
+            console.log("Encoded JWT ID token: " + response.credential);
+            
+            // You can send this token to your backend server or decode it to view user info
+            alert("Successfully signed in! Check the console for your ID token.");
+        }
+    </script>
+
+</body>
+</html>
