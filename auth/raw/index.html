@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Multi-Provider Login Demo</title>
+    <!-- Google Identity Services Script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
+        .login-container { margin: 20px auto; width: 300px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
+        .btn-custom { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; box-sizing: border-box;}
+        .btn-github { background-color: #24292e; color: white; }
+        .btn-discord { background-color: #5865F2; color: white; }
+    </style>
+</head>
+<body>
+
+    <h1>Sign in to Your Account</h1>
+    <p>Choose your preferred login method:</p>
+
+    <div class="login-container">
+
+        <!-- 1. Google Sign-In Button Container -->
+        <div id="g_id_onload"
+             data-client_id="293011781658-m596lqdijdm5l96rljn2a47edh6gbctm.apps.googleusercontent.com"
+             data-callback="handleGoogleResponse">
+        </div>
+        <div class="g_id_signin" data-type="standard" data-size="large"></div>
+
+        <!-- 2. GitHub Login Button -->
+        <a class="btn-custom btn-github" href="https://github.com/login/oauth/authorize?client_id=Ov23lilALbbIV00I5VWI&redirect_uri=http%3A%2F%2F127.0.0.1%3A5500%2F">
+            Sign in with GitHub
+        </a>
+
+        <!-- 3. Discord Login Button -->
+        <a class="btn-custom btn-discord" href="https://discord.com/api/oauth2/authorize?client_id=YOUR_DISCORD_CLIENT_ID&redirect_uri=http%3A%2F%2F127.0.0.1%3A5500%2F&response_type=code&scope=identify">
+            Login with Discord
+        </a>
+
+    </div>
+
+    <script>
+        // Google Callback Function
+        function handleGoogleResponse(response) {
+            console.log("Google JWT Token:", response.credential);
+            alert("Google login successful!");
+        }
+    </script>
+
+</body>
+</html>
