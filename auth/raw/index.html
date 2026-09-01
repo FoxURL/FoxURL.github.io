@@ -6,35 +6,56 @@
     <!-- Google Identity Services Script -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        .login-container { margin: 20px auto; width: 300px; display: flex; flex-direction: column; gap: 15px; align-items: center; }
-        .btn-custom { width: 100%; padding: 10px; font-size: 16px; border: 1px solid #ccc; border-radius: 5px; cursor: pointer; text-decoration: none; display: inline-block; box-sizing: border-box;}
-        .btn-github { background-color: #24292e; color: white; }
-        .btn-discord { background-color: #5865F2; color: white; }
+        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; background-color: #f4f4f9; }
+        .login-container { margin: 20px auto; width: 320px; display: flex; flex-direction: column; gap: 15px; align-items: center; background: white; padding: 30px; border-radius: 8px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .btn-custom { width: 100%; padding: 12px; font-size: 15px; font-weight: bold; border: none; border-radius: 5px; cursor: pointer; text-decoration: none; display: flex; align-items: center; justify-content: center; gap: 10px; box-sizing: border-box; text-align: center; transition: opacity 0.2s; color: white; }
+        .btn-custom:hover { opacity: 0.9; }
+        .btn-google { background-color: #ffffff; color: #444; border: 1px solid #ccc; }
+        .btn-github { background-color: #24292e; }
+        .btn-discord { background-color: #5865F2; }
+        .btn-steam { background-color: #171a21; }
+        .btn-spotify { background-color: #1DB954; }
+        .btn-custom svg { width: 20px; height: 20px; fill: currentColor; }
+        .btn-google svg { fill: #4285F4; }
+        h1 { color: #333; }
+        p { color: #666; }
     </style>
 </head>
 <body>
 
     <h1>Sign in to Your Account</h1>
-    <p>Choose your preferred login method:</p>
+    <p>Choose your preferred login method below:</p>
 
     <div class="login-container">
 
-        <!-- 1. Google Sign-In Button Container -->
-        <div id="g_id_onload"
-             data-client_id="293011781658-m596lqdijdm5l96rljn2a47edh6gbctm.apps.googleusercontent.com"
-             data-callback="handleGoogleResponse">
-        </div>
-        <div class="g_id_signin" data-type="standard" data-size="large"></div>
+        <!-- 1. Google Login Button -->
+        <a class="btn-custom btn-google" href="https://accounts.google.com/o/oauth2/v2/auth?client_id=293011781658-m596lqdijdm5l96rljn2a47edh6gbctm.apps.googleusercontent.com&redirect_uri=https%3A%2F%2FFoxURL.github.io&response_type=token&scope=email%20profile">
+            <svg viewBox="0 0 24 24"><path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/><path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/><path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/><path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/></svg>
+            Sign in with Google
+        </a>
 
         <!-- 2. GitHub Login Button -->
         <a class="btn-custom btn-github" href="https://github.com/login/oauth/authorize?client_id=Ov23lilALbbIV00I5VWI&redirect_uri=https%3A%2F%2FFoxURL.github.io">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
             Sign in with GitHub
         </a>
 
         <!-- 3. Discord Login Button -->
         <a class="btn-custom btn-discord" href="https://discord.com/api/oauth2/authorize?client_id=1544310983575609414&redirect_uri=https%3A%2F%2FFoxURL.github.io&response_type=code&scope=identify">
+            <svg viewBox="0 0 24 24"><path d="M20.317 4.37a19.791 19.791 0 0 0-4.885-1.515.074.074 0 0 0-.079.037c-.21.375-.444.864-.608 1.25a18.27 18.27 0 0 0-5.487 0 12.64 12.64 0 0 0-.617-1.25.077.077 0 0 0-.079-.037A19.736 19.736 0 0 0 3.677 4.37a.07.07 0 0 0-.032.027C.533 9.046-.32 13.58.099 18.057a.082.082 0 0 0 .031.057 19.9 19.9 0 0 0 5.993 3.03.078.078 0 0 0 .084-.028c.462-.63.874-1.295 1.226-1.994.021-.041.001-.09-.041-.106a13.107 13.107 0 0 1-1.872-.892.077.077 0 0 1-.008-.128 10.2 10.2 0 0 0 .372-.292.074.074 0 0 1 .077-.01c3.927 1.793 8.18 1.793 12.061 0a.074.074 0 0 1 .078.01c.12.098.246.198.373.292a.077.077 0 0 1-.006.127 12.299 12.299 0 0 1-1.873.892.077.077 0 0 0-.041.107c.36.698.772 1.362 1.225 1.993a.076.076 0 0 0 .084.028 19.839 19.839 0 0 0 6.002-3.03.077.077 0 0 0 .032-.054c.5-5.177-.838-9.674-3.549-13.66a.061.061 0 0 0-.031-.028zM8.02 15.33c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.956-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.956 2.418-2.157 2.418zm7.975 0c-1.183 0-2.157-1.085-2.157-2.419 0-1.333.955-2.419 2.157-2.419 1.21 0 2.176 1.096 2.157 2.42 0 1.333-.946 2.418-2.157 2.418z"/></svg>
             Login with Discord
+        </a>
+
+        <!-- 4. Steam Login Button -->
+        <a class="btn-custom btn-steam" href="https://steamcommunity.com/login/openid/?openid.ns=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0&openid.mode=checkid_setup&openid.return_to=https%3A%2F%2FFoxURL.github.io&openid.realm=https%3A%2F%2FFoxURL.github.io&openid.identity=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select&openid.claimed_id=http%3A%2F%2Fspecs.openid.net%2Fauth%2F2.0%2Fidentifier_select">
+            <svg viewBox="0 0 24 24"><path d="M11.979 0C5.367 0 .005 5.367 0 11.979c0 5.097 3.23 9.426 7.737 11.055-.105-.94-.175-2.126.21-3.045l1.36-5.835s-.35-.7-.35-1.733c0-1.628.945-2.84 2.125-2.84 1.015 0 1.505.765 1.505 1.698 0 1.033-.655 2.583-.995 4.015-.285 1.215.61 2.205 1.815 2.205 2.18 0 3.855-2.3 3.855-5.615 0-2.935-2.135-4.985-5.18-4.985-3.535 0-5.605 2.645-5.605 5.375 0 1.065.41 2.21.925 2.83.1.12.115.225.085.35l-.315 1.265c-.05.2-.175.245-.4.145-1.49-.69-2.42-2.85-2.42-4.585 0-3.735 2.715-7.165 7.83-7.165 4.115 0 7.315 2.935 7.315 6.85 0 4.09-2.585 7.38-6.175 7.38-1.205 0-2.34-.625-2.73-1.36l-.74 2.825c-.27 1.04-1 2.34-1.49 3.135 1.345.41 2.795.63 4.305.63 6.61 0 11.975-5.365 11.975-11.975C23.954 5.367 18.589 0 11.979 0z"/></svg>
+            Sign in with Steam
+        </a>
+
+        <!-- 5. Spotify Login Button -->
+        <a class="btn-custom btn-spotify" href="https://accounts.spotify.com/authorize?client_id=e9e9105455284500b650620ca5dce02c&response_type=code&redirect_uri=https%3A%2F%2FFoxURL.github.io&scope=user-read-private%20user-read-email">
+            <svg viewBox="0 0 24 24"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.6 0 12 0zm5.521 17.34c-.24.359-.72.48-1.079.24-2.959-1.8-6.661-2.219-11.02-1.259-.42.06-.84-.18-.9-.6-.06-.42.18-.84.6-.9 4.74-1.02 8.88-.54 12.24 1.56.36.24.48.72.24 1.079zm1.44-3.84c-.3.48-.9.66-1.38.36-3.36-2.04-8.46-2.64-12.42-1.44-.54.18-1.14-.12-1.32-.66-.18-.54.12-1.14.66-1.32 4.44-1.32 10.02-.66 13.92 1.68.48.3.66.9.36 1.38zm.12-4.08C14.16 7.2 8.16 7.02 4.68 8.1c-.66.18-1.38-.18-1.56-.84-.18-.66.18-1.38.84-1.56 4.08-1.26 10.68-1.08 15.06 1.5.6.36.78 1.14.42 1.74-.36.6-1.14.78-1.74.42z"/></svg>
+            Sign in with Spotify
         </a>
 
     </div>
@@ -43,7 +64,7 @@
         // Google Callback Function
         function handleGoogleResponse(response) {
             console.log("Google JWT Token:", response.credential);
-            alert("Google login successful!");
+            alert("Google login successful! Check console for token.");
         }
     </script>
 
