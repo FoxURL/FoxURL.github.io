@@ -47,4 +47,30 @@
 		upsertMeta("name", "apple-mobile-web-app-title", "FoxURL");
 		upsertLink("apple-touch-icon", "/assets/logo/circular.png");
 	}
+
+	const regionalButton = document.querySelector(".regional-button");
+	if (regionalButton) {
+		const menu = document.createElement("nav");
+		menu.id = "regional-menu";
+		menu.className = "regional-menu";
+		menu.setAttribute("aria-label", "Choose a regional site");
+		menu.hidden = true;
+		menu.innerHTML = '<a href="/en/">International</a><a href="/au/">Australia</a><a href="/eu/">Europe</a><a href="/uk/">United Kingdom</a>';
+		document.body.appendChild(menu);
+
+		const closeMenu = () => {
+			menu.hidden = true;
+			regionalButton.setAttribute("aria-expanded", "false");
+		};
+		regionalButton.addEventListener("click", () => {
+			menu.hidden = !menu.hidden;
+			regionalButton.setAttribute("aria-expanded", String(!menu.hidden));
+		});
+		document.addEventListener("click", (event) => {
+			if (!menu.contains(event.target) && event.target !== regionalButton) closeMenu();
+		});
+		document.addEventListener("keydown", (event) => {
+			if (event.key === "Escape") closeMenu();
+		});
+	}
 })();

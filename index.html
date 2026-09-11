@@ -35,8 +35,10 @@
 				const euCountries = new Set([
 					"AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"
 				]);
-				const locale = (navigator.language || "en-US").toUpperCase();
-				const country = locale.split("-").pop();
+				const locales = [navigator.language, ...(navigator.languages || [])].filter(Boolean).map((locale) => locale.toUpperCase());
+				const localeCountry = locales.map((locale) => locale.match(/[-_]([A-Z]{2})$/)?.[1]).find(Boolean);
+				const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
+				const country = localeCountry === "AU" || timeZone.startsWith("AUSTRALIA/") ? "AU" : localeCountry;
 				const destinations = { AU: "au/", GB: "uk/" };
 				const destination = destinations[country] || (euCountries.has(country) ? "eu/" : "en/");
 				const regionNames = { "au/": "Australia", "uk/": "the United Kingdom", "eu/": "Europe", "en/": "our international site" };
