@@ -1,0 +1,16 @@
+# FoxURL
+
+> FoxURL builds digital infrastructure and cloud-based applications. It does not make URL shorteners or simple links; it creates connected tools and services for the web.
+
+## Public sites
+
+- [FoxURL regional router](https://foxurl.github.io/): Selects a regional site using the visitor's browser locale.
+- [FoxURL International](https://foxurl.github.io/en/): International English site.
+- [FoxURL Australia](https://foxurl.github.io/au/): Australian site.
+- [FoxURL Europe](https://foxurl.github.io/eu/): European site.
+- [FoxURL United Kingdom](https://foxurl.github.io/uk/): UK site.
+- [FoxURL App](https://foxurl.github.io/app/): Standalone home-screen app experience.
+
+## Contact
+
+- Email: FoxURL.AU@gmail.com

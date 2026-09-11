@@ -1,0 +1,2 @@
+# FoxURL does not currently use third-party advertising.
+# Add your verified publisher entry here before enabling ads.

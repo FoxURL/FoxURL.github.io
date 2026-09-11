@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<meta charset="UTF-8" />
+		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+		<link rel="stylesheet" href="css/typ.css" />
+		<title>FoxURL | Choose your region</title>
+		<script src="/main.js" defer></script>
+	</head>
+	<body class="router-page">
+		<main class="router" aria-labelledby="router-title">
+			<a class="brand" href="./" aria-label="FoxURL home"><img class="brand-mark" src="assets/logo/circular.png" alt="" /> <span>FoxURL</span></a>
+			<section class="router-panel">
+				<p class="eyebrow">Welcome to FoxURL</p>
+				<h1 id="router-title">inovating your <em>connection.</em></h1>
+				<p id="router-message">Finding the best FoxURL site for your region...</p>
+				<div class="router-progress" aria-hidden="true"><span></span></div>
+				<p class="router-countdown" id="router-countdown">Opening your regional site...</p>
+				<div class="router-options" aria-label="Choose a regional site">
+					<a href="au/">Australia</a>
+					<a href="en/">International</a>
+					<a href="eu/">Europe</a>
+					<a href="uk/">United Kingdom</a>
+				</div>
+			</section>
+		</main>
+
+		<script>
+			const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === "MacIntel" && navigator.maxTouchPoints > 1);
+			const isStandalone = navigator.standalone === true || window.matchMedia("(display-mode: standalone)").matches;
+
+			if (isIOS && isStandalone) {
+				window.location.replace("app/");
+			} else {
+				const euCountries = new Set([
+					"AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"
+				]);
+				const locale = (navigator.language || "en-US").toUpperCase();
+				const country = locale.split("-").pop();
+				const destinations = { AU: "au/", GB: "uk/" };
+				const destination = destinations[country] || (euCountries.has(country) ? "eu/" : "en/");
+				const regionNames = { "au/": "Australia", "uk/": "the United Kingdom", "eu/": "Europe", "en/": "our international site" };
+				const message = document.getElementById("router-message");
+
+				message.textContent = `We found ${regionNames[destination]}. You can change this below.`;
+				window.setTimeout(() => window.location.assign(destination), 500);
+			}
+		</script>
+	</body>
+</html>

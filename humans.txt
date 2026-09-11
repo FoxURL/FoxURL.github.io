@@ -1,0 +1,10 @@
+/* TEAM */
+    Site: FoxURL
+    Contact: FoxURL.AU@gmail.com
+    Website: https://foxurl.github.io/
+
+/* SITE */
+    Last update: 2026-09-11
+    Standards: HTML5, CSS3, progressive web app metadata
+    Hosting: GitHub Pages
+    Software: Visual Studio Code

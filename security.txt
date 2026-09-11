@@ -1,0 +1,4 @@
+Contact: mailto:FoxURL.AU@gmail.com
+Preferred-Languages: en
+Canonical: https://foxurl.github.io/security.txt
+Expires: 2027-09-11T00:00:00.000Z

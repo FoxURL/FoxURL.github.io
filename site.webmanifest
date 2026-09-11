@@ -1,0 +1,19 @@
+{
+  "name": "FoxURL",
+  "short_name": "FoxURL",
+  "description": "Digital infrastructure and cloud applications for a more connected web.",
+  "start_url": "/app/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "any",
+  "background_color": "#190a02",
+  "theme_color": "#190a02",
+  "icons": [
+    {
+      "src": "/assets/logo/circular.png",
+      "sizes": "any",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+	<!DOCTYPE html>
+	<html lang="en">
+		<head>
+			<meta charset="UTF-8" />
+			<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+			<meta name="apple-mobile-web-app-capable" content="yes" />
+			<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+			<meta name="apple-mobile-web-app-title" content="FoxURL" />
+			<link rel="apple-touch-icon" href="../assets/logo/circular.png" />
+			<link rel="stylesheet" href="../css/typ.css" />
+			<title>FoxURL App</title>
+			<script src="/main.js" defer></script>
+		</head>
+		<body class="app-page">
+			<main class="app-shell">
+				<header class="app-header">
+					<div class="app-identity"><img class="app-logo" src="../assets/logo/circular.png" alt="" /><div><strong>FoxURL</strong><span>Digital infrastructure</span></div></div>
+					<button class="app-menu" type="button" aria-label="Open app menu" aria-expanded="false">&#8942;</button>
+				</header>
+
+				<section class="app-welcome" aria-labelledby="app-title">
+					<p class="eyebrow">FoxURL app</p>
+					<h1 id="app-title">Your connected <em>workspace.</em></h1>
+					<p>Everything FoxURL builds, brought together in one calm place.</p>
+				</section>
+
+				<section class="app-status" aria-label="FoxURL system status"><span class="status-dot"></span><span>All systems online</span><span class="status-region">Global network</span></section>
+
+				<section class="app-grid" aria-label="FoxURL applications">
+					<a class="app-tile app-tile-featured" href="../legacy/" ><span class="tile-icon">&#8599;</span><span class="tile-label">FoxURL platform</span><strong>Explore your tools</strong><small>Apps, services and infrastructure</small></a>
+					<a class="app-tile" href="../legacy/apps/"><span class="tile-icon">&#10022;</span><span class="tile-label">Applications</span><strong>Fox Apps</strong><small>Useful tools for everyday work</small></a>
+					<a class="app-tile" href="mailto:FoxURL.AU@gmail.com"><span class="tile-icon">&#8594;</span><span class="tile-label">Connect</span><strong>Talk to FoxURL</strong><small>FoxURL.AU@gmail.com</small></a>
+				</section>
+
+				<footer class="app-footer"><span>FoxURL App</span><span>Version 1.0</span></footer>
+			</main>
+			<script>
+				document.querySelector(".app-menu").addEventListener("click", (event) => {
+					const expanded = event.currentTarget.getAttribute("aria-expanded") === "true";
+					event.currentTarget.setAttribute("aria-expanded", String(!expanded));
+				});
+			</script>
+		</body>
+	</html>
