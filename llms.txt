@@ -9,6 +9,11 @@
 - [FoxURL Australia](https://foxurl.github.io/au/): Australian site.
 - [FoxURL Europe](https://foxurl.github.io/eu/): European site.
 - [FoxURL United Kingdom](https://foxurl.github.io/uk/): UK site.
+- [FoxURL New Zealand](https://foxurl.github.io/nz/): New Zealand site.
+- [FoxURL United States](https://foxurl.github.io/us/): United States site.
+- [FoxURL Canada](https://foxurl.github.io/ca/): Canadian site.
+- [FoxURL Asia-Pacific](https://foxurl.github.io/apac/): Asia-Pacific site.
+- [FoxURL India](https://foxurl.github.io/in/): India site.
 - [FoxURL App](https://foxurl.github.io/app/): Standalone home-screen app experience.
 
 ## Contact

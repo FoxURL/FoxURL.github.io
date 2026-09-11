@@ -55,7 +55,7 @@
 		menu.className = "regional-menu";
 		menu.setAttribute("aria-label", "Choose a regional site");
 		menu.hidden = true;
-		menu.innerHTML = '<a href="/en/">International</a><a href="/au/">Australia</a><a href="/eu/">Europe</a><a href="/uk/">United Kingdom</a>';
+		menu.innerHTML = '<a href="/en/">International</a><a href="/au/">Australia</a><a href="/eu/">Europe</a><a href="/uk/">United Kingdom</a><a href="/nz/">New Zealand</a><a href="/us/">United States</a><a href="/ca/">Canada</a><a href="/apac/">Asia-Pacific</a><a href="/in/">India</a>';
 		document.body.appendChild(menu);
 
 		const closeMenu = () => {

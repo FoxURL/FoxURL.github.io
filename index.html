@@ -21,6 +21,11 @@
 					<a href="en/">International</a>
 					<a href="eu/">Europe</a>
 					<a href="uk/">United Kingdom</a>
+					<a href="nz/">New Zealand</a>
+					<a href="us/">United States</a>
+					<a href="ca/">Canada</a>
+					<a href="apac/">Asia-Pacific</a>
+					<a href="in/">India</a>
 				</div>
 			</section>
 		</main>
@@ -35,13 +40,17 @@
 				const euCountries = new Set([
 					"AT", "BE", "BG", "HR", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"
 				]);
+				const apacCountries = new Set(["CN", "HK", "ID", "JP", "KR", "MY", "PH", "SG", "TH", "TW", "VN"]);
 				const locales = [navigator.language, ...(navigator.languages || [])].filter(Boolean).map((locale) => locale.toUpperCase());
 				const localeCountry = locales.map((locale) => locale.match(/[-_]([A-Z]{2})$/)?.[1]).find(Boolean);
 				const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone || "";
-				const country = localeCountry === "AU" || timeZone.startsWith("AUSTRALIA/") ? "AU" : localeCountry;
-				const destinations = { AU: "au/", GB: "uk/" };
-				const destination = destinations[country] || (euCountries.has(country) ? "eu/" : "en/");
-				const regionNames = { "au/": "Australia", "uk/": "the United Kingdom", "eu/": "Europe", "en/": "our international site" };
+				const isAustralia = localeCountry === "AU" || timeZone.startsWith("AUSTRALIA/");
+				const isNewZealand = localeCountry === "NZ" || timeZone === "PACIFIC/AUCKLAND" || timeZone === "PACIFIC/CHATHAM";
+				const isAsiaPacific = apacCountries.has(localeCountry) || timeZone.startsWith("ASIA/");
+				const country = isAustralia ? "AU" : (isNewZealand ? "NZ" : (isAsiaPacific ? "APAC" : localeCountry));
+				const destinations = { AU: "au/", GB: "uk/", NZ: "nz/", US: "us/", CA: "ca/", IN: "in/", APAC: "apac/" };
+				const destination = destinations[country] || (apacCountries.has(country) ? "apac/" : (euCountries.has(country) ? "eu/" : "en/"));
+				const regionNames = { "au/": "Australia", "uk/": "the United Kingdom", "eu/": "Europe", "en/": "our international site", "nz/": "New Zealand", "us/": "the United States", "ca/": "Canada", "apac/": "Asia-Pacific", "in/": "India" };
 				const message = document.getElementById("router-message");
 
 				message.textContent = `We found ${regionNames[destination]}. You can change this below.`;
