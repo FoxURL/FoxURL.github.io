@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Passkey Sign-In - FoxURL</title>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #ff6600;
+            --accent-hover: #e65c00;
+            --border: #334155;
+            --error: #ef4444;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+            text-align: center;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+
+        .alert-success {
+            background-color: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .btn-passkey {
+            display: block;
+            width: 100%;
+            padding: 12px;
+            background-color: var(--accent);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background-color 0.2s;
+            margin-bottom: 12px;
+        }
+
+        .btn-passkey:hover {
+            background-color: var(--accent-hover);
+        }
+
+        .btn-passkey:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .back-link {
+            margin-top: 20px;
+            font-size: 14px;
+        }
+
+        .back-link a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <h2>Passkey Authentication</h2>
+        <p class="subtitle">Sign in securely using your device biometrics or hardware key.</p>
+        
+        <div id="passkey-alert" class="alert alert-error"></div>
+
+        <button id="auth-btn" class="btn-passkey" onclick="handlePasskeyLogin()">Sign In with Passkey</button>
+
+        <div class="back-link">
+            <p><a href="/login/">Back to sign in options</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Dedicated Passkey Apps Script Endpoint
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzveongEIbG4QOrrZvR8XE6YmiGJqhAKQbvTXjRmCKeSWDNdlCTf7URC-yrtpYfmq8pXA/exec";
+
+        // Check browser support on load
+        window.addEventListener('DOMContentLoaded', () => {
+            if (!window.PublicKeyCredential) {
+                showcaseAlert("Passkeys are not supported on this browser or device.", "error");
+                document.getElementById('auth-btn').disabled = true;
+            }
+        });
+
+        async function handlePasskeyLogin() {
+            const alertBox = document.getElementById('passkey-alert');
+            const authBtn = document.getElementById('auth-btn');
+            alertBox.style.display = 'none';
+            authBtn.disabled = true;
+            authBtn.textContent = 'Verifying Passkey...';
+
+            try {
+                // 1. Request authentication challenge configuration from backend
+                const challengeRes = await fetch(`${SCRIPT_URL}?action=passkey_login_challenge`);
+                const options = await challengeRes.json();
+
+                if (!options.success) {
+                    throw new Error(options.message || "Failed to initialize passkey challenge.");
+                }
+
+                // Convert base64url challenge string into Uint8Array buffer for WebAuthn API
+                options.challenge = Uint8Array.from(atob(options.challenge.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+                if (options.allowCredentials) {
+                    options.allowCredentials.forEach(cred => {
+                        cred.id = Uint8Array.from(atob(cred.id.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+                    });
+                }
+
+                // 2. Prompt browser / device authenticator (Face ID, Touch ID, Windows Hello)
+                const assertion = await navigator.credentials.get({ publicKey: options });
+
+                // 3. Package assertion components to send back for signature verification
+                const credentialResponse = {
+                    id: assertion.id,
+                    rawId: btoa(String.fromCharCode(...new Uint8Array(assertion.rawId))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+                    response: {
+                        clientDataJSON: btoa(String.fromCharCode(...new Uint8Array(assertion.response.clientDataJSON))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+                        authenticatorData: btoa(String.fromCharCode(...new Uint8Array(assertion.response.authenticatorData))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+                        signature: btoa(String.fromCharCode(...new Uint8Array(assertion.response.signature))).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, ''),
+                        userHandle: assertion.response.userHandle ? btoa(String.fromCharCode(...new Uint8Array(assertion.response.userHandle))) : null
+                    },
+                    type: assertion.type
+                };
+
+                // 4. Send verification payload to backend
+                const verifyRes = await fetch(SCRIPT_URL, {
+                    method: 'POST',
+                    body: JSON.stringify(credentialResponse)
+                });
+                const result = await verifyRes.json();
+
+                if (result.success) {
+                    showcaseAlert(`Welcome back, ${result.username || 'User'}! Redirecting...`, "success");
+                    setTimeout(() => window.location.href = '/', 1200);
+                } else {
+                    throw new Error(result.message || "Passkey verification failed.");
+                }
+
+            } catch (err) {
+                showcaseAlert(err.message || "Passkey operation cancelled or failed.", "error");
+                authBtn.disabled = false;
+                authBtn.textContent = 'Sign In with Passkey';
+            }
+        }
+
+        function showcaseAlert(message, type) {
+            const alertBox = document.getElementById('passkey-alert');
+            alertBox.className = `alert alert-${type === 'success' ? 'success' : 'error'}`;
+            alertBox.textContent = message;
+            alertBox.style.display = 'block';
+        }
+    </script>
+</body>
+</html>

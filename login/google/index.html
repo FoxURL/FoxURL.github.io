@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In with Google - FoxURL</title>
+    <!-- Google Identity Services Library -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        :root {
+            --bg-color: #0f172a;
+            --card-bg: #1e293b;
+            --text-main: #f8fafc;
+            --text-muted: #94a3b8;
+            --accent: #ff6600;
+            --accent-hover: #e65c00;
+            --border: #334155;
+            --error: #ef4444;
+            --success: #22c55e;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .auth-container {
+            background-color: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 40px;
+            width: 100%;
+            max-width: 400px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 24px;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+
+        .alert {
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            margin-bottom: 16px;
+            display: none;
+            text-align: center;
+        }
+
+        .alert-error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+
+        .alert-success {
+            background-color: rgba(34, 197, 94, 0.1);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+
+        .google-btn-wrapper {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px;
+        }
+
+        .back-link {
+            margin-top: 24px;
+            font-size: 14px;
+        }
+
+        .back-link a {
+            color: var(--accent);
+            text-decoration: none;
+        }
+
+        .back-link a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="auth-container">
+        <h2>Sign in to FoxURL</h2>
+        <p class="subtitle">Use your Google account to verify and sign in instantly.</p>
+        
+        <div id="google-alert" class="alert alert-error"></div>
+
+        <!-- Google Sign-In Button Container -->
+        <div id="g_id_onload"
+             data-client_id="293011781658-ehl0tb8kd6knljmhoj83gb688gcm4b7v.apps.googleusercontent.com"
+             data-callback="handleGoogleSignIn"
+             data-auto_prompt="false">
+        </div>
+        
+        <div class="google-btn-wrapper">
+            <div class="g_id_signin"
+                 data-type="standard"
+                 data-shape="rectangular"
+                 data-theme="outline"
+                 data-text="sign_in_with"
+                 data-size="large"
+                 data-width="320">
+            </div>
+        </div>
+
+        <div class="back-link">
+            <p><a href="/login/">Back to sign in options</a></p>
+        </div>
+    </div>
+
+    <script>
+        // Google Apps Script Web App Deployment URL
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwQ6IZPgWFkQO5pJzAYzPHvkoi4fgwnt7rwdj5C5YPw9cQWiCw5y94EpLhj6dAAPY_c/exec";
+        
+        let clientIp = "Unknown IP";
+        let clientLocation = "Unknown Location";
+        let clientDevice = parseDeviceInfo();
+
+        // Parse user agent for OS and Browser info
+        function parseDeviceInfo() {
+            const ua = navigator.userAgent;
+            let os = "Unknown OS";
+            let browser = "Unknown Browser";
+
+            if (/windows nt/i.test(ua)) os = "Windows";
+            else if (/macintosh|mac os x/i.test(ua)) os = "Mac OS";
+            else if (/iphone|ipad|ipod/i.test(ua)) os = "iOS";
+            else if (/android/i.test(ua)) os = "Android";
+            else if (/linux/i.test(ua)) os = "Linux";
+
+            if (/chrome|crios/i.test(ua) && !/edge|opr/i.test(ua)) browser = "Chrome";
+            else if (/safari/i.test(ua) && !/chrome|crios/i.test(ua)) browser = "Safari";
+            else if (/firefox|fxios/i.test(ua)) browser = "Firefox";
+            else if (/edge/i.test(ua)) browser = "Edge";
+            else if (/opr|opera/i.test(ua)) browser = "Opera";
+
+            return `${os} / ${browser}`;
+        }
+
+        // Fetch user IP and general location
+        fetch('https://ipapi.co/json/')
+            .then(res => res.json())
+            .then(data => {
+                if (data.ip) clientIp = data.ip;
+                if (data.city && data.country_name) {
+                    clientLocation = `${data.city}, ${data.country_name}`;
+                } else if (data.country_name) {
+                    clientLocation = data.country_name;
+                }
+            })
+            .catch(() => {
+                fetch('https://api.ipify.org?format=json')
+                    .then(res => res.json())
+                    .then(data => { clientIp = data.ip; })
+                    .catch(() => {});
+            });
+
+        // Handle Google Sign-In Response callback
+        function handleGoogleSignIn(response) {
+            const alertBox = document.getElementById('google-alert');
+            alertBox.style.display = 'none';
+
+            // Decode the JWT token payload from Google
+            const payload = parseJwt(response.credential);
+            const googleEmail = payload.email;
+            const googleName = payload.name;
+
+            // Optional: send to Apps Script backend to record login metrics / audit trail
+            const url = `${SCRIPT_URL}?action=google_login&email=${encodeURIComponent(googleEmail)}&name=${encodeURIComponent(googleName)}&ip=${encodeURIComponent(clientIp)}&location=${encodeURIComponent(clientLocation)}&device=${encodeURIComponent(clientDevice)}`;
+
+            fetch(url).catch(() => {});
+
+            // Show success message and redirect user home
+            alertBox.className = 'alert alert-success';
+            alertBox.textContent = `Welcome, ${googleName}! Redirecting...`;
+            alertBox.style.display = 'block';
+
+            setTimeout(() => {
+                window.location.href = '/';
+            }, 1200);
+        }
+
+        // Helper function to decode JWT token
+        function parseJwt(token) {
+            const base64Url = token.split('.')[1];
+            const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
+            const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
+                return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
+            }).join(''));
+            return JSON.parse(jsonPayload);
+        }
+    </script>
+</body>
+</html>
