@@ -391,6 +391,7 @@
 
                 if (data.success) {
                     saveVerifiedEmail(userEmail);
+                    localStorage.setItem('foxurl.signin.method', 'email');
                     alertBox.className = 'alert alert-success';
                     alertBox.textContent = 'Sign-in successful! Redirecting...';
                     alertBox.style.display = 'block';

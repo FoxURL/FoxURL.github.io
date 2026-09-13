@@ -214,6 +214,7 @@
 
                 if (result.success) {
                     saveVerifiedEmail(result.email || (result.user && result.user.email) || result.username);
+                    localStorage.setItem('foxurl.signin.method', 'passkey');
                     showcaseAlert(`Welcome back, ${result.username || 'User'}! Redirecting...`, "success");
                     setTimeout(() => window.location.href = '/', 1200);
                 } else {

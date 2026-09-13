@@ -208,6 +208,7 @@
             const googleEmail = payload.email;
             const googleName = payload.name;
             saveVerifiedEmail(googleEmail);
+            localStorage.setItem('foxurl.signin.method', 'google');
 
             // Optional: send to Apps Script backend to record login metrics / audit trail
             const url = `${SCRIPT_URL}?action=google_login&email=${encodeURIComponent(googleEmail)}&name=${encodeURIComponent(googleName)}&ip=${encodeURIComponent(clientIp)}&location=${encodeURIComponent(clientLocation)}&device=${encodeURIComponent(clientDevice)}`;
