@@ -1,0 +1,25 @@
+{
+  "name": "FoxURL - innovate your connection",
+  "short_name": "FoxURL",
+  "description": "FoxURL - innovate your connection.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#ff7a18",
+  "theme_color": "#ff7a18",
+  "icons": [
+    {
+      "src": "/assets/logo/circular.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/assets/logo/circular.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

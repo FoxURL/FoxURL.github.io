@@ -1,0 +1,477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="FoxURL - Innovate your connection. Explore useful products, tools, and utilities.">
+    <meta name="theme-color" content="#ff7a18">
+    <meta name="apple-mobile-web-app-title" content="FoxURL - innovate your connection">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <link rel="icon" type="image/png" href="/assets/logo/circular.png">
+    <link rel="apple-touch-icon" href="/assets/logo/circular.png">
+    <link rel="manifest" href="/site.webmanifest">
+    <title>FoxURL - innovate your connection</title>
+    <style>
+        :root {
+                --ink: #fff7ef;
+                --ink-soft: #ffe8c9;
+                --paper: #190a02;
+                --paper-bright: rgba(255, 240, 210, 0.12);
+                --orange: #ff7a18;
+                --orange-dark: #ffd39a;
+                --line: rgba(255, 200, 140, 0.16);
+                --shadow: 0 24px 70px rgba(18, 8, 0, 0.42);
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html {
+            min-width: 320px;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--ink);
+            font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+            background:
+                    radial-gradient(circle at 12% 0%, rgba(255, 170, 85, 0.2), transparent 28%),
+                    radial-gradient(circle at 90% 82%, rgba(255, 125, 35, 0.12), transparent 30%),
+                    linear-gradient(180deg, #ffb16f 0%, #ff8a2b 30%, #e85f16 70%, #b9430f 100%);
+                background-attachment: fixed;
+        }
+
+        a {
+            color: inherit;
+        }
+
+        .site-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 24px;
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 26px 32px;
+        }
+
+        .brand {
+            display: inline-flex;
+            align-items: center;
+            gap: 12px;
+            color: var(--ink);
+            text-decoration: none;
+            font-size: 1.25rem;
+            font-weight: 900;
+            letter-spacing: 0.02em;
+        }
+
+        .brand img {
+            width: 42px;
+            height: 42px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3), 0 0 18px rgba(255, 120, 30, 0.18);
+        }
+
+        .brand-copy {
+            display: grid;
+            gap: 3px;
+        }
+
+        .brand-subtitle {
+            color: var(--ink-soft);
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .account-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 104px;
+            padding: 11px 18px;
+            border: 1px solid rgba(20, 32, 39, 0.2);
+            border-radius: 999px;
+            background: rgba(255, 253, 248, 0.7);
+            color: var(--ink);
+            font-size: 0.9rem;
+            font-weight: 800;
+            text-decoration: none;
+            box-shadow: 0 8px 20px rgba(20, 32, 39, 0.08);
+            transition: transform 180ms ease, background-color 180ms ease, color 180ms ease;
+        }
+
+        .account-link:hover,
+        .account-link:focus-visible {
+            transform: translateY(-2px);
+            background: var(--ink);
+            color: var(--paper-bright);
+            outline: none;
+        }
+
+        main {
+            max-width: 1180px;
+            margin: 0 auto;
+            padding: 78px 32px 90px;
+        }
+
+        .hero {
+            display: grid;
+            grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+            gap: 64px;
+            align-items: center;
+        }
+
+        .eyebrow {
+                background: rgba(255, 240, 210, 0.1);
+                border: 1px solid var(--line);
+                border-left: 0;
+                border-right: 0;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            margin-bottom: 22px;
+            color: var(--orange-dark);
+            font-size: 0.78rem;
+            font-weight: 900;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        .eyebrow::before {
+            content: "";
+            width: 26px;
+            height: 2px;
+            background: var(--orange);
+        }
+
+        h1 {
+            max-width: 8ch;
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(3.6rem, 8vw, 7.8rem);
+            font-weight: 500;
+            letter-spacing: -0.06em;
+            line-height: 0.9;
+        }
+
+        .hero-copy p {
+            max-width: 510px;
+                background: linear-gradient(180deg, rgba(255, 125, 45, 0.16), rgba(255, 190, 120, 0.06));
+            color: var(--ink-soft);
+            font-size: 1.08rem;
+            line-height: 1.75;
+        }
+
+        .hero-actions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 14px;
+            margin-top: 32px;
+        }
+
+        .primary-action,
+        .secondary-action {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 48px;
+            padding: 0 20px;
+            border-radius: 999px;
+            font-weight: 900;
+            text-decoration: none;
+            transition: transform 180ms ease, box-shadow 180ms ease, background-color 180ms ease;
+        }
+
+        .primary-action {
+            background: var(--orange);
+            color: white;
+            box-shadow: 0 12px 24px rgba(237, 100, 30, 0.24);
+        }
+
+        .secondary-action {
+            border: 1px solid var(--line);
+            background: rgba(255, 253, 248, 0.58);
+        }
+
+        .primary-action:hover,
+        .secondary-action:hover {
+            transform: translateY(-3px);
+        }
+
+        .primary-action:hover {
+            background: var(--orange-dark);
+            box-shadow: 0 16px 30px rgba(237, 100, 30, 0.3);
+        }
+
+        .link-panel {
+            position: relative;
+            min-height: 340px;
+            padding: 28px;
+            border: 1px solid rgba(20, 32, 39, 0.12);
+            border-radius: 24px;
+            background: var(--paper-bright);
+            box-shadow: var(--shadow);
+            transform: rotate(2deg);
+        }
+
+        .link-panel::before {
+            content: "";
+            position: absolute;
+            inset: 12px;
+            border: 1px dashed rgba(237, 100, 30, 0.34);
+            border-radius: 16px;
+            pointer-events: none;
+        }
+
+        .panel-label {
+            position: relative;
+            margin: 0 0 70px;
+            color: var(--orange-dark);
+            font-size: 0.75rem;
+            font-weight: 900;
+            letter-spacing: 0.15em;
+            text-transform: uppercase;
+        }
+
+        .link-panel blockquote {
+            position: relative;
+            margin: 0;
+            font-family: Georgia, "Times New Roman", serif;
+            font-size: clamp(1.7rem, 3vw, 2.6rem);
+            line-height: 1.08;
+        }
+
+        .link-panel cite {
+            position: absolute;
+            right: 28px;
+            bottom: 28px;
+            color: var(--ink-soft);
+            font-size: 0.82rem;
+            font-style: normal;
+        }
+
+        .feature-strip {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1px;
+            margin-top: 110px;
+            border-top: 1px solid var(--line);
+            border-bottom: 1px solid var(--line);
+        }
+
+        .feature {
+            padding: 24px 22px;
+        }
+
+        .feature + .feature {
+            border-left: 1px solid var(--line);
+        }
+
+        .feature strong {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 0.94rem;
+        }
+
+        .feature span {
+            color: var(--ink-soft);
+            font-size: 0.9rem;
+            line-height: 1.55;
+        }
+
+        .products {
+            margin-top: 78px;
+        }
+
+        .section-header h2 {
+            margin: 0 0 8px;
+            font-size: clamp(1.7rem, 3vw, 2.4rem);
+        }
+
+        .section-header p {
+            max-width: 620px;
+            margin: 0;
+            color: var(--ink-soft);
+            line-height: 1.7;
+        }
+
+        .product-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 18px;
+            margin-top: 24px;
+        }
+
+        .product-card {
+            display: flex;
+            min-height: 190px;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 24px;
+            border: 1px solid rgba(255, 140, 60, 0.22);
+            border-radius: 18px;
+            background: linear-gradient(180deg, rgba(255, 160, 90, 0.14), rgba(255, 140, 60, 0.06));
+            color: var(--ink);
+            text-decoration: none;
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.22);
+            transition: transform 220ms ease, border-color 220ms ease, background 220ms ease;
+        }
+
+        .product-card:hover,
+        .product-card:focus-visible {
+            transform: translateY(-6px);
+            border-color: rgba(255, 190, 120, 0.45);
+            background: linear-gradient(180deg, rgba(255, 185, 120, 0.2), rgba(255, 150, 80, 0.08));
+            outline: none;
+        }
+
+        .product-name {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 1.35rem;
+            font-weight: 900;
+        }
+
+        .product-domain {
+            color: var(--orange-dark);
+            font-size: 0.82rem;
+            font-weight: 800;
+        }
+
+        .product-description {
+            margin: 0;
+            color: var(--ink-soft);
+            line-height: 1.6;
+        }
+
+        @media (max-width: 760px) {
+            .site-header {
+                padding: 20px;
+            }
+
+            main {
+                padding: 54px 20px 60px;
+            }
+
+            .hero {
+                grid-template-columns: 1fr;
+                gap: 48px;
+            }
+
+            h1 {
+                font-size: clamp(3.5rem, 18vw, 6rem);
+            }
+
+            .link-panel {
+                min-height: 280px;
+            }
+
+            .feature-strip {
+                grid-template-columns: 1fr;
+                margin-top: 70px;
+            }
+
+            .feature + .feature {
+                border-top: 1px solid var(--line);
+                border-left: 0;
+            }
+
+            .product-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                scroll-behavior: auto !important;
+                transition-duration: 0.01ms !important;
+                animation-duration: 0.01ms !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header class="site-header">
+        <a class="brand" href="/" aria-label="FoxURL home">
+            <img src="/assets/logo/circular.png" alt="">
+            <span class="brand-copy">
+                <span>FoxURL</span>
+                <span class="brand-subtitle">FoxURL - Innovate your connection</span>
+            </span>
+        </a>
+        <a class="account-link" id="account-link" href="/login/">Login</a>
+    </header>
+
+    <main>
+        <section class="hero" aria-labelledby="page-title">
+            <div class="hero-copy">
+                <div class="eyebrow">Welcome to FoxURL</div>
+                <h1 id="page-title">One place for every Fox tool.</h1>
+                <p>Discover products, games, and utilities designed for fast access and easy discovery.</p>
+                <div class="hero-actions">
+                    <a class="primary-action" href="/cloud/products/">Explore products</a>
+                    <a class="secondary-action" href="/login/">View sign-in options</a>
+                </div>
+            </div>
+
+            <aside class="link-panel" aria-label="FoxURL link preview">
+                <p class="panel-label">FoxURL / product shelf</p>
+                <blockquote>The next level of digital cloud infrastructure.</blockquote>
+                <cite>foxurl.github.io</cite>
+            </aside>
+        </section>
+
+        <section class="feature-strip" aria-label="FoxURL qualities">
+            <div class="feature">
+                <strong>Explore quickly</strong>
+                <span>Jump into Fox tools and utilities without digging through menus.</span>
+            </div>
+            <div class="feature">
+                <strong>Pick your tool</strong>
+                <span>Find focused products for links, games, scoring, and everyday tasks.</span>
+            </div>
+            <div class="feature">
+                <strong>Built for clarity</strong>
+                <span>A calm, focused home for the projects that make FoxURL useful.</span>
+            </div>
+        </section>
+
+        <section class="products" aria-labelledby="products-title">
+            <div class="section-header">
+                <h2 id="products-title">Products</h2>
+                <p>FoxURL products are made to be useful, approachable, and easy to return to.</p>
+            </div>
+            <div class="product-grid">
+                <a class="product-card" href="https://fxlnk.github.io/">
+                    <div>
+                        <span class="product-name">FoxLink</span>
+                        <p class="product-description">Link shortening made safe, simple, and easy.</p>
+                    </div>
+                    <span class="product-domain">fxlnk.github.io</span>
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <script>
+        const accountLink = document.getElementById('account-link');
+        let signedInEmail = '';
+
+        try {
+            signedInEmail = localStorage.getItem('foxurl.signin.email') || '';
+        } catch (error) {
+            signedInEmail = '';
+        }
+
+        const isSignedIn = signedInEmail.includes('@');
+        accountLink.textContent = isSignedIn ? 'Account' : 'Login';
+        accountLink.href = isSignedIn ? '/cloud/' : '/login/';
+        accountLink.setAttribute('aria-label', isSignedIn ? `Open account for ${signedInEmail}` : 'Log in to FoxURL');
+    </script>
+</body>
+</html>
