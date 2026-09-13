@@ -8,20 +8,20 @@
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
-            --bg-color: #0f172a;
-            --card-bg: #1e293b;
+            --bg-color: #101820;
+            --card-bg: rgba(22, 32, 38, 0.92);
             --text-main: #f8fafc;
-            --text-muted: #94a3b8;
+            --text-muted: #a7b2b9;
             --accent: #ff6600;
             --accent-hover: #e65c00;
-            --border: #334155;
+            --border: rgba(255, 255, 255, 0.12);
             --error: #ef4444;
             --success: #22c55e;
         }
 
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg-color);
+            font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 12% 10%, rgba(255, 102, 0, 0.18), transparent 30%), linear-gradient(145deg, #101820 0%, #17232a 52%, #0b1115 100%);
             color: var(--text-main);
             margin: 0;
             padding: 0;
@@ -34,13 +34,27 @@
         .auth-container {
             background-color: var(--card-bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 40px;
+            border-radius: 20px;
+            padding: 42px;
             width: 100%;
             max-width: 400px;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255, 102, 0, 0.08);
             box-sizing: border-box;
             text-align: center;
+        }
+
+        .brand-mark {
+            display: grid;
+            place-items: center;
+            width: 48px;
+            height: 48px;
+            margin: 0 auto 22px;
+            border-radius: 14px;
+            background: var(--accent);
+            color: #fff;
+            font-size: 25px;
+            font-weight: 900;
+            box-shadow: 0 10px 24px rgba(255, 102, 0, 0.25);
         }
 
         h2 {
@@ -83,6 +97,13 @@
             margin-top: 20px;
         }
 
+        @media (max-width: 480px) {
+            .auth-container {
+                margin: 18px;
+                padding: 32px 24px;
+            }
+        }
+
         .back-link {
             margin-top: 24px;
             font-size: 14px;
@@ -101,6 +122,7 @@
 <body>
 
     <div class="auth-container">
+        <div class="brand-mark" aria-hidden="true">F</div>
         <h2>Sign in to FoxURL</h2>
         <p class="subtitle">Use your Google account to verify and sign in instantly.</p>
         
@@ -185,6 +207,7 @@
             const payload = parseJwt(response.credential);
             const googleEmail = payload.email;
             const googleName = payload.name;
+            saveVerifiedEmail(googleEmail);
 
             // Optional: send to Apps Script backend to record login metrics / audit trail
             const url = `${SCRIPT_URL}?action=google_login&email=${encodeURIComponent(googleEmail)}&name=${encodeURIComponent(googleName)}&ip=${encodeURIComponent(clientIp)}&location=${encodeURIComponent(clientLocation)}&device=${encodeURIComponent(clientDevice)}`;
@@ -199,6 +222,12 @@
             setTimeout(() => {
                 window.location.href = '/';
             }, 1200);
+        }
+
+        function saveVerifiedEmail(email) {
+            if (typeof email === 'string' && email.includes('@')) {
+                localStorage.setItem('foxurl.signin.email', email.trim());
+            }
         }
 
         // Helper function to decode JWT token
