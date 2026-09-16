@@ -43,6 +43,7 @@
                     <button type="button" class="tab-btn active" onclick="switchTab('home')" role="tab">Home</button>
                     <button type="button" class="tab-btn" onclick="switchTab('security')" role="tab">Security & Sign-In</button>
                     <button type="button" class="tab-btn" onclick="switchTab('privacy')" role="tab">FoxURL My Data</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('connection')" role="tab">Connection</button>
                 </nav>
 
                 <!-- Dynamic Tab Content Container -->
@@ -100,6 +101,24 @@
 
                             <div id="breach-container">
                                 <div class="empty" id="breach-loading">Checking threat intelligence feeds...</div>
+                            </div>
+                        </section>
+                    </div>
+
+                    <!-- TAB 4: CONNECTION (INTERNET SPEED TEST) -->
+                    <div id="tab-connection" class="tab-pane" role="tabpanel">
+                        <section class="panel full-width">
+                            <h2>Internet Speed Test</h2>
+                            <p class="session-note">Test your current download throughput across multi-file automated diagnostic packages.</p>
+                            
+                            <div style="margin: 20px 0; display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+                                <button type="button" class="search-btn" id="start-speed-test-btn">Test Connection Speed</button>
+                            </div>
+
+                            <div style="margin-top: 20px; padding: 20px; background: rgba(255, 240, 210, 0.07); border: 1px solid var(--line); border-radius: 12px;">
+                                <h3 style="margin-bottom: 5px; font-size: 1.1rem;">Download Throughput:</h3>
+                                <div id="speed-result" style="font-size: 2rem; font-weight: bold; color: var(--orange, #ff7a18);">-- Mbps</div>
+                                <div id="speed-status" style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Click 'Test Connection Speed' to begin testing.</div>
                             </div>
                         </section>
                     </div>
