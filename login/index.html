@@ -204,6 +204,8 @@
 
             const payload = parseJwt(response.credential);
             saveVerifiedEmail(payload.email);
+            localStorage.setItem('foxurl.signin.method', 'google');
+            localStorage.setItem('foxurl.signin.lastLogin', new Date().toISOString());
             const googleName = payload.name;
 
             alertBox.className = 'alert alert-success';
