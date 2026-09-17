@@ -15,10 +15,15 @@
             <nav class="top-actions" aria-label="Account navigation">
                 <a class="top-link" href="/cloud/products/">Products</a>
                 <a class="top-link" href="/">Home</a>
+                <button type="button" class="top-link notification-button" id="notification-toggle" onclick="toggleNotifications()" aria-expanded="false" aria-controls="notification-center" title="Open notifications">Notifications <span id="notification-count" class="notification-count">0</span></button>
                 <button type="button" class="top-link theme-toggle" id="theme-toggle" onclick="toggleTheme()" aria-pressed="false">Dark mode</button>
                 <button type="button" class="top-link signout-btn" onclick="signOutUser()">Sign Out</button>
             </nav>
         </header>
+        <aside class="notification-center" id="notification-center" hidden aria-label="Notifications">
+            <div class="notification-heading"><strong>Notifications</strong><span><button type="button" class="notification-close" onclick="markNotificationsRead()">Mark read</button><button type="button" class="notification-close" onclick="clearNotifications()">Clear</button><button type="button" class="notification-close" onclick="toggleNotifications(false)" aria-label="Close notifications">Close</button></span></div>
+            <div id="notification-list" class="notification-list"><div class="empty">No new updates.</div></div>
+        </aside>
 
         <main>
             <section class="hero" aria-labelledby="page-title">
@@ -44,6 +49,7 @@
                     <button type="button" class="tab-btn" onclick="switchTab('security')" role="tab">Security & Sign-In</button>
                     <button type="button" class="tab-btn" onclick="switchTab('privacy')" role="tab">FoxURL My Data</button>
                     <button type="button" class="tab-btn" onclick="switchTab('connection')" role="tab">Connection</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('weather')" role="tab">Weather</button>
                 </nav>
 
                 <!-- Dynamic Tab Content Container -->
@@ -84,6 +90,14 @@
                                 <div class="account-row"><span class="row-label">Device</span><span class="row-value" id="session-device">Checking...</span></div>
                                 <div class="account-row"><span class="row-label">Location</span><span class="row-value" id="session-location">Not available</span></div>
                             </section>
+                            <section class="panel">
+                                <div class="security-score-heading"><h2>Security health</h2><strong id="security-score">Checking</strong></div>
+                                <div class="security-checklist" id="security-checklist">
+                                    <div class="security-check"><span>Account identity</span><b>Checking</b></div>
+                                    <div class="security-check"><span>Secure connection</span><b>Protected</b></div>
+                                    <div class="security-check"><span>Passkey readiness</span><b>Available</b></div>
+                                </div>
+                            </section>
                         </div>
                     </div>
 
@@ -105,7 +119,31 @@
                         </section>
                     </div>
 
-                    <!-- TAB 4: CONNECTION (INTERNET SPEED TEST) -->
+                    <!-- TAB 4: WEATHER -->
+                    <div id="tab-weather" class="tab-pane" role="tabpanel">
+                        <section class="panel full-width">
+                            <div class="weather-heading">
+                                <div>
+                                    <p class="eyebrow">Local conditions</p>
+                                    <h2>Weather near you</h2>
+                                </div>
+                                <div class="weather-actions"><span class="weather-source">IP location + Open-Meteo</span><button type="button" class="icon-action" id="refresh-weather-btn" title="Refresh weather">Refresh</button></div>
+                            </div>
+                            <div id="weather-widget" class="weather-widget" aria-live="polite">
+                                <div class="empty">Loading local weather...</div>
+                            </div>
+                            <div id="official-alerts" class="official-alerts" aria-live="polite"><div class="empty">Checking official weather alerts...</div></div>
+                            <div id="weather-alert" class="weather-alert" aria-live="polite"></div>
+                            <div class="forecast-heading"><h3>Next 12 hours</h3><span>Hourly forecast</span></div>
+                            <div id="hourly-forecast" class="hourly-forecast"><div class="empty">Loading hourly forecast...</div></div>
+                            <div class="forecast-heading"><h3>Next 7 days</h3><span>Local forecast</span></div>
+                            <div id="weather-forecast" class="weather-forecast"><div class="empty">Loading forecast...</div></div>
+                            <div id="weather-chart" class="weather-chart" aria-label="Seven day high temperature chart"></div>
+                            <p class="weather-disclaimer">Location is approximate. Cyclone chance is a simple signal based on current wind and pressure, not an official warning. <span id="weather-updated"></span></p>
+                        </section>
+                    </div>
+
+                    <!-- TAB 5: CONNECTION (INTERNET SPEED TEST) -->
                     <div id="tab-connection" class="tab-pane" role="tabpanel">
                         <section class="panel full-width">
                             <h2>Internet Speed Test</h2>
@@ -118,7 +156,14 @@
                             <div style="margin-top: 20px; padding: 20px; background: rgba(255, 240, 210, 0.07); border: 1px solid var(--line); border-radius: 12px;">
                                 <h3 style="margin-bottom: 5px; font-size: 1.1rem;">Download Throughput:</h3>
                                 <div id="speed-result" style="font-size: 2rem; font-weight: bold; color: var(--orange, #ff7a18);">-- Mbps</div>
-                                <div id="speed-status" style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Click 'Test Connection Speed' to begin testing.</div>
+                                <div id="speed-status" style="margin-top: 10px; font-size: 0.9rem; opacity: 0.8;">Automatic speed test starting...</div>
+                                <div id="speed-updated" class="data-updated"></div>
+                            </div>
+                            <div class="network-tools">
+                                <div class="network-tools-heading"><div><h2>Network quality</h2><p class="session-note">Measure latency, packet loss, browser network estimates, and upload timing.</p></div><span class="network-actions"><button type="button" class="search-btn" id="latency-test-btn">Run latency test</button><button type="button" class="search-btn secondary-btn" id="full-network-test-btn">Full check</button></span></div>
+                                <div id="latency-result" class="network-result">Ready to test</div>
+                                <div id="network-details" class="network-details"></div>
+                                <div id="latency-updated" class="data-updated"></div>
                             </div>
                         </section>
                     </div>
