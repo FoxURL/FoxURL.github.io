@@ -44,19 +44,27 @@ function getPayloadId(payload) {
     return String(payload.id || payload.key || payload.timestamp || `${payload.content}-${payload.createdAt || ''}`);
 }
 
-async function copyText(text) {
+function copyText(text) {
     if (navigator.clipboard && window.isSecureContext) {
-        await navigator.clipboard.writeText(text);
-        return;
+        return navigator.clipboard.writeText(text);
     }
 
     const fallback = document.createElement('textarea');
     fallback.value = text;
     fallback.setAttribute('readonly', '');
     fallback.style.position = 'fixed';
-    fallback.style.opacity = '0';
+    fallback.style.top = '0';
+    fallback.style.left = '0';
+    fallback.style.width = '1px';
+    fallback.style.height = '1px';
+    fallback.style.padding = '0';
+    fallback.style.border = '0';
+    fallback.style.opacity = '0.01';
+    fallback.style.fontSize = '16px';
     document.body.appendChild(fallback);
+    fallback.focus();
     fallback.select();
+    fallback.setSelectionRange(0, fallback.value.length);
     const copied = document.execCommand('copy');
     fallback.remove();
     if (!copied) throw new Error('Clipboard copy was blocked');
@@ -100,10 +108,9 @@ async function checkForIncoming() {
 }
 
 function createBubble(text, incoming = false) {
-    const bubble = document.createElement('div');
+    const bubble = document.createElement('button');
+    bubble.type = 'button';
     bubble.className = 'bubble';
-    bubble.setAttribute('role', 'button');
-    bubble.tabIndex = 0;
     if (incoming) bubble.classList.add('incoming');
     if (emptyQueue) emptyQueue.style.display = 'none';
     
