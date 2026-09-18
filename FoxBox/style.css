@@ -38,10 +38,10 @@ h1 { position: relative; z-index: 2; margin: 0; text-align: center; font-family:
 .radar-pulse.success { background: #b9ff9c; }
 .bubble-container { position: absolute; inset: 0; pointer-events: none; }
 .empty { position: absolute; top: 50%; left: 50%; color: rgba(255, 248, 237, .36); font-size: .8rem; transform: translate(-50%, 210px); }
-.bubble { position: absolute; display: flex; align-items: center; justify-content: space-between; gap: 14px; width: min(300px, 30vw); padding: 14px 16px; border: 1px solid rgba(255, 248, 237, .5); border-radius: 999px; background: rgba(115, 37, 4, .22); box-shadow: 0 12px 30px rgba(107, 28, 0, .14), inset 0 1px rgba(255, 255, 255, .12); backdrop-filter: blur(12px); pointer-events: auto; touch-action: none; cursor: grab; animation: floatIn .45s ease-out both, drift 5s ease-in-out infinite; transition: border-color .2s, background .2s, transform .15s; }
+.bubble { position: absolute; display: flex; align-items: center; justify-content: space-between; gap: 14px; width: min(300px, 30vw); padding: 14px 16px; border: 1px solid rgba(255, 248, 237, .5); border-radius: 999px; background: rgba(115, 37, 4, .22); box-shadow: 0 12px 30px rgba(107, 28, 0, .14), inset 0 1px rgba(255, 255, 255, .12); backdrop-filter: blur(12px); pointer-events: auto; cursor: pointer; animation: floatIn .45s ease-out both, drift 5s ease-in-out infinite; transition: border-color .2s, background .2s, transform .15s; }
 .bubble:hover { border-color: var(--cream); background: rgba(115, 37, 4, .34); }
-.bubble:active { cursor: grabbing; }
-.bubble.dragging { z-index: 10; animation-play-state: paused; transform: translateY(var(--drag-offset, 0)); border-color: var(--cream); background: rgba(115, 37, 4, .42); }
+.bubble:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
+.bubble:active, .bubble.beaming { animation-play-state: paused; transform: scale(.97); border-color: var(--cream); background: rgba(115, 37, 4, .42); }
 .bubble.incoming { border-color: rgba(185, 255, 156, .68); }
 .bubble-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .84rem; font-weight: 700; }
 .method-badge { flex: 0 0 auto; color: var(--cream); font-size: .66rem; font-weight: 900; opacity: .72; }

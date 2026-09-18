@@ -1,4 +1,4 @@
-const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbzhzVU0hUGEXHtQVgVZFHMwTLs1j4hBYI9U-yFieYToNUGsE-ECMhvxMJqkG-vKQ6dwCw/exec";
+const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyD80sjDnBZr7IE73aK8-TsgcrGERh5mQ1_IQ4zjqdYtg3DiTa-O0_BUl-O19wJamDG/exec";
 
 const shareInput = document.getElementById('share-input');
 const addBtn = document.getElementById('add-btn');
@@ -7,7 +7,9 @@ const emptyQueue = document.getElementById('empty-queue');
 const receiverOutput = document.getElementById('receiver-output');
 const shareForm = document.getElementById('share-form');
 const knownPayloadIds = new Set();
+const clientId = localStorage.getItem('foxbox.clientId') || `${Date.now()}-${Math.random().toString(36).slice(2)}`;
 let lastReceivedAt = 0;
+localStorage.setItem('foxbox.clientId', clientId);
 
 // Handle adding text to create a bubble
 shareForm.addEventListener('submit', (event) => {
@@ -43,11 +45,8 @@ function getPayloadId(payload) {
 }
 
 async function sendPayload(text) {
-    const response = await fetch(SCRIPT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-        body: JSON.stringify({ action: 'send', content: text, direction: 'up' })
-    });
+    const params = new URLSearchParams({ action: 'send', content: text, direction: 'up', sender: clientId });
+    const response = await fetch(`${SCRIPT_URL}?${params}`, { cache: 'no-store' });
     if (!response.ok) throw new Error(`Relay returned ${response.status}`);
     const result = await response.json();
     if (result.status !== 'success' || !result.id) throw new Error('Relay did not confirm the payload');
@@ -57,9 +56,17 @@ async function sendPayload(text) {
 
 async function checkForIncoming() {
     try {
-        const response = await fetch(`${SCRIPT_URL}?action=receive&direction=up&since=${lastReceivedAt}`, { cache: 'no-store' });
-        if (!response.ok) return;
+        const params = new URLSearchParams({ action: 'poll', direction: 'up', clientId });
+        const response = await fetch(`${SCRIPT_URL}?${params}`, { cache: 'no-store' });
+        if (!response.ok) {
+            setRadarMessage('Receiving is unavailable on the relay.');
+            return;
+        }
         const result = await response.json();
+        if (result.status === 'error') {
+            setRadarMessage('Receiving is unavailable on the relay.');
+            return;
+        }
         getPayloadItems(result).forEach(payload => {
             const content = payload.content || payload.text || payload.value;
             const id = getPayloadId(payload);
@@ -70,13 +77,15 @@ async function checkForIncoming() {
             setRadarMessage('Payload received.', true);
         });
     } catch (error) {
-        // A temporary polling failure should not interrupt local composing.
+        setRadarMessage('Unable to reach the relay.');
     }
 }
 
 function createBubble(text, incoming = false) {
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
+    bubble.setAttribute('role', incoming ? 'status' : 'button');
+    if (!incoming) bubble.tabIndex = 0;
     if (incoming) bubble.classList.add('incoming');
     if (emptyQueue) emptyQueue.style.display = 'none';
     
@@ -85,40 +94,13 @@ function createBubble(text, incoming = false) {
     bubbleText.textContent = `📦 ${text}`;
     const badge = document.createElement('span');
     badge.className = 'method-badge';
-    badge.textContent = incoming ? 'Received' : 'Drag up to beam';
+    badge.textContent = incoming ? 'Received' : 'Click to beam';
     bubble.append(bubbleText, badge);
 
-    let startY = 0;
-    let currentY = 0;
-    let pointerId = null;
-
-    bubble.addEventListener('pointerdown', event => {
-        if (incoming) return;
-        pointerId = event.pointerId;
-        startY = event.clientY;
-        currentY = startY;
-        try {
-            bubble.setPointerCapture(pointerId);
-        } catch (error) {
-            // Older WebKit builds may not expose pointer capture immediately.
-        }
-        bubble.classList.add('dragging');
-    });
-
-    bubble.addEventListener('pointermove', event => {
-        if (event.pointerId !== pointerId) return;
-        currentY = event.clientY;
-        bubble.style.setProperty('--drag-offset', `${currentY - startY}px`);
-    });
-
-    bubble.addEventListener('pointerup', async event => {
-        if (event.pointerId !== pointerId) return;
-        const distance = currentY - startY;
-        pointerId = null;
-        bubble.classList.remove('dragging');
-        bubble.style.removeProperty('--drag-offset');
-        if (distance >= -70) return;
-
+    async function beamBubble() {
+        if (incoming || bubble.dataset.beaming === 'true') return;
+        bubble.dataset.beaming = 'true';
+        bubble.classList.add('beaming');
         setRadarMessage('Beaming payload upward...');
         try {
             await sendPayload(text);
@@ -127,14 +109,20 @@ function createBubble(text, incoming = false) {
             if (!bubbleContainer.querySelector('.bubble') && emptyQueue) emptyQueue.style.display = 'block';
         } catch (error) {
             setRadarMessage('Beam was not confirmed. Try again.');
+            bubble.dataset.beaming = 'false';
+            bubble.classList.remove('beaming');
         }
-    });
+    }
 
-    bubble.addEventListener('pointercancel', () => {
-        pointerId = null;
-        bubble.classList.remove('dragging');
-        bubble.style.removeProperty('--drag-offset');
-    });
+    if (!incoming) {
+        bubble.addEventListener('click', beamBubble);
+        bubble.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                beamBubble();
+            }
+        });
+    }
 
     bubbleContainer.appendChild(bubble);
 }
