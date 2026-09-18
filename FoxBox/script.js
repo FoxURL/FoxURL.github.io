@@ -44,6 +44,24 @@ function getPayloadId(payload) {
     return String(payload.id || payload.key || payload.timestamp || `${payload.content}-${payload.createdAt || ''}`);
 }
 
+async function copyText(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+
+    const fallback = document.createElement('textarea');
+    fallback.value = text;
+    fallback.setAttribute('readonly', '');
+    fallback.style.position = 'fixed';
+    fallback.style.opacity = '0';
+    document.body.appendChild(fallback);
+    fallback.select();
+    const copied = document.execCommand('copy');
+    fallback.remove();
+    if (!copied) throw new Error('Clipboard copy was blocked');
+}
+
 async function sendPayload(text) {
     const params = new URLSearchParams({ action: 'send', content: text, direction: 'up', sender: clientId });
     const response = await fetch(`${SCRIPT_URL}?${params}`, { cache: 'no-store' });
@@ -84,8 +102,8 @@ async function checkForIncoming() {
 function createBubble(text, incoming = false) {
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.setAttribute('role', incoming ? 'status' : 'button');
-    if (!incoming) bubble.tabIndex = 0;
+    bubble.setAttribute('role', 'button');
+    bubble.tabIndex = 0;
     if (incoming) bubble.classList.add('incoming');
     if (emptyQueue) emptyQueue.style.display = 'none';
     
@@ -96,6 +114,24 @@ function createBubble(text, incoming = false) {
     badge.className = 'method-badge';
     badge.textContent = incoming ? 'Received' : 'Click to beam';
     bubble.append(bubbleText, badge);
+
+    async function copyReceivedBubble() {
+        if (bubble.dataset.copying === 'true') return;
+        bubble.dataset.copying = 'true';
+        try {
+            await copyText(text);
+            badge.textContent = 'Copied';
+            setRadarMessage('Copied to clipboard.', true);
+            bubble.classList.add('copying');
+            setTimeout(() => {
+                bubble.remove();
+                if (!bubbleContainer.querySelector('.bubble') && emptyQueue) emptyQueue.style.display = 'block';
+            }, 460);
+        } catch (error) {
+            bubble.dataset.copying = 'false';
+            setRadarMessage('Copy was blocked by the browser.');
+        }
+    }
 
     async function beamBubble() {
         if (incoming || bubble.dataset.beaming === 'true') return;
@@ -114,7 +150,16 @@ function createBubble(text, incoming = false) {
         }
     }
 
-    if (!incoming) {
+    if (incoming) {
+        bubble.setAttribute('aria-label', 'Copy received payload');
+        bubble.addEventListener('click', copyReceivedBubble);
+        bubble.addEventListener('keydown', event => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                copyReceivedBubble();
+            }
+        });
+    } else {
         bubble.addEventListener('click', beamBubble);
         bubble.addEventListener('keydown', event => {
             if (event.key === 'Enter' || event.key === ' ') {

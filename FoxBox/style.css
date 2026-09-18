@@ -43,6 +43,7 @@ h1 { position: relative; z-index: 2; margin: 0; text-align: center; font-family:
 .bubble:focus-visible { outline: 2px solid var(--cream); outline-offset: 4px; }
 .bubble:active, .bubble.beaming { animation-play-state: paused; transform: scale(.97); border-color: var(--cream); background: rgba(115, 37, 4, .42); }
 .bubble.incoming { border-color: rgba(185, 255, 156, .68); }
+.bubble.copying { animation: copyAway .46s cubic-bezier(.2, .8, .2, 1) forwards; pointer-events: none; }
 .bubble-text { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: .84rem; font-weight: 700; }
 .method-badge { flex: 0 0 auto; color: var(--cream); font-size: .66rem; font-weight: 900; opacity: .72; }
 .bubble:nth-child(2n) { left: 2%; }
@@ -55,6 +56,7 @@ h1 { position: relative; z-index: 2; margin: 0; text-align: center; font-family:
 .bubble:nth-child(7) { top: 82%; }
 @keyframes floatIn { from { opacity: 0; transform: scale(.8) translateY(18px); } to { opacity: 1; transform: scale(1) translateY(0); } }
 @keyframes drift { 0%, 100% { margin-top: 0; } 50% { margin-top: -8px; } }
+@keyframes copyAway { 0% { opacity: 1; transform: scale(1); } 45% { opacity: 1; transform: scale(1.08) translateY(-8px); } 100% { opacity: 0; transform: scale(.72) translateY(-42px); } }
 
 @media (max-width: 760px) {
     .shell { width: min(100% - 28px, 560px); padding-top: 22px; }
