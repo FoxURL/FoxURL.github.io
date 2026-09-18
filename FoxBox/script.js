@@ -6,6 +6,8 @@ const bubbleContainer = document.getElementById('bubble-container');
 const emptyQueue = document.getElementById('empty-queue');
 const receiverOutput = document.getElementById('receiver-output');
 const shareForm = document.getElementById('share-form');
+const knownPayloadIds = new Set();
+let lastReceivedAt = 0;
 
 // Handle adding text to create a bubble
 shareForm.addEventListener('submit', (event) => {
@@ -30,55 +32,112 @@ function setRadarMessage(message, success = false) {
     receiverOutput.append(dot, text);
 }
 
-function createBubble(text) {
+function getPayloadItems(result) {
+    const payloads = Array.isArray(result) ? result : result.data || result.payloads || result.items || result.payload || result;
+    if (!Array.isArray(payloads)) return payloads && payloads.content ? [payloads] : [];
+    return payloads;
+}
+
+function getPayloadId(payload) {
+    return String(payload.id || payload.key || payload.timestamp || `${payload.content}-${payload.createdAt || ''}`);
+}
+
+async function sendPayload(text) {
+    const response = await fetch(SCRIPT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+        body: JSON.stringify({ action: 'send', content: text, direction: 'up' })
+    });
+    if (!response.ok) throw new Error(`Relay returned ${response.status}`);
+    const result = await response.json();
+    if (result.status !== 'success' || !result.id) throw new Error('Relay did not confirm the payload');
+    knownPayloadIds.add(String(result.id));
+    return result;
+}
+
+async function checkForIncoming() {
+    try {
+        const response = await fetch(`${SCRIPT_URL}?action=receive&direction=up&since=${lastReceivedAt}`, { cache: 'no-store' });
+        if (!response.ok) return;
+        const result = await response.json();
+        getPayloadItems(result).forEach(payload => {
+            const content = payload.content || payload.text || payload.value;
+            const id = getPayloadId(payload);
+            if (!content || knownPayloadIds.has(id)) return;
+            knownPayloadIds.add(id);
+            lastReceivedAt = Math.max(lastReceivedAt, Number(payload.timestamp || payload.createdAt || Date.now()));
+            createBubble(content, true);
+            setRadarMessage('Payload received.', true);
+        });
+    } catch (error) {
+        // A temporary polling failure should not interrupt local composing.
+    }
+}
+
+function createBubble(text, incoming = false) {
     const bubble = document.createElement('div');
     bubble.className = 'bubble';
-    bubble.draggable = true;
+    if (incoming) bubble.classList.add('incoming');
+    if (emptyQueue) emptyQueue.style.display = 'none';
     
     const bubbleText = document.createElement('span');
     bubbleText.className = 'bubble-text';
     bubbleText.textContent = `📦 ${text}`;
     const badge = document.createElement('span');
     badge.className = 'method-badge';
-    badge.textContent = 'Ready to beam';
+    badge.textContent = incoming ? 'Received' : 'Drag up to beam';
     bubble.append(bubbleText, badge);
 
     let startY = 0;
+    let currentY = 0;
+    let pointerId = null;
 
-    bubble.addEventListener('dragstart', (e) => {
-        startY = e.clientY;
+    bubble.addEventListener('pointerdown', event => {
+        if (incoming) return;
+        pointerId = event.pointerId;
+        startY = event.clientY;
+        currentY = startY;
+        try {
+            bubble.setPointerCapture(pointerId);
+        } catch (error) {
+            // Older WebKit builds may not expose pointer capture immediately.
+        }
+        bubble.classList.add('dragging');
     });
 
-    bubble.addEventListener('dragend', async (e) => {
-        const endY = e.clientY;
-        const distance = endY - startY;
+    bubble.addEventListener('pointermove', event => {
+        if (event.pointerId !== pointerId) return;
+        currentY = event.clientY;
+        bubble.style.setProperty('--drag-offset', `${currentY - startY}px`);
+    });
 
-        // If dragged upward significantly toward the top of the screen
-        if (distance < -50) {
-            setRadarMessage('Beaming payload upward...');
-            
-            try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'send', content: text, direction: 'up' })
-                });
-                const result = await response.json();
-                
-                if (result.status === 'success') {
-                    setRadarMessage('Successfully beamed.', true);
-                    bubble.remove();
-                    
-                    if (bubbleContainer.children.length === 0 && emptyQueue) {
-                        emptyQueue.style.display = 'block';
-                    }
-                } else {
-                    setRadarMessage('Failed to beam payload.');
-                }
-            } catch (err) {
-                setRadarMessage('Network error during transmission.');
-            }
+    bubble.addEventListener('pointerup', async event => {
+        if (event.pointerId !== pointerId) return;
+        const distance = currentY - startY;
+        pointerId = null;
+        bubble.classList.remove('dragging');
+        bubble.style.removeProperty('--drag-offset');
+        if (distance >= -70) return;
+
+        setRadarMessage('Beaming payload upward...');
+        try {
+            await sendPayload(text);
+            setRadarMessage('Successfully beamed.', true);
+            bubble.remove();
+            if (!bubbleContainer.querySelector('.bubble') && emptyQueue) emptyQueue.style.display = 'block';
+        } catch (error) {
+            setRadarMessage('Beam was not confirmed. Try again.');
         }
+    });
+
+    bubble.addEventListener('pointercancel', () => {
+        pointerId = null;
+        bubble.classList.remove('dragging');
+        bubble.style.removeProperty('--drag-offset');
     });
 
     bubbleContainer.appendChild(bubble);
 }
+
+checkForIncoming();
+setInterval(checkForIncoming, 2500);
