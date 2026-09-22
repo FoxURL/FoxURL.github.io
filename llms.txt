@@ -1,0 +1,211 @@
+# FoxURL
+
+FoxURL is a lightweight digital brand and utility ecosystem centered on fast access, simple tools, and browser-based account management. The active public site positions FoxURL as a collection of focused products for sharing, identity, security, diagnostics, and everyday web utility. The site is built primarily as static HTML, CSS, and JavaScript and emphasizes a clean orange-and-dark interface, low-friction UX, and product discoverability.
+
+## Site mission
+FoxURL presents itself as a modern, easy-to-use hub for digital tools that feel practical rather than bloated. The main themes are:
+- fast access to useful web tools
+- simple identity and account flows
+- product discovery without complicated navigation
+- lightweight browser-based utilities
+- an ecosystem of focused experiences rather than a massive app platform
+
+## Site architecture
+The live site currently includes these major areas:
+- marketing homepage and product shelf
+- product catalog
+- FoxURL account/cloud dashboard
+- login/authentication hub
+- utility experiences such as FoxBox and FoxLink integration
+- support pages like 404 and offline pages
+
+## Primary public pages
+- https://foxurl.github.io/ — Main homepage and brand landing page.
+- https://foxurl.github.io/cloud/ — Account dashboard and utility portal with identity, security, weather, and network tools.
+- https://foxurl.github.io/cloud/products/ — Product catalog page for the ecosystem.
+- https://foxurl.github.io/FoxBox/ — Cross-device share box for text and links.
+- https://foxurl.github.io/login/ — Authentication hub with sign-in choices.
+- https://foxurl.github.io/login/email/ — Email-code sign-in flow.
+- https://foxurl.github.io/login/passkey/ — Passkey biometric/device-based sign-in flow.
+- https://foxurl.github.io/login/google/ — Google sign-in flow.
+- https://foxurl.github.io/404.html — Standard not-found page.
+- https://foxurl.github.io/offline.html — Offline fallback page.
+
+## Brand identity
+FoxURL is marketed as a digital connection and utility brand: “innovate your connection.” The visual language is built around warm orange gradients, dark backgrounds, and simple modern typography. The interface is designed to feel clean, approachable, and streamlined, with emphasis on product-first browsing and minimal complexity.
+
+## Core product ecosystem
+
+### 1) FoxLink
+FoxLink is presented as the core link-shortening product and is described as a safe, simple, and straightforward URL utility. The product catalog clearly identifies it as a link shortener and a companion service within the FoxURL ecosystem.
+
+Description:
+- utility for shortening long URLs
+- simple, low-friction redirecting and link handling
+- product positioned as a lightweight service for easier link sharing
+- branded as part of the broader FoxURL toolkit
+
+Canonical product reference:
+- https://fxlnk.github.io/
+
+### 2) FoxBox
+FoxBox is the most prominent utility on the active site and is described as a shared box for sending text and links between devices.
+
+Description:
+- a fast sharing utility for text snippets, URLs, and quick payloads
+- intended for cross-device use without a complicated setup process
+- optimized for quick transfer and simple user workflows
+- acts as a lightweight “drop box” experience for digital sharing
+
+Use cases:
+- sending a link from a laptop to a phone
+- quickly pushing text, reminders, or notes between devices
+- temporary content sharing in a small utility interface
+
+Canonical product reference:
+- https://foxurl.github.io/FoxBox/
+
+### 3) FoxURL Account / Cloud Dashboard
+The cloud dashboard is a major functional area for signed-in users. It combines account management with product utilities and online diagnostics.
+
+Description:
+- identity and account overview for authenticated users
+- security and sign-in management
+- privacy and breach-monitoring tools
+- local weather information
+- connection and speed diagnostics
+- browser-based monitoring and status checking
+
+Key capabilities:
+- account status and email display
+- security status and authentication methods
+- Google, passkey, and email verification support
+- session data review and security health checks
+- data breach search by email address
+- weather widget using approximate location data
+- network speed testing and latency checks
+
+Primary URL:
+- https://foxurl.github.io/cloud/
+
+### 4) FoxURL Products Hub
+The products page serves as the main product catalog for FoxURL and acts as the ecosystem gateway.
+
+Description:
+- curated collection of active offerings
+- product entries presented as simple cards with short descriptors
+- intended to help users explore FoxURL projects quickly
+- designed around discoverability and clarity
+
+Primary URL:
+- https://foxurl.github.io/cloud/products/
+
+### 5) FoxURL Login System
+The authentication area provides sign-in entry points and multiple login methods.
+
+Available flows:
+- Email code login
+- Passkey authentication
+- Google sign-in
+- hub page for choosing authentication method
+
+Description:
+- account access entry point for the wider FoxURL ecosystem
+- user-oriented login flow built for convenience and flexibility
+- browser-savvy identity handling using local storage and external auth services
+
+Paths:
+- https://foxurl.github.io/login/
+- https://foxurl.github.io/login/email/
+- https://foxurl.github.io/login/passkey/
+- https://foxurl.github.io/login/google/
+
+## Functional capabilities in the cloud dashboard
+
+### Account overview
+The dashboard provides a user-focused identity panel, including:
+- signed-in email status
+- account verification status
+- sign-in method tracking
+- session metadata and browser details
+- local display of profile state
+
+### Security and sign-in features
+These tools focus on account trust and session visibility:
+- sign-in method management
+- security health score checks
+- authentication method listing
+- last-login and browser/session signal display
+- passkey and encryption status indicators
+
+### Privacy and breach monitor
+The privacy tab describes a breach-monitoring feature that checks public threat intelligence feeds for a given email.
+
+Description:
+- lets users audit an email against breach data
+- supports custom address search for external audits
+- framed as a privacy and monitoring utility inside the FoxURL account experience
+- designed as a lightweight threat monitoring feature rather than a full enterprise security suite
+
+### Weather tools
+The weather panel is a local utility feature intended to show approximate conditions based on the user’s location.
+
+Description:
+- IP-location-based weather estimation
+- hourly forecast section
+- seven-day forecast display
+- local alerts and weather signal summaries
+- simple chart/summary presentation for quick checkups
+
+### Connection and speed diagnostics
+The connection section focuses on browser-based network testing.
+
+Features:
+- download throughput measurement
+- network quality checks
+- latency testing
+- upload timing and packet-level-style diagnostics
+- general connection status summaries
+
+This is designed as a practical utility for basic end-user network awareness rather than a full server performance monitoring product.
+
+## Technical model
+The current active site is best understood as a static website with client-side interactivity.
+
+Implementation style:
+- HTML pages for structure and content
+- CSS for brand system and page styling
+- JavaScript for interactivity and local state
+- localStorage used for sign-in state, user email, and dashboard/session data
+- external APIs used for Google sign-in, weather lookup, and network diagnostics
+
+This means the site behaves more like a polished front-end utility layer than a backend-heavy product platform.
+
+## Product positioning summary
+The active FoxURL ecosystem is best described as:
+- a lightweight digital utility brand
+- a product shelf for quick-use web tools
+- a sign-in and account identity layer
+- a collection of simple public-facing utilities with practical benefit
+
+The strongest visible product examples are:
+- FoxLink for link shortening
+- FoxBox for text and link sharing
+- FoxURL Cloud for account/security/weather/network features
+- authentication and account management flows for users
+
+## Exclusions and scope
+The following content is intentionally excluded from this summary and should be treated as deprecated or historical:
+- /legacy/
+- all legacy pages and archives under that directory
+- older experimental, archived, or superseded FoxURL materials
+
+This llms.txt reflects the current, active, non-legacy site and the products that are still publicly positioned as part of the present FoxURL experience.
+
+## Quick product summary
+- FoxLink — link-shortening and safe simple URL sharing utility.
+- FoxBox — device-to-device text and link sharing utility.
+- FoxURL Cloud — identity, account, privacy, security, weather, and connectivity dashboard.
+- FoxURL Login — sign-in hub with email, passkey, and Google options.
+- FoxURL Products — catalog page for discovering the ecosystem.
+- Offline / 404 / support pages — fallback and error experience.
