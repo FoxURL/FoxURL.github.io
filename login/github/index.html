@@ -84,7 +84,7 @@
 	<script>
 		// Set these after deploying github-oauth.gs as a Google Apps Script web app.
 		const GITHUB_CLIENT_ID = 'Ov23liJbiYCsRKGfhje3';
-		const GITHUB_CALLBACK_URL = 'https://script.google.com/macros/s/AKfycbxLifymdcKMeVxFeF7ZfENIfCNv97-rrHBHjqRE_sZosAadCbo7Xuscz2X01jnIGl8o/exec';
+		const GITHUB_CALLBACK_URL = 'https://script.google.com/macros/s/AKfycbzPXgjJJ--Mwb8LdE1xYkBxqgGKSMLBw9Pmgodh-LTQirawzB_lpLwBfW4O31e6Wx-9Zw/exec';
 		const statusText = document.getElementById('status');
 
 		const params = new URLSearchParams(window.location.search);
@@ -103,8 +103,7 @@
 		}
 
 		const githubButton = document.getElementById('github-button');
-		const callbackUrl = `${GITHUB_CALLBACK_URL}?action=github_callback`;
-		githubButton.href = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(GITHUB_CLIENT_ID)}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=read:user%20user:email`;
+		githubButton.href = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(GITHUB_CLIENT_ID)}&redirect_uri=${encodeURIComponent(GITHUB_CALLBACK_URL)}&scope=read:user%20user:email`;
 	</script>
 </body>
 </html>

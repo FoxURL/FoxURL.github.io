@@ -1,6 +1,6 @@
 function doGet(e) {
   var action = e.parameter.action || '';
-  if (action !== 'github_callback') {
+  if (action && action !== 'github_callback') {
     return ContentService.createTextOutput('Missing GitHub OAuth action.');
   }
 
