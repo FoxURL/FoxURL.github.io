@@ -469,6 +469,14 @@
         const accountLink = document.getElementById('account-link');
         let signedInEmail = '';
 
+        const githubEmail = new URLSearchParams(window.location.search).get('github_email');
+        if (githubEmail && githubEmail.includes('@')) {
+            localStorage.setItem('foxurl.signin.email', githubEmail);
+            localStorage.setItem('foxurl.signin.method', 'github');
+            localStorage.setItem('foxurl.signin.lastLogin', new Date().toISOString());
+            window.history.replaceState({}, document.title, window.location.pathname);
+        }
+
         try {
             signedInEmail = localStorage.getItem('foxurl.signin.email') || '';
         } catch (error) {

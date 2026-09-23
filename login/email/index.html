@@ -27,9 +27,39 @@
             justify-content: center;
             align-items: center;
             min-height: 100vh;
+            overflow-x: hidden;
+            position: relative;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            width: 420px;
+            height: 420px;
+            border-radius: 50%;
+            pointer-events: none;
+            filter: blur(120px);
+            opacity: 0.32;
+            animation: ambient-float 8s ease-in-out infinite;
+        }
+
+        body::before {
+            top: 8%;
+            left: 8%;
+            background: rgba(255, 102, 0, 0.28);
+        }
+
+        body::after {
+            right: 8%;
+            bottom: 4%;
+            background: rgba(245, 158, 11, 0.2);
+            animation-delay: -4s;
         }
 
         .auth-container {
+            position: relative;
+            overflow: hidden;
             background-color: var(--card-bg);
             border: 1px solid var(--border);
             border-radius: 20px;
@@ -38,9 +68,22 @@
             max-width: 400px;
             box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42), 0 0 0 1px rgba(255, 102, 0, 0.08);
             box-sizing: border-box;
+            animation: card-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        .auth-container::before {
+            content: '';
+            position: absolute;
+            inset: -2px;
+            border-radius: inherit;
+            background: linear-gradient(110deg, transparent 20%, rgba(255, 159, 0, 0.35), transparent 60%);
+            background-size: 220% 100%;
+            pointer-events: none;
+            animation: border-shimmer 4s linear infinite;
         }
 
         .brand-mark {
+            position: relative;
             display: grid;
             place-items: center;
             width: 48px;
@@ -52,6 +95,25 @@
             font-size: 25px;
             font-weight: 900;
             box-shadow: 0 10px 24px rgba(255, 102, 0, 0.25);
+            animation: float-mark 4s ease-in-out infinite;
+        }
+
+        .brand-mark::before,
+        .brand-mark::after {
+            content: '';
+            position: absolute;
+            inset: -9px;
+            border: 1px solid rgba(255, 123, 0, 0.35);
+            border-radius: 18px;
+            pointer-events: none;
+            animation: orbit-ring 6s linear infinite;
+        }
+
+        .brand-mark::after {
+            inset: -4px;
+            border-color: rgba(251, 191, 36, 0.25);
+            animation-direction: reverse;
+            animation-duration: 4.5s;
         }
 
         h2 {
@@ -95,9 +157,12 @@
         input[type="email"]:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2), 0 0 24px rgba(255, 102, 0, 0.28);
         }
 
         button {
+            position: relative;
+            overflow: hidden;
             width: 100%;
             padding: 12px;
             background-color: var(--accent);
@@ -108,6 +173,20 @@
             font-weight: 600;
             cursor: pointer;
             transition: background-color 0.2s;
+        }
+
+        button:not(.link-btn)::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(105deg, transparent 25%, rgba(255, 255, 255, 0.26), transparent 70%);
+            background-size: 220% 100%;
+            animation: button-shimmer 3.5s ease-in-out infinite;
+            pointer-events: none;
+        }
+
+        button:not(.link-btn) {
+            box-shadow: 0 0 25px rgba(255, 123, 0, 0.22);
         }
 
         button:hover {
@@ -141,6 +220,12 @@
         .code-input:focus {
             outline: none;
             border-color: var(--accent);
+            box-shadow: 0 0 0 2px rgba(255, 102, 0, 0.2), 0 0 24px rgba(255, 102, 0, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .code-input {
+            transition: border-color 0.25s, box-shadow 0.25s, transform 0.25s;
         }
 
         .alert {
@@ -166,6 +251,60 @@
 
         .hidden {
             display: none !important;
+        }
+
+        #step-email,
+        #step-code {
+            position: relative;
+            z-index: 1;
+            animation: step-enter 0.55s cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+
+        #step-code:not(.hidden) {
+            animation-name: step-enter;
+        }
+
+        @keyframes card-enter {
+            from { opacity: 0; transform: translateY(18px) scale(0.97); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+
+        @keyframes step-enter {
+            from { opacity: 0; transform: translateY(12px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        @keyframes ambient-float {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-18px) scale(1.04); }
+        }
+
+        @keyframes float-mark {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        @keyframes orbit-ring {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes border-shimmer {
+            from { background-position: 200% 0; }
+            to { background-position: -20% 0; }
+        }
+
+        @keyframes button-shimmer {
+            0%, 35% { background-position: 220% 0; }
+            65%, 100% { background-position: -20% 0; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
         }
 
         .footer-actions {

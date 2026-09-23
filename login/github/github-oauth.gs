@@ -38,7 +38,7 @@ function doGet(e) {
     return redirectToFoxUrl('?error=email_unavailable');
   }
 
-  return redirectToFoxUrl('?email=' + encodeURIComponent(email) + '&name=' + encodeURIComponent(user.name || user.login));
+  return redirectToFoxUrl('?github_email=' + encodeURIComponent(email) + '&github_name=' + encodeURIComponent(user.name || user.login));
 }
 
 function findGithubEmail(token) {
@@ -52,7 +52,7 @@ function findGithubEmail(token) {
 }
 
 function redirectToFoxUrl(query) {
-  var destination = 'https://foxurl.github.io/login/github/' + query;
+  var destination = 'https://foxurl.github.io/' + query;
   var escapedDestination = destination.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
   var html = '<!doctype html><html><head><base target="_top">' +
     '<meta http-equiv="refresh" content="0;url=' + escapedDestination + '"></head>' +
