@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Sign In with GitHub - FoxURL</title>
+	<style>
+		:root {
+			--bg: #101820;
+			--card: rgba(22, 32, 38, 0.92);
+			--text: #f8fafc;
+			--muted: #a7b2b9;
+			--accent: #ff6600;
+			--border: rgba(255, 255, 255, 0.12);
+		}
+
+		body {
+			display: grid;
+			min-height: 100vh;
+			margin: 0;
+			place-items: center;
+			background: radial-gradient(circle at 12% 10%, rgba(255, 102, 0, 0.18), transparent 30%), linear-gradient(145deg, var(--bg), #17232a 52%, #0b1115);
+			color: var(--text);
+			font-family: 'Trebuchet MS', 'Segoe UI', sans-serif;
+		}
+
+		.auth-container {
+			width: min(400px, calc(100% - 36px));
+			box-sizing: border-box;
+			padding: 42px;
+			border: 1px solid var(--border);
+			border-radius: 20px;
+			background: var(--card);
+			text-align: center;
+			box-shadow: 0 24px 70px rgba(0, 0, 0, 0.42);
+		}
+
+		.brand-mark {
+			display: grid;
+			width: 48px;
+			height: 48px;
+			margin: 0 auto 22px;
+			place-items: center;
+			border-radius: 14px;
+			background: var(--accent);
+			font-size: 25px;
+			font-weight: 900;
+		}
+
+		h2 { margin: 0 0 8px; }
+		.subtitle { margin: 0 0 24px; color: var(--muted); font-size: 14px; }
+
+		.github-button {
+			display: block;
+			width: 100%;
+			box-sizing: border-box;
+			padding: 12px;
+			border-radius: 10px;
+			background: #24292f;
+			color: #fff;
+			font-size: 16px;
+			font-weight: 600;
+			text-decoration: none;
+		}
+
+		.github-button:hover { background: #1b1f23; }
+
+		.back-link { margin-top: 24px; font-size: 14px; }
+		.back-link a { color: var(--accent); }
+
+		.status { min-height: 20px; margin: 0 0 16px; color: var(--muted); font-size: 14px; }
+	</style>
+</head>
+<body>
+	<main class="auth-container">
+		<div class="brand-mark" aria-hidden="true">F</div>
+		<h2>Sign in to FoxURL</h2>
+		<p class="subtitle">Use your GitHub account to continue.</p>
+		<p id="status" class="status" role="status"></p>
+		<a id="github-button" class="github-button" href="#">Continue with GitHub</a>
+		<div class="back-link"><a href="/login/">Back to sign in options</a></div>
+	</main>
+
+	<script>
+		// Set these after deploying github-oauth.gs as a Google Apps Script web app.
+		const GITHUB_CLIENT_ID = 'Ov23liJbiYCsRKGfhje3';
+		const GITHUB_CALLBACK_URL = 'https://script.google.com/macros/s/AKfycbxBEumvmNJqTQnjix6bpE1u8O_6jah7BLxLOZAC9BIYi1zX4lGyegCG5SHPEaN4rMcadg/exec';
+		const statusText = document.getElementById('status');
+
+		const params = new URLSearchParams(window.location.search);
+		const email = params.get('email');
+		const name = params.get('name');
+		const error = params.get('error');
+
+		if (email) {
+			localStorage.setItem('foxurl.signin.email', email);
+			localStorage.setItem('foxurl.signin.method', 'github');
+			localStorage.setItem('foxurl.signin.lastLogin', new Date().toISOString());
+			statusText.textContent = `Welcome, ${name || email}! Redirecting...`;
+			setTimeout(() => { window.location.href = '/'; }, 1000);
+		} else if (error) {
+			statusText.textContent = 'GitHub sign-in was cancelled or could not be completed.';
+		}
+
+		const githubButton = document.getElementById('github-button');
+		const callbackUrl = `${GITHUB_CALLBACK_URL}?action=github_callback`;
+		githubButton.href = `https://github.com/login/oauth/authorize?client_id=${encodeURIComponent(GITHUB_CLIENT_ID)}&redirect_uri=${encodeURIComponent(callbackUrl)}&scope=read:user%20user:email`;
+	</script>
+</body>
+</html>
