@@ -53,5 +53,9 @@ function findGithubEmail(token) {
 
 function redirectToFoxUrl(query) {
   var destination = 'https://foxurl.github.io/login/github/' + query;
-  return HtmlService.createHtmlOutput('<script>window.top.location.replace(' + JSON.stringify(destination) + ');</script>');
+  var escapedDestination = destination.replace(/&/g, '&amp;').replace(/"/g, '&quot;');
+  var html = '<!doctype html><html><head><base target="_top">' +
+    '<meta http-equiv="refresh" content="0;url=' + escapedDestination + '"></head>' +
+    '<body><p>Returning to FoxURL...</p><p><a href="' + escapedDestination + '">Continue to FoxURL</a></p></body></html>';
+  return HtmlService.createHtmlOutput(html);
 }
