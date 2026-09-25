@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Drive Data Uploader</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f4f6f9;
+            color: #333;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+        .card {
+            background: #ffffff;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+            width: 100%;
+            max-width: 450px;
+        }
+        h2 {
+            margin-top: 0;
+            color: #1a73e8;
+            font-size: 24px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+        }
+        input[type="email"], textarea, input[type="file"] {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+        textarea {
+            resize: vertical;
+            height: 100px;
+        }
+        button {
+            width: 100%;
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.2s;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        button:disabled {
+            background-color: #ccc;
+            cursor: not-allowed;
+        }
+        #status {
+            margin-top: 15px;
+            padding: 10px;
+            border-radius: 6px;
+            font-size: 14px;
+            text-align: center;
+            display: none;
+        }
+        .success {
+            background-color: #e6f4ea;
+            color: #137333;
+            border: 1px solid #ceead6;
+        }
+        .error {
+            background-color: #fce8e6;
+            color: #c5221f;
+            border: 1px solid #fad2cf;
+        }
+    .info {
+        font-size: 12px;
+        color: #666;
+        margin-top: 5px;
+    }
+    </style>
+</head>
+<body>
+
+<div class="card">
+    <h2>Drive Data Uploader</h2>
+    <form id="uploadForm">
+        <!-- Account / Email field -->
+        <div class="form-group">
+            <label for="account">Account Email:</label>
+            <input type="email" id="account" required placeholder="user@example.com">
+        </div>
+
+        <!-- Data input: Choose between text or file -->
+        <div class="form-group">
+            <label for="fileInput">Select File to Upload (PNG, TXT, DOCX, etc.):</label>
+            <input type="file" id="fileInput">
+            <div class="info">Optional: If no file is chosen, you can type plain text below.</div>
+        </div>
+
+        <div class="form-group">
+            <label for="textData">Or Type Text Data:</label>
+            <textarea id="textData" placeholder="Enter custom text content here if not uploading a file..."></textarea>
+        </div>
+
+        <button type="submit" id="submitBtn">Upload to Drive</button>
+    </form>
+
+    <div id="status"></div>
+</div>
+
+<script>
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx08Fa0FALOz6sckE9NvPD8DEwF1cR5bP-oR6KYGP7o-f40_qOsnKgPYWKUGsiHGC7J/exec";
+
+    document.getElementById("uploadForm").addEventListener("submit", async function(e) {
+        e.preventDefault();
+
+        const account = document.getElementById("account").value.trim();
+        const fileInput = document.getElementById("fileInput");
+        const textDataInput = document.getElementById("textData").value;
+        const submitBtn = document.getElementById("submitBtn");
+        const statusDiv = document.getElementById("status");
+
+        if (!account) {
+            showStatus("Please enter an account email.", "error");
+            return;
+        }
+
+        submitBtn.disabled = true;
+        submitBtn.textContent = "Uploading...";
+        statusDiv.style.display = "none";
+
+        let payloadData = "";
+        let fileName = "uploaded_notes.txt";
+        let mimeType = "text/plain";
+
+        try {
+            // Check if a file was selected
+            if (fileInput.files.length > 0) {
+                const file = fileInput.files[0];
+                fileName = file.name;
+                mimeType = file.type || "application/octet-stream";
+                
+                // Convert file into Base64 string for safe transmission
+                payloadData = await readFileAsBase64(file);
+            } else {
+                // Otherwise use text area content
+                payloadData = textDataInput;
+                fileName = "notes_" + Date.now() + ".txt";
+                mimeType = "text/plain";
+            }
+
+            const payload = {
+                account: account,
+                action: "add",
+                fileName: fileName,
+                mimeType: mimeType,
+                data: payloadData
+            };
+
+            // Send POST request to Google Apps Script Web App
+            const response = await fetch(WEB_APP_URL, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "text/plain;charset=utf-8" // Avoids CORS preflight blocking in Apps Script
+                },
+                body: JSON.stringify(payload)
+            });
+
+            const result = await response.json();
+
+            if (result.status === "success") {
+                showStatus("Success! File uploaded to " + account + "'s folder.", "success");
+                document.getElementById("uploadForm").reset();
+            } else {
+                showStatus("Error from server: " + result.message, "error");
+            }
+
+        } catch (error) {
+            showStatus("Network or upload error: " + error.message, "error");
+        } finally {
+            submitBtn.disabled = false;
+            submitBtn.textContent = "Upload to Drive";
+        }
+    });
+
+    // Helper function to read local file as a Base64 string
+    function readFileAsBase64(file) {
+        return new Promise((resolve, reject) => {
+            const reader = new FileReader();
+            reader.onload = () => {
+                // Result looks like "data:image/png;base64,iVBORw0KGgo..."
+                // We split it to keep only the base64 raw payload part
+                const base64String = reader.result.split(',')[1];
+                resolve(base64String);
+            };
+            reader.onerror = error => reject(error);
+            reader.readAsDataURL(file);
+        });
+    }
+
+    function showStatus(message, type) {
+        const statusDiv = document.getElementById("status");
+        statusDiv.textContent = message;
+        statusDiv.className = type;
+        statusDiv.style.display = "block";
+    }
+</script>
+
+</body>
+</html>
