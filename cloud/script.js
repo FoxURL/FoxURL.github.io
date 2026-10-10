@@ -166,25 +166,36 @@ if (copyEmailButton) {
 
 // Device and session breakdown
 let latestLocation = null;
+let latestIp = null;
 const userAgent = navigator.userAgent;
 const deviceEl = document.getElementById('session-device');
 if (deviceEl) {
     deviceEl.textContent = /Android/i.test(userAgent) ? 'Android device' : /iPhone|iPad|iPod/i.test(userAgent) ? 'Apple device' : /Windows/i.test(userAgent) ? 'Windows device' : /Macintosh/i.test(userAgent) ? 'Mac device' : 'Desktop browser';
 }
 
-fetch('https://api.ipify.org?format=json')
-    .then(response => response.json())
-    .then(data => { 
-        const ipEl = document.getElementById('session-ip');
-        if (ipEl) ipEl.textContent = data.ip || 'Not available'; 
+const ipLookupPromise = fetch('https://api.ipify.org?format=json')
+    .then(response => {
+        if (!response.ok) throw new Error(`IP lookup returned HTTP ${response.status}.`);
+        return response.json();
     })
-    .catch(() => { 
+    .then(data => { 
+        latestIp = data.ip || null;
+        const ipEl = document.getElementById('session-ip');
+        if (ipEl) ipEl.textContent = latestIp || 'Not available';
+        return latestIp;
+    })
+    .catch(error => {
+        console.warn('Could not determine the public IP address.', error);
         const ipEl = document.getElementById('session-ip');
         if (ipEl) ipEl.textContent = 'Not available'; 
+        return null;
     });
     
-fetch('https://ipapi.co/json/')
-    .then(response => response.json())
+const locationLookupPromise = fetch('https://ipapi.co/json/')
+    .then(response => {
+        if (!response.ok) throw new Error(`Approximate location lookup returned HTTP ${response.status}.`);
+        return response.json();
+    })
     .then(data => { 
         latestLocation = data;
         const locEl = document.getElementById('session-location');
@@ -194,10 +205,13 @@ fetch('https://ipapi.co/json/')
         }
         loadLocalWeather(data);
         loadOfficialAlerts(data);
+        return data;
     })
-    .catch(() => {
+    .catch(error => {
+        console.warn('Could not determine the approximate IP location.', error);
         const weatherWidget = document.getElementById('weather-widget');
         if (weatherWidget) weatherWidget.innerHTML = '<div class="empty">Weather location could not be determined.</div>';
+        return null;
     });
 
 function weatherDescription(code) {
@@ -364,79 +378,172 @@ if (refreshWeatherButton) {
 }
 
 // Automated Multi-File Speed Test ("Test Connection Speed" Button Handler)
+const cloudSyncToggle = document.getElementById('speed-cloud-sync');
+const cloudSyncStatus = document.getElementById('speed-sync-status');
+const speedInfoButton = document.getElementById('speed-info-button');
+const speedSyncInfo = document.getElementById('speed-sync-info');
+const signedIn = Boolean(email);
+const cloudSyncPreferenceKey = 'foxurl.speedtest.cloudSync';
+
+if (speedInfoButton && speedSyncInfo) {
+    speedInfoButton.addEventListener('click', () => {
+        speedSyncInfo.hidden = !speedSyncInfo.hidden;
+        speedInfoButton.setAttribute('aria-expanded', String(!speedSyncInfo.hidden));
+    });
+}
+
+if (cloudSyncToggle) {
+    const savedPreference = localStorage.getItem(cloudSyncPreferenceKey);
+    cloudSyncToggle.disabled = !signedIn;
+    cloudSyncToggle.checked = signedIn && savedPreference !== 'false';
+    if (cloudSyncStatus) {
+        cloudSyncStatus.textContent = signedIn
+            ? (cloudSyncToggle.checked ? 'Cloud sync is enabled for this browser.' : 'Cloud sync is off.')
+            : 'Sign in to enable cloud sync.';
+    }
+    cloudSyncToggle.addEventListener('change', () => {
+        localStorage.setItem(cloudSyncPreferenceKey, String(cloudSyncToggle.checked));
+        if (cloudSyncStatus) {
+            cloudSyncStatus.textContent = cloudSyncToggle.checked ? 'Cloud sync is enabled for this browser.' : 'Cloud sync is off.';
+        }
+    });
+}
+
+async function syncSpeedTestResult(speedMbps, ip, location) {
+    if (!cloudSyncToggle || !cloudSyncToggle.checked || !signedIn) return;
+
+    const [lookupIp, lookupLocation] = await Promise.all([ipLookupPromise, locationLookupPromise]);
+    const submitIp = ip || lookupIp || latestIp;
+    const locationParts = [
+        lookupLocation?.city || latestLocation?.city || location.split(',')[0]?.trim(),
+        lookupLocation?.region_code || lookupLocation?.region || latestLocation?.region_code || latestLocation?.region,
+        lookupLocation?.country_name || latestLocation?.country_name || location.split(',').slice(1).join(',').trim()
+    ].filter(Boolean);
+    const submitLocation = locationParts.filter((part, index, parts) => parts.indexOf(part) === index).join(', ');
+
+    if (!submitIp || !submitLocation) {
+        if (cloudSyncStatus) cloudSyncStatus.textContent = 'Could not sync: IP address or approximate location is unavailable.';
+        return;
+    }
+
+    const formData = new URLSearchParams({
+        'entry.1829190046': submitIp,
+        'entry.158464818': submitLocation,
+        'entry.436405582': `${speedMbps.toFixed(1)} Mbps`
+    });
+
+    if (cloudSyncStatus) cloudSyncStatus.textContent = 'Sending speed test data to Google Forms...';
+    try {
+        await fetch('https://docs.google.com/forms/d/e/1FAIpQLSeeCZINFeHcE7hX9FjB-vye3kLCESd5DBOspL8YDsxZLlyQjg/formResponse', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: formData.toString()
+        });
+        if (cloudSyncStatus) cloudSyncStatus.textContent = 'Sync request sent. Google Forms does not provide this page with a delivery confirmation.';
+    } catch (error) {
+        console.error('Could not send the speed test result to Google Forms.', error);
+        if (cloudSyncStatus) cloudSyncStatus.textContent = 'Cloud sync failed. Check your connection and try again.';
+    }
+}
+
 async function runSmartSpeedTest() {
     const speedOutput = document.getElementById('speed-result');
     const statusOutput = document.getElementById('speed-status');
     const startBtn = document.getElementById('start-speed-test-btn');
+    const liveValue = document.getElementById('speed-live-value');
+    const liveLabel = document.getElementById('speed-live-label');
+    const gauge = document.getElementById('speed-gauge');
+    const gaugeNeedle = document.getElementById('speed-gauge-needle');
+    const gaugeFill = document.getElementById('speed-gauge-fill');
+    const gaugeMidLabel = document.getElementById('speed-gauge-mid');
+    const gaugeMaxLabel = document.getElementById('speed-gauge-max');
     
     if (!speedOutput) return;
 
     if (startBtn) startBtn.disabled = true;
     speedOutput.textContent = 'Testing...';
+    if (gauge) gauge.hidden = false;
 
-    const testFiles = ['1MB.bin', '10MB.bin', '25MB.bin'];
-    let speeds = [];
+    if (statusOutput) statusOutput.textContent = 'Downloading 100 MB from Cloudflare Speed Test...';
+    try {
+        const response = await fetch(`https://speed.cloudflare.com/__down?bytes=100000000&test=${Date.now()}`, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Cloudflare speed test returned HTTP ${response.status}.`);
+        if (!response.body) throw new Error('This browser does not support streaming the speed-test download.');
 
-    for (let i = 0; i < testFiles.length; i++) {
-        const fileName = testFiles[i];
-        if (statusOutput) {
-            statusOutput.textContent = `Downloading package ${i + 1} of ${testFiles.length} (${fileName})...`;
-        }
-
+        const reader = response.body.getReader();
         const startTime = performance.now();
+        let totalBytes = 0;
+        const speedSamples = [];
+        const gaugeArcLength = 330;
+        let gaugeMaximum = 500;
+
+        const updateGauge = speedMbps => {
+            while (speedMbps > gaugeMaximum && gaugeMaximum < 10000) gaugeMaximum *= 2;
+            const gaugeFraction = Math.min(speedMbps / gaugeMaximum, 1);
+            const needleAngle = -90 + gaugeFraction * 180;
+            if (liveValue) liveValue.textContent = `${speedMbps.toFixed(1)} Mbps`;
+            if (gaugeNeedle) gaugeNeedle.style.transform = `rotate(${needleAngle}deg)`;
+            if (gaugeFill) gaugeFill.style.strokeDasharray = `${gaugeFraction * gaugeArcLength} ${gaugeArcLength}`;
+            if (gaugeMidLabel) gaugeMidLabel.textContent = `${gaugeMaximum / 2}`;
+            if (gaugeMaxLabel) gaugeMaxLabel.textContent = `${gaugeMaximum} Mbps`;
+        };
+
+        if (liveLabel) liveLabel.textContent = 'Live download speed';
+        if (liveValue) liveValue.textContent = '0.0 Mbps';
+        updateGauge(0);
         try {
-            const response = await fetch(`./bin/${fileName}?t=${Date.now()}`);
-            if (!response.ok) throw new Error('Network error');
-            
-            const blob = await response.blob();
-            const endTime = performance.now();
-            
-            const durationInSeconds = (endTime - startTime) / 1000;
-            if (durationInSeconds > 0) {
-                const speedBps = (blob.size * 8) / durationInSeconds;
-                const speedMbps = speedBps / (1024 * 1024);
-                speeds.push(speedMbps);
+            while (true) {
+                const { done, value } = await reader.read();
+                if (done) break;
+                const now = performance.now();
+                totalBytes += value.byteLength;
+                speedSamples.push({ time: now, bytes: value.byteLength });
+                while (speedSamples.length > 1 && now - speedSamples[0].time > 1000) speedSamples.shift();
+                const sampledBytes = speedSamples.reduce((sum, sample) => sum + sample.bytes, 0);
+                const sampleDuration = Math.max((now - speedSamples[0].time) / 1000, 0.1);
+                updateGauge((sampledBytes * 8) / sampleDuration / 1_000_000);
             }
-        } catch (err) {
-            console.warn(`Skipping ${fileName} due to network timeout.`);
-        }
-    }
-
-    if (speeds.length > 0) {
-        let avgSpeed = speeds.reduce((a, b) => a + b, 0) / speeds.length;
-        
-        // Calibrate calculation smoothly to match your 80 Mbps target baseline
-        if (avgSpeed < 20) {
-            avgSpeed = avgSpeed * 1.5 + 45; 
-        } else if (avgSpeed > 105) {
-            avgSpeed = 79 + (avgSpeed % 3);
-        } else {
-            avgSpeed = (avgSpeed + 80) / 2;
+        } finally {
+            reader.releaseLock();
         }
 
-        speedOutput.textContent = `${avgSpeed.toFixed(1)} Mbps`;
-        if (statusOutput) {
-            statusOutput.textContent = `Test complete. Average calculated from ${speeds.length} diagnostic files.`;
+        const durationSeconds = (performance.now() - startTime) / 1000;
+        if (totalBytes !== 100_000_000 || durationSeconds <= 0) {
+            throw new Error(`Incomplete speed-test download: received ${totalBytes} of 100000000 bytes.`);
         }
+
+        const speedMbps = (totalBytes * 8) / durationSeconds / 1_000_000;
+        updateGauge(speedMbps);
+        if (liveLabel) liveLabel.textContent = 'Final download speed';
+        const ip = response.headers.get('cf-meta-ip');
+        const city = response.headers.get('city') || response.headers.get('cf-meta-city');
+        const country = response.headers.get('country') || response.headers.get('cf-meta-country');
+        const location = [city, country].filter(Boolean).join(', ');
+
+        speedOutput.textContent = `${speedMbps.toFixed(1)} Mbps`;
+        if (statusOutput) statusOutput.textContent = 'Test complete. Measured from the 100 MB Cloudflare download.';
         const updatedElement = document.getElementById('speed-updated');
         if (updatedElement) updatedElement.textContent = `Updated ${new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}`;
-    } else {
+        await syncSpeedTestResult(speedMbps, ip, location);
+    } catch (error) {
+        console.error('The Cloudflare speed test failed.', error);
         speedOutput.textContent = 'Error';
+        if (liveLabel) liveLabel.textContent = 'Test unavailable';
         if (statusOutput) {
-            statusOutput.textContent = 'Speed test failed. Check that binary test files are present in the ./bin/ folder.';
+            statusOutput.textContent = 'Speed test failed. Check your connection and try again.';
         }
         const updatedElement = document.getElementById('speed-updated');
         if (updatedElement) updatedElement.textContent = 'Test failed';
+    } finally {
+        if (startBtn) startBtn.disabled = false;
     }
-
-    if (startBtn) startBtn.disabled = false;
 }
 
 const startSpeedBtn = document.getElementById('start-speed-test-btn');
 if (startSpeedBtn) {
     startSpeedBtn.addEventListener('click', runSmartSpeedTest);
 }
-runSmartSpeedTest();
 
 async function runLatencyTest() {
     const button = document.getElementById('latency-test-btn');

@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bcrypt & Google Sheets Test Bench</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- BcryptJS Library CDN via unpkg -->
+    <script src="https://unpkg.com/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+</head>
+<body class="bg-gray-900 text-gray-100 min-h-screen flex flex-col items-center justify-center p-6">
+
+    <div class="w-full max-w-xl bg-gray-800 p-8 rounded-xl shadow-2xl border border-gray-700 space-y-6">
+        <h1 class="text-2xl font-bold text-center text-indigo-400">Google Sheets + Bcrypt (Cost 16) Auth</h1>
+        
+        <!-- Status indicator for configuration -->
+        <div class="bg-gray-900 p-3 rounded text-sm flex justify-between items-center text-gray-400">
+            <span>Bcrypt Cost Factor: <strong class="text-indigo-400">16</strong></span>
+            <span class="text-xs bg-indigo-900 text-indigo-200 px-2 py-1 rounded">Locked</span>
+        </div>
+
+        <!-- Registration Section -->
+        <div class="space-y-4 border-t border-gray-700 pt-4">
+            <h2 class="text-lg font-semibold text-green-400">1. Register User</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Email (Column A)</label>
+                <input type="email" id="regEmail" class="w-full mt-1 p-2 bg-gray-900 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="user@example.com">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Password (To be hashed at cost 16)</label>
+                <input type="password" id="regPassword" class="w-full mt-1 p-2 bg-gray-900 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Enter password">
+            </div>
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-300">Name (Column C)</label>
+                    <input type="text" id="regName" class="w-full mt-1 p-2 bg-gray-900 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="John Doe">
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-gray-300">DOB (Column D)</label>
+                    <input type="date" id="regDob" class="w-full mt-1 p-2 bg-gray-900 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none">
+                </div>
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Extra / Name (Column E)</label>
+                <input type="text" id="regExtra" class="w-full mt-1 p-2 bg-gray-900 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Extra value">
+            </div>
+            <button onclick="registerUser()" class="w-full bg-green-600 hover:bg-green-500 text-white font-semibold p-2 rounded transition">Register to Sheet</button>
+        </div>
+
+        <!-- Login / Verification Section -->
+        <div class="space-y-4 border-t border-gray-700 pt-4">
+            <h2 class="text-lg font-semibold text-blue-400">2. Test Login Verification</h2>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Email</label>
+                <input type="email" id="loginEmail" class="w-full mt-1 p-2 bg-gray-900 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="user@example.com">
+            </div>
+            <div>
+                <label class="block text-sm font-medium text-gray-300">Password Attempt</label>
+                <input type="password" id="loginPassword" class="w-full mt-1 p-2 bg-gray-900 border border-gray-700 rounded focus:ring-2 focus:ring-indigo-500 outline-none" placeholder="Enter password to verify">
+            </div>
+            <button onclick="loginUser()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold p-2 rounded transition">Verify Login</button>
+        </div>
+
+        <!-- Output Status Box -->
+        <div id="outputBox" class="hidden p-4 rounded text-sm border"></div>
+    </div>
+
+    <script>
+        // Google Apps Script Web App URL
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxTqzHrTrSBsWdav0RVWmyKD-eVuud-XYe_QZIk_H-zsuK28-PGxr_HRKB_7gUTo8Xu/exec";
+
+        function showMessage(text, isSuccess) {
+            const box = document.getElementById('outputBox');
+            box.className = `p-4 rounded text-sm border ${isSuccess ? 'bg-green-900/30 border-green-600 text-green-300' : 'bg-red-900/30 border-red-600 text-red-300'}`;
+            box.innerText = text;
+            box.classList.remove('hidden');
+        }
+
+        async function registerUser() {
+            // Safety check for library loading
+            if (typeof bcrypt === 'undefined') {
+                showMessage("Error: Bcrypt library failed to load. Please check your network connection.", false);
+                return;
+            }
+
+            const email = document.getElementById('regEmail').value;
+            const password = document.getElementById('regPassword').value;
+            const name = document.getElementById('regName').value;
+            const dob = document.getElementById('regDob').value;
+            const extra = document.getElementById('regExtra').value;
+
+            if (!email || !password) {
+                showMessage("Email and password are required for registration.", false);
+                return;
+            }
+
+            showMessage("Hashing password with cost 16 (this may take a few seconds)...", true);
+
+            // Generate bcrypt hash locally on the frontend with cost factor 16
+            bcrypt.genSalt(16, function(err, salt) {
+                if (err) {
+                    showMessage("Error generating salt: " + err, false);
+                    return;
+                }
+                bcrypt.hash(password, salt, async function(err, hash) {
+                    if (err) {
+                        showMessage("Error hashing password: " + err, false);
+                        return;
+                    }
+
+                    // Send payload to Google Apps Script
+                    try {
+                        const response = await fetch(WEB_APP_URL, {
+                            method: "POST",
+                            body: JSON.stringify({
+                                action: "register",
+                                email: email,
+                                password: hash,
+                                name: name,
+                                dob: dob,
+                                extra: extra
+                            })
+                        });
+                        const result = await response.json();
+                        showMessage(result.message, result.success);
+                    } catch (e) {
+                        showMessage("Network or CORS Error: " + e.message, false);
+                    }
+                });
+            });
+        }
+
+        async function loginUser() {
+            if (typeof bcrypt === 'undefined') {
+                showMessage("Error: Bcrypt library failed to load. Please check your network connection.", false);
+                return;
+            }
+
+            const email = document.getElementById('loginEmail').value;
+            const passwordAttempt = document.getElementById('loginPassword').value;
+
+            if (!email || !passwordAttempt) {
+                showMessage("Email and password attempt are required.", false);
+                return;
+            }
+
+            showMessage("Checking database...", true);
+
+            try {
+                const response = await fetch(WEB_APP_URL, {
+                    method: "POST",
+                    body: JSON.stringify({
+                        action: "login",
+                        email: email
+                    })
+                });
+                const result = await response.json();
+
+                if (!result.success) {
+                    showMessage(result.message, false);
+                    return;
+                }
+
+                // Verify the hashed password locally using bcryptjs
+                bcrypt.compare(passwordAttempt, result.storedHash, function(err, res) {
+                    if (res) {
+                        showMessage(`Login SUCCESS! Welcome back, ${result.userData.name || 'User'}. DOB: ${result.userData.dob}`, true);
+                    } else {
+                        showMessage("Login FAILED: Incorrect password.", false);
+                    }
+                });
+
+            } catch (e) {
+                showMessage("Network or CORS Error: " + e.message, false);
+            }
+        }
+    </script>
+</body>
+</html>

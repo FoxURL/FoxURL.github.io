@@ -209,6 +209,31 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
 .network-details span { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font-size: .74rem; }
 .network-details b { color: var(--ink); }
 .search-btn:disabled { cursor: wait; opacity: .65; }
+.speed-result-heading { display: flex; align-items: center; gap: 8px; }
+.speed-test-actions { display: flex; gap: 10px; align-items: center; margin: 18px 0 12px; }
+.speed-test-card { padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 240, 210, .07); }
+.speed-result-heading h3 { margin: 0; font-size: 1rem; }
+.speed-info-button { width: 22px; height: 22px; padding: 0; border: 1px solid var(--line); border-radius: 50%; background: transparent; color: var(--muted); font: inherit; font-size: .8rem; font-weight: 700; cursor: pointer; }
+.speed-info-button:focus-visible, .speed-sync-setting input:focus-visible { outline: 2px solid var(--light); outline-offset: 2px; }
+.speed-result-value { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+#speed-result { color: var(--orange); font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.speed-gauge { width: min(100%, 250px); margin: 10px auto 4px; text-align: center; }
+.speed-gauge-dial { display: block; width: 100%; overflow: visible; }
+.speed-gauge-track, .speed-gauge-fill { fill: none; stroke-width: 12; stroke-linecap: round; }
+.speed-gauge-track { stroke: var(--line); }
+.speed-gauge-fill { stroke: var(--orange); stroke-dasharray: 0 330; transition: stroke-dasharray .18s ease; }
+.speed-gauge-needle { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; transition: transform .18s ease; transform-box: view-box; transform-origin: 50% 83.87%; }
+.speed-gauge-hub { fill: var(--ink); }
+.speed-gauge-labels { display: flex; justify-content: space-between; margin: -8px 12px 0; color: var(--muted); font-size: .72rem; }
+.speed-live-value { margin-top: 2px; color: var(--ink); font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; }
+.speed-live-label { color: var(--muted); font-size: .78rem; }
+.speed-status { margin-top: 12px; color: var(--muted); font-size: .88rem; line-height: 1.45; }
+.speed-sync-info { max-width: 720px; margin: 8px 0; color: var(--muted); font-size: .82rem; line-height: 1.5; }
+.speed-sync-info a { text-underline-offset: 2px; }
+.speed-sync-setting { display: flex; align-items: center; gap: 8px; margin-top: 12px; color: var(--muted); font-size: .85rem; }
+.speed-sync-setting input { accent-color: var(--orange); }
+.speed-sync-setting input:disabled { cursor: not-allowed; }
+.speed-sync-status { margin-top: 6px; color: var(--muted); font-size: .78rem; }
 
 /* Breach Monitor Styles */
 .breach-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 240, 210, .07); margin-bottom: 12px; }
@@ -236,6 +261,11 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
     .network-tools-heading { align-items: stretch; flex-direction: column; }
     .network-actions { width: 100%; }
     .network-actions .search-btn { flex: 1; }
+    .speed-test-actions .search-btn { width: 100%; min-height: 46px; }
+    .speed-test-card { padding: 16px; }
+    .speed-gauge { width: min(100%, 220px); }
+    .speed-result-value { gap: 6px; }
+    #speed-result { font-size: 1.8rem; }
     .notification-center { top: 76px; right: 20px; }
     .weather-heading, .weather-actions { align-items: flex-start; flex-direction: column; }
 }
