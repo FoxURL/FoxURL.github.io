@@ -95,6 +95,7 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
 
 @media (prefers-reduced-motion: reduce) {
     .tab-pane.active, .tab-pane.active .panel, .chart-track i { animation: none; }
+    .wind-line, .wind-fox, .fox-head, .fox-tail { animation: none !important; }
 }
 
 .dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
@@ -151,6 +152,39 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
 .cyclone-signal strong, .cyclone-signal small { display: block; }
 .cyclone-signal small { margin-top: 4px; color: var(--muted); font-size: .78rem; line-height: 1.4; }
 .cyclone-signal b { color: #d8ffd9; font-size: 1.35rem; white-space: nowrap; }
+.wind-scene { display: flex; align-items: center; gap: 14px; margin-top: 12px; padding: 10px 14px; overflow: hidden; border: 1px solid var(--line); border-radius: 12px; background: rgba(255, 240, 210, .05); }
+.wind-illustration { flex: 0 0 190px; width: 190px; height: 112px; overflow: visible; }
+.wind-line { fill: none; stroke: var(--light); stroke-linecap: round; stroke-width: 3; animation: windBlow 1.4s linear infinite; }
+.wind-line-two { animation-delay: -.45s; }
+.wind-line-three { animation-delay: -.9s; }
+.wind-post { fill: none; stroke: #8b5a2b; stroke-linecap: round; stroke-width: 7; }
+.wind-ground { fill: none; stroke: var(--line); stroke-width: 2; }
+.wind-fox { transform-box: view-box; transform-origin: 88px 94px; animation: foxSway 2.8s ease-in-out infinite; }
+.fox-body, .fox-head-shape, .fox-ear { fill: #ff7a18; stroke: #9b3e0a; stroke-width: 2; }
+.fox-tail { fill: #ff7a18; stroke: #9b3e0a; stroke-linecap: round; stroke-width: 9; }
+.fox-tail-tip, .fox-muzzle { fill: #fff0d2; }
+.fox-leg, .fox-arm { fill: none; stroke: #9b3e0a; stroke-linecap: round; stroke-width: 4; }
+.fox-arm-grip { display: none; }
+.fox-paw, .fox-nose { fill: #42200f; }
+.fox-eye { fill: #21130d; }
+.fox-head { transform-box: fill-box; transform-origin: center bottom; animation: foxLook 2.8s ease-in-out infinite; }
+.fox-tail { transform-box: fill-box; transform-origin: right center; animation: tailFlick 1.5s ease-in-out infinite; }
+.wind-caption { color: var(--ink); font-size: .82rem; font-weight: 700; line-height: 1.45; }
+.wind-caption small { display: block; margin-top: 4px; color: var(--muted); font-size: .7rem; font-weight: 400; }
+.wind-breezy .wind-fox { animation-duration: 1.7s; }
+.wind-blustery .wind-fox { animation: foxLean .8s ease-in-out infinite alternate; }
+.wind-blustery .wind-line { animation-duration: .65s; }
+.wind-holding { border-color: rgba(252, 211, 77, .45); background: rgba(245, 158, 11, .1); }
+.wind-holding .wind-fox { transform: rotate(-13deg) translate(-2px, 1px); animation: foxHold .38s ease-in-out infinite alternate; }
+.wind-holding .fox-arm-free { display: none; }
+.wind-holding .fox-arm-grip { display: block; }
+.wind-holding .wind-line { animation-duration: .4s; }
+@keyframes windBlow { from { opacity: .25; transform: translateX(28px); } to { opacity: .9; transform: translateX(-16px); } }
+@keyframes foxSway { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(2deg); } }
+@keyframes foxLean { from { transform: rotate(-5deg) translateX(-1px); } to { transform: rotate(-12deg) translateX(-5px); } }
+@keyframes foxHold { from { transform: rotate(-12deg) translate(-2px, 1px); } to { transform: rotate(-17deg) translate(-4px, 2px); } }
+@keyframes foxLook { 0%, 100% { transform: rotate(-2deg); } 50% { transform: rotate(3deg); } }
+@keyframes tailFlick { 0%, 100% { transform: rotate(-8deg); } 50% { transform: rotate(9deg); } }
 .weather-disclaimer { margin: 10px 0 24px; color: var(--muted); font-size: .74rem; line-height: 1.4; }
 .data-updated { margin-top: 8px; color: var(--muted); font-size: .7rem; }
 .weather-alert { margin-top: 12px; padding: 12px 14px; border-left: 3px solid #69e879; font-size: .82rem; line-height: 1.4; }
@@ -209,6 +243,27 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
 .network-details span { padding: 8px 10px; border: 1px solid var(--line); border-radius: 8px; color: var(--muted); font-size: .74rem; }
 .network-details b { color: var(--ink); }
 .search-btn:disabled { cursor: wait; opacity: .65; }
+.communications-heading { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.communications-heading h2 { margin-bottom: 0; }
+.communications-heading .eyebrow { margin-bottom: 8px; }
+.communications-status { margin: 10px 0; color: var(--muted); font-size: .78rem; }
+.communications-list { overflow: hidden; border: 1px solid var(--line); border-radius: 12px; }
+.communication-card { display: block; border-bottom: 1px solid var(--line); background: rgba(255, 240, 210, .035); }
+.communication-card:last-child { border-bottom: 0; }
+.communication-card[open] { background: rgba(255, 122, 24, .09); }
+.communication-card > summary { display: grid; grid-template-columns: 14px minmax(110px, .8fr) minmax(0, 2fr) auto; align-items: center; gap: 10px; min-height: 48px; padding: 8px 12px; cursor: pointer; list-style: none; }
+.communication-card > summary::-webkit-details-marker { display: none; }
+.communication-card > summary::before { content: "›"; color: var(--orange); font-size: 1.25rem; font-weight: 800; transition: transform .15s ease; }
+.communication-card[open] > summary::before { transform: rotate(90deg); }
+.communication-card > summary:hover { background: rgba(255, 122, 24, .1); }
+.communication-sender { overflow: hidden; color: var(--ink); font-size: .78rem; font-weight: 700; text-overflow: ellipsis; white-space: nowrap; }
+.communication-message-preview { display: flex; min-width: 0; gap: 6px; overflow: hidden; font-size: .78rem; white-space: nowrap; }
+.communication-subject { flex: 0 0 auto; overflow: hidden; color: var(--ink); text-overflow: ellipsis; }
+.communication-snippet { min-width: 0; overflow: hidden; color: var(--muted); text-overflow: ellipsis; }
+.communication-card time { color: var(--muted); font-size: .7rem; white-space: nowrap; }
+.communication-addresses { display: grid; gap: 3px; margin: 0 12px 0 36px; padding: 9px 0; border-top: 1px solid var(--line); color: var(--muted); font-size: .74rem; overflow-wrap: anywhere; }
+.communication-body { margin: 0 12px 0 36px; padding: 10px 0 14px; color: var(--ink); font-size: .84rem; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.communication-body strong { color: var(--light); }
 .speed-result-heading { display: flex; align-items: center; gap: 8px; }
 .speed-test-actions { display: flex; gap: 10px; align-items: center; margin: 18px 0 12px; }
 .speed-test-card { padding: 18px 20px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 240, 210, .07); }
@@ -217,16 +272,7 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
 .speed-info-button:focus-visible, .speed-sync-setting input:focus-visible { outline: 2px solid var(--light); outline-offset: 2px; }
 .speed-result-value { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
 #speed-result { color: var(--orange); font-size: 2rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-.speed-gauge { width: min(100%, 250px); margin: 10px auto 4px; text-align: center; }
-.speed-gauge-dial { display: block; width: 100%; overflow: visible; }
-.speed-gauge-track, .speed-gauge-fill { fill: none; stroke-width: 12; stroke-linecap: round; }
-.speed-gauge-track { stroke: var(--line); }
-.speed-gauge-fill { stroke: var(--orange); stroke-dasharray: 0 330; transition: stroke-dasharray .18s ease; }
-.speed-gauge-needle { stroke: var(--ink); stroke-width: 4; stroke-linecap: round; transition: transform .18s ease; transform-box: view-box; transform-origin: 50% 83.87%; }
-.speed-gauge-hub { fill: var(--ink); }
-.speed-gauge-labels { display: flex; justify-content: space-between; margin: -8px 12px 0; color: var(--muted); font-size: .72rem; }
-.speed-live-value { margin-top: 2px; color: var(--ink); font-size: 1.35rem; font-weight: 800; font-variant-numeric: tabular-nums; }
-.speed-live-label { color: var(--muted); font-size: .78rem; }
+.speed-live-label { margin-top: 6px; color: var(--muted); font-size: .78rem; }
 .speed-status { margin-top: 12px; color: var(--muted); font-size: .88rem; line-height: 1.45; }
 .speed-sync-info { max-width: 720px; margin: 8px 0; color: var(--muted); font-size: .82rem; line-height: 1.5; }
 .speed-sync-info a { text-underline-offset: 2px; }
@@ -234,6 +280,15 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
 .speed-sync-setting input { accent-color: var(--orange); }
 .speed-sync-setting input:disabled { cursor: not-allowed; }
 .speed-sync-status { margin-top: 6px; color: var(--muted); font-size: .78rem; }
+.area-speed-section { display: grid; grid-template-columns: minmax(0, 1fr) auto; align-items: center; gap: 12px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.area-speed-section h3 { margin: 0; font-size: .98rem; }
+.area-speed-section .session-note { margin: 4px 0 0; font-size: .8rem; }
+.area-speed-results { grid-column: 1 / -1; color: var(--muted); font-size: .84rem; line-height: 1.5; }
+.area-speed-summary { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 10px; }
+.area-speed-stat { padding: 10px; border: 1px solid var(--line); border-radius: 10px; }
+.area-speed-stat span, .area-speed-stat strong { display: block; }
+.area-speed-stat span { color: var(--muted); font-size: .72rem; }
+.area-speed-stat strong { margin-top: 3px; color: var(--ink); font-size: 1rem; font-variant-numeric: tabular-nums; }
 
 /* Breach Monitor Styles */
 .breach-card { display: flex; flex-direction: column; gap: 12px; padding: 16px; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 240, 210, .07); margin-bottom: 12px; }
@@ -257,15 +312,24 @@ h1 { margin: 0; font-family: Georgia, "Times New Roman", serif; font-size: clamp
     .dashboard-grid { grid-template-columns: 1fr; } 
     .search-box-group { flex-direction: column; }
     .weather-grid { grid-template-columns: repeat(2, 1fr); }
+    .wind-scene { align-items: flex-start; flex-direction: column; gap: 0; }
+    .wind-illustration { align-self: center; }
     .weather-forecast { grid-template-columns: repeat(7, 86px); }
     .network-tools-heading { align-items: stretch; flex-direction: column; }
     .network-actions { width: 100%; }
     .network-actions .search-btn { flex: 1; }
     .speed-test-actions .search-btn { width: 100%; min-height: 46px; }
     .speed-test-card { padding: 16px; }
-    .speed-gauge { width: min(100%, 220px); }
     .speed-result-value { gap: 6px; }
     #speed-result { font-size: 1.8rem; }
+    .area-speed-section { grid-template-columns: 1fr; }
+    .area-speed-section .search-btn { width: 100%; min-height: 44px; }
+    .area-speed-summary { grid-template-columns: 1fr; }
+    .communications-heading { align-items: flex-start; }
+    .communication-card > summary { grid-template-columns: 12px minmax(0, 1fr) auto; gap: 7px; }
+    .communication-sender { grid-column: 2; }
+    .communication-message-preview { grid-column: 2; }
+    .communication-card time { grid-column: 3; grid-row: 1; }
     .notification-center { top: 76px; right: 20px; }
     .weather-heading, .weather-actions { align-items: flex-start; flex-direction: column; }
 }

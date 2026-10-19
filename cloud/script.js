@@ -9,6 +9,8 @@ function switchTab(tabName) {
     if (event && event.currentTarget) {
         event.currentTarget.classList.add('active');
     }
+
+    if (tabName === 'communications') loadCommunications();
 }
 
 // Sign out function to clear local profile data and redirect home
@@ -118,6 +120,130 @@ restoreNotifications();
 const email = localStorage.getItem('foxurl.signin.email') || '';
 const method = localStorage.getItem('foxurl.signin.method') || 'Not recorded';
 const methodLabel = { email: 'Email verification', google: 'Google', passkey: 'Passkey' }[method] || method;
+
+const communicationsEndpoint = 'https://script.google.com/macros/s/AKfycby9a10Rb0OM4Iqe0rPz9-MKjVV4iIfN0mOiPd-3JhnqMSP2LO6abGtcjsKjGPUBtJQf/exec';
+let communicationsLoaded = false;
+let communicationsLoading = false;
+
+function appendFormattedEmailBody(container, body) {
+    const emphasisPattern = /\*([^*\n]+)\*/g;
+    let lastIndex = 0;
+    let match;
+
+    while ((match = emphasisPattern.exec(body)) !== null) {
+        container.append(document.createTextNode(body.slice(lastIndex, match.index)));
+        const emphasis = document.createElement('strong');
+        emphasis.textContent = match[1];
+        container.append(emphasis);
+        lastIndex = emphasisPattern.lastIndex;
+    }
+    container.append(document.createTextNode(body.slice(lastIndex)));
+}
+
+function createCommunicationCard(message) {
+    const card = document.createElement('details');
+    card.className = 'communication-card';
+
+    const summary = document.createElement('summary');
+    const sender = document.createElement('span');
+    sender.className = 'communication-sender';
+    sender.textContent = message.from || 'FoxURL';
+    const messagePreview = document.createElement('span');
+    messagePreview.className = 'communication-message-preview';
+    const subject = document.createElement('strong');
+    subject.className = 'communication-subject';
+    subject.textContent = message.subject || '(No subject)';
+    const preview = document.createElement('span');
+    preview.className = 'communication-snippet';
+    preview.textContent = (message.body || '').replace(/\s+/g, ' ').trim().slice(0, 120) || 'No message body.';
+    messagePreview.append(subject, preview);
+    const timestamp = document.createElement('time');
+    const date = new Date(message.timestamp);
+    if (message.timestamp && !Number.isNaN(date.getTime())) {
+        timestamp.dateTime = date.toISOString();
+        timestamp.textContent = date.toLocaleString();
+    } else {
+        timestamp.textContent = 'Date unavailable';
+    }
+    summary.append(sender, messagePreview, timestamp);
+
+    const addresses = document.createElement('div');
+    addresses.className = 'communication-addresses';
+    const from = document.createElement('span');
+    from.textContent = `From: ${message.from || 'Unknown sender'}`;
+    const to = document.createElement('span');
+    to.textContent = `To: ${message.to || 'Unknown recipient'}`;
+    addresses.append(from, to);
+
+    const body = document.createElement('div');
+    body.className = 'communication-body';
+    appendFormattedEmailBody(body, message.body || 'No message body.');
+
+    card.append(summary, addresses, body);
+    return card;
+}
+
+async function loadCommunications(forceRefresh = false) {
+    const list = document.getElementById('communications-list');
+    const status = document.getElementById('communications-status');
+    const refreshButton = document.getElementById('refresh-communications-btn');
+    if (!list || !status || communicationsLoading || (communicationsLoaded && !forceRefresh)) return;
+
+    if (!email) {
+        status.textContent = 'Sign in to your FoxURL account to view its emails.';
+        return;
+    }
+
+    communicationsLoading = true;
+    if (refreshButton) refreshButton.disabled = true;
+    status.textContent = 'Connecting to FoxURL servers, please wait...';
+
+    try {
+        const url = new URL(communicationsEndpoint);
+        url.searchParams.set('email', email);
+        const response = await fetch(url, { cache: 'no-store' });
+        if (!response.ok) throw new Error(`Communications request returned HTTP ${response.status}.`);
+
+        const messages = await response.json();
+        if (!Array.isArray(messages)) throw new Error('Communications response was not an email list.');
+
+        const accountMessages = messages.map((message, index) => {
+            if (!message || typeof message !== 'object' || Array.isArray(message)) {
+                throw new Error(`Communications response contains an invalid email at position ${index + 1}.`);
+            }
+            return {
+                subject: typeof message.subject === 'string' ? message.subject : '',
+                body: typeof message.body === 'string' ? message.body : '',
+                timestamp: typeof message.timestamp === 'string' ? message.timestamp : '',
+                to: typeof message.to === 'string' ? message.to : '',
+                from: typeof message.from === 'string' ? message.from : ''
+            };
+        }).filter(message => message.to.trim().toLowerCase() === email.trim().toLowerCase())
+            .sort((first, second) => {
+                const firstTime = Date.parse(first.timestamp);
+                const secondTime = Date.parse(second.timestamp);
+                return (Number.isFinite(secondTime) ? secondTime : 0) - (Number.isFinite(firstTime) ? firstTime : 0);
+            });
+
+        list.replaceChildren();
+        accountMessages.forEach(message => list.append(createCommunicationCard(message)));
+        status.textContent = accountMessages.length
+            ? `${accountMessages.length} email${accountMessages.length === 1 ? '' : 's'} sent to ${email}.`
+            : `No emails found for ${email}.`;
+        communicationsLoaded = true;
+    } catch (error) {
+        console.error('Could not load FoxURL communications.', error);
+        status.textContent = 'Unable to load your emails right now. Check your connection and try again.';
+    } finally {
+        communicationsLoading = false;
+        if (refreshButton) refreshButton.disabled = false;
+    }
+}
+
+const refreshCommunicationsButton = document.getElementById('refresh-communications-btn');
+if (refreshCommunicationsButton) {
+    refreshCommunicationsButton.addEventListener('click', () => loadCommunications(true));
+}
 
 const emailElement = document.getElementById('account-email');
 const profileEmail = document.getElementById('profile-email');
@@ -243,6 +369,10 @@ function getCycloneSignal(weather) {
     return signal;
 }
 
+function getCycloneComparison() {
+    return "You're more likely to be hit by a flying bird than encounter a cyclone today.";
+}
+
 async function loadLocalWeather(location) {
     const weatherWidget = document.getElementById('weather-widget');
     if (!weatherWidget || !location || !Number.isFinite(Number(location.latitude)) || !Number.isFinite(Number(location.longitude))) return;
@@ -264,8 +394,23 @@ async function loadLocalWeather(location) {
         const data = await response.json();
         const weather = data.current;
         const cycloneChance = getCycloneSignal(weather);
+        const windGusts = Number(weather.wind_gusts_10m) || 0;
+        const windMood = windGusts >= 90
+            ? 'wind-holding'
+            : windGusts >= 50
+                ? 'wind-blustery'
+                : windGusts >= 25
+                    ? 'wind-breezy'
+                    : 'wind-calm';
+        const windMessage = windGusts >= 90
+            ? 'Very strong gusts! The fox is holding on.'
+            : windGusts >= 50
+                ? 'Blustery gusts — the fox is leaning into the wind.'
+                : windGusts >= 25
+                    ? 'A breeze is ruffling the fox’s fur.'
+                    : 'Calm air — the fox is taking it easy.';
         const comparison = cycloneChance < 1
-            ? "You're more likely to be hit by a flying bird than a cyclone today."
+            ? getCycloneComparison()
             : 'Keep an eye on official local weather alerts.';
 
         weatherWidget.innerHTML = `
@@ -285,6 +430,33 @@ async function loadLocalWeather(location) {
                 <div><span>UV index</span><strong>${Number(weather.uv_index).toFixed(1)}</strong></div>
             </div>
             <div class="cyclone-signal"><span><strong>Cyclone signal</strong><small>${comparison}</small></span><b>${cycloneChance}%</b></div>`;
+        weatherWidget.insertAdjacentHTML('beforeend', `
+            <div class="wind-scene ${windMood}" role="img" aria-label="${windMessage} This is a playful wind illustration, not a weather warning.">
+                <svg class="wind-illustration" viewBox="0 0 190 112" aria-hidden="true">
+                    <path class="wind-line wind-line-one" d="M8 33h46q9 0 9-7t-9-7h-8"/>
+                    <path class="wind-line wind-line-two" d="M2 52h33q9 0 9-7t-9-7"/>
+                    <path class="wind-line wind-line-three" d="M13 72h42q8 0 8 7t-8 7h-9"/>
+                    <path class="wind-post" d="M158 16v84"/>
+                    <path class="wind-ground" d="M62 100h110"/>
+                    <g class="wind-fox">
+                        <path class="fox-tail" d="M68 76C49 65 37 68 34 80c-3 12 10 17 22 9l14-8z"/>
+                        <path class="fox-tail-tip" d="M39 78c-1 6 4 10 10 9-5 6-15 4-16-3-1-4 2-7 6-6z"/>
+                        <ellipse class="fox-body" cx="88" cy="76" rx="27" ry="16"/>
+                        <path class="fox-leg" d="m76 86-3 12m22-11 3 11"/>
+                        <path class="fox-arm fox-arm-free" d="m103 70 7 13"/>
+                        <path class="fox-arm fox-arm-grip" d="M102 68c21 2 35-4 49-17"/>
+                        <circle class="fox-paw" cx="151" cy="51" r="4"/>
+                        <g class="fox-head">
+                            <path class="fox-ear" d="m99 44 1-16 12 12m10 1 11-13 2 19"/>
+                            <circle class="fox-head-shape" cx="113" cy="49" r="16"/>
+                            <path class="fox-muzzle" d="M122 53q13-4 15 4-8 7-18 1"/>
+                            <circle class="fox-eye" cx="119" cy="46" r="1.5"/>
+                            <circle class="fox-nose" cx="136" cy="55" r="2"/>
+                        </g>
+                    </g>
+                </svg>
+                <span class="wind-caption">${windMessage} <small>Illustration only — check official alerts for safety information.</small></span>
+            </div>`);
 
         const forecast = data.daily;
         const hourly = data.hourly;
@@ -447,23 +619,86 @@ async function syncSpeedTestResult(speedMbps, ip, location) {
     }
 }
 
+function getAreaLocationQuery(locationData) {
+    if (!locationData || !locationData.city || !locationData.country_name) return '';
+    const region = (locationData.region_code || locationData.region || '').replace(/^AU-/, '');
+    return [locationData.city, region, locationData.country_name].filter(Boolean).join(', ');
+}
+
+function renderAreaSpeedStats(container, stats) {
+    container.replaceChildren();
+    const title = document.createElement('div');
+    title.textContent = `${stats.total_samples} ${stats.total_samples === 1 ? 'test' : 'tests'} for ${stats.location}`;
+    container.append(title);
+
+    if (stats.total_samples === 0) {
+        const message = document.createElement('div');
+        message.textContent = stats.message || 'No speed records are available for this area yet.';
+        container.append(message);
+        return;
+    }
+
+    const summary = document.createElement('div');
+    summary.className = 'area-speed-summary';
+    [
+        ['Average', stats.avg_speed_mbps],
+        ['Fastest', stats.max_speed_mbps],
+        ['Slowest', stats.min_speed_mbps]
+    ].forEach(([label, speed]) => {
+        const stat = document.createElement('div');
+        stat.className = 'area-speed-stat';
+        const name = document.createElement('span');
+        name.textContent = label;
+        const value = document.createElement('strong');
+        value.textContent = `${Number(speed).toFixed(1)} Mbps`;
+        stat.append(name, value);
+        summary.append(stat);
+    });
+    container.append(summary);
+}
+
+const areaSpeedButton = document.getElementById('area-speed-button');
+const areaSpeedResults = document.getElementById('area-speed-results');
+if (areaSpeedButton && areaSpeedResults) {
+    areaSpeedButton.addEventListener('click', async () => {
+        areaSpeedButton.disabled = true;
+        areaSpeedResults.textContent = 'Finding your approximate area...';
+        try {
+            const locationData = await locationLookupPromise;
+            const query = getAreaLocationQuery(locationData);
+            if (!query) throw new Error('Your approximate IP location is unavailable.');
+
+            areaSpeedResults.textContent = `Loading speed tests for ${query}...`;
+            const endpoint = 'https://script.google.com/macros/s/AKfycbwGxrF6D4KZ_LgO_lKQ-chBfzaP2pdgKpx2YJRMQiBZnCLOXckYldyy9hwJmi3ltxa_/exec';
+            const response = await fetch(`${endpoint}?q=${encodeURIComponent(query)}`);
+            if (!response.ok) throw new Error(`Area speed lookup returned HTTP ${response.status}.`);
+            const stats = await response.json();
+            if (stats.error) throw new Error(stats.error);
+            if (!Number.isFinite(Number(stats.total_samples)) || !stats.location) {
+                throw new Error('Area speed service returned an invalid response.');
+            }
+            renderAreaSpeedStats(areaSpeedResults, stats);
+        } catch (error) {
+            console.error('Could not load area speed results.', error);
+            areaSpeedResults.textContent = `Could not load area speeds: ${error.message}`;
+        } finally {
+            areaSpeedButton.disabled = false;
+        }
+    });
+}
+
 async function runSmartSpeedTest() {
     const speedOutput = document.getElementById('speed-result');
     const statusOutput = document.getElementById('speed-status');
     const startBtn = document.getElementById('start-speed-test-btn');
-    const liveValue = document.getElementById('speed-live-value');
     const liveLabel = document.getElementById('speed-live-label');
-    const gauge = document.getElementById('speed-gauge');
-    const gaugeNeedle = document.getElementById('speed-gauge-needle');
-    const gaugeFill = document.getElementById('speed-gauge-fill');
-    const gaugeMidLabel = document.getElementById('speed-gauge-mid');
-    const gaugeMaxLabel = document.getElementById('speed-gauge-max');
+    let speedDisplayInterval = null;
     
     if (!speedOutput) return;
 
     if (startBtn) startBtn.disabled = true;
     speedOutput.textContent = 'Testing...';
-    if (gauge) gauge.hidden = false;
+    if (liveLabel) liveLabel.textContent = 'Live speed updates every second';
 
     if (statusOutput) statusOutput.textContent = 'Downloading 100 MB from Cloudflare Speed Test...';
     try {
@@ -475,23 +710,11 @@ async function runSmartSpeedTest() {
         const startTime = performance.now();
         let totalBytes = 0;
         const speedSamples = [];
-        const gaugeArcLength = 330;
-        let gaugeMaximum = 500;
-
-        const updateGauge = speedMbps => {
-            while (speedMbps > gaugeMaximum && gaugeMaximum < 10000) gaugeMaximum *= 2;
-            const gaugeFraction = Math.min(speedMbps / gaugeMaximum, 1);
-            const needleAngle = -90 + gaugeFraction * 180;
-            if (liveValue) liveValue.textContent = `${speedMbps.toFixed(1)} Mbps`;
-            if (gaugeNeedle) gaugeNeedle.style.transform = `rotate(${needleAngle}deg)`;
-            if (gaugeFill) gaugeFill.style.strokeDasharray = `${gaugeFraction * gaugeArcLength} ${gaugeArcLength}`;
-            if (gaugeMidLabel) gaugeMidLabel.textContent = `${gaugeMaximum / 2}`;
-            if (gaugeMaxLabel) gaugeMaxLabel.textContent = `${gaugeMaximum} Mbps`;
-        };
-
-        if (liveLabel) liveLabel.textContent = 'Live download speed';
-        if (liveValue) liveValue.textContent = '0.0 Mbps';
-        updateGauge(0);
+        let liveSpeedMbps = 0;
+        speedOutput.textContent = '0.0 Mbps';
+        speedDisplayInterval = window.setInterval(() => {
+            speedOutput.textContent = `${liveSpeedMbps.toFixed(1)} Mbps`;
+        }, 1000);
         try {
             while (true) {
                 const { done, value } = await reader.read();
@@ -502,19 +725,19 @@ async function runSmartSpeedTest() {
                 while (speedSamples.length > 1 && now - speedSamples[0].time > 1000) speedSamples.shift();
                 const sampledBytes = speedSamples.reduce((sum, sample) => sum + sample.bytes, 0);
                 const sampleDuration = Math.max((now - speedSamples[0].time) / 1000, 0.1);
-                updateGauge((sampledBytes * 8) / sampleDuration / 1_000_000);
+                liveSpeedMbps = (sampledBytes * 8) / sampleDuration / 1_000_000;
             }
         } finally {
             reader.releaseLock();
         }
+        window.clearInterval(speedDisplayInterval);
+        speedDisplayInterval = null;
 
         const durationSeconds = (performance.now() - startTime) / 1000;
         if (totalBytes !== 100_000_000 || durationSeconds <= 0) {
             throw new Error(`Incomplete speed-test download: received ${totalBytes} of 100000000 bytes.`);
         }
-
         const speedMbps = (totalBytes * 8) / durationSeconds / 1_000_000;
-        updateGauge(speedMbps);
         if (liveLabel) liveLabel.textContent = 'Final download speed';
         const ip = response.headers.get('cf-meta-ip');
         const city = response.headers.get('city') || response.headers.get('cf-meta-city');
@@ -536,6 +759,7 @@ async function runSmartSpeedTest() {
         const updatedElement = document.getElementById('speed-updated');
         if (updatedElement) updatedElement.textContent = 'Test failed';
     } finally {
+        if (speedDisplayInterval !== null) window.clearInterval(speedDisplayInterval);
         if (startBtn) startBtn.disabled = false;
     }
 }

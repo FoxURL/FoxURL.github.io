@@ -50,6 +50,7 @@
                     <button type="button" class="tab-btn" onclick="switchTab('privacy')" role="tab">FoxURL My Data</button>
                     <button type="button" class="tab-btn" onclick="switchTab('connection')" role="tab">Connection</button>
                     <button type="button" class="tab-btn" onclick="switchTab('weather')" role="tab">Weather</button>
+                    <button type="button" class="tab-btn" onclick="switchTab('communications')" role="tab">Communications</button>
                 </nav>
 
                 <!-- Dynamic Tab Content Container -->
@@ -101,6 +102,22 @@
                         </div>
                     </div>
 
+                    <!-- TAB: COMMUNICATIONS -->
+                    <div id="tab-communications" class="tab-pane" role="tabpanel">
+                        <section class="panel full-width">
+                            <div class="communications-heading">
+                                <div>
+                                    <p class="eyebrow">FoxURL messages</p>
+                                    <h2>Communications</h2>
+                                </div>
+                                <button type="button" class="search-btn secondary-btn" id="refresh-communications-btn">Refresh</button>
+                            </div>
+                            <p class="session-note">Emails sent by FoxURL to your signed-in address.</p>
+                            <div id="communications-status" class="communications-status" role="status" aria-live="polite">Connecting to FoxURL servers, please wait...</div>
+                            <div id="communications-list" class="communications-list"></div>
+                        </section>
+                    </div>
+
                     <!-- TAB 3: FOXURL MY DATA (BREACH MONITOR) -->
                     <div id="tab-privacy" class="tab-pane" role="tabpanel">
                         <section class="panel full-width">
@@ -139,7 +156,7 @@
                             <div class="forecast-heading"><h3>Next 7 days</h3><span>Local forecast</span></div>
                             <div id="weather-forecast" class="weather-forecast"><div class="empty">Loading forecast...</div></div>
                             <div id="weather-chart" class="weather-chart" aria-label="Seven day high temperature chart"></div>
-                            <p class="weather-disclaimer">Location is approximate. Cyclone chance is a simple signal based on current wind and pressure, not an official warning. <span id="weather-updated"></span></p>
+                            <p class="weather-disclaimer">Location is approximate. Cyclone signal is a simple indicator, not a forecast probability or official warning. The cyclone comparisons are just for fun, not real odds. <span id="weather-updated"></span></p>
                         </section>
                     </div>
 
@@ -161,17 +178,7 @@
                                     <div id="speed-result">-- Mbps</div>
                                     <button type="button" class="speed-info-button" id="speed-info-button" aria-expanded="false" aria-controls="speed-sync-info" aria-label="Information about cloud sync">i</button>
                                 </div>
-                                <div class="speed-gauge" id="speed-gauge" hidden>
-                                    <svg class="speed-gauge-dial" viewBox="0 0 260 155" aria-hidden="true">
-                                        <path class="speed-gauge-track" d="M 25 130 A 105 105 0 0 1 235 130"></path>
-                                        <path class="speed-gauge-fill" id="speed-gauge-fill" d="M 25 130 A 105 105 0 0 1 235 130"></path>
-                                        <line class="speed-gauge-needle" id="speed-gauge-needle" x1="130" y1="130" x2="130" y2="42"></line>
-                                        <circle class="speed-gauge-hub" cx="130" cy="130" r="8"></circle>
-                                    </svg>
-                                    <div class="speed-gauge-labels" aria-hidden="true"><span>0</span><span id="speed-gauge-mid">250</span><span id="speed-gauge-max">500 Mbps</span></div>
-                                    <div class="speed-live-value" id="speed-live-value">0.0 Mbps</div>
-                                    <div class="speed-live-label" id="speed-live-label">Live download speed</div>
-                                </div>
+                                <div class="speed-live-label" id="speed-live-label">Live speed updates every second while testing</div>
                                 <p class="speed-sync-info" id="speed-sync-info" hidden>The test downloads 100 MB from Cloudflare’s Speed Test network. Cloudflare receives your IP address and estimates your location. When Sync to Cloud is enabled, each completed test also sends your IP address, approximate city and country, and measured download speed to Google Forms. FoxURL does not publish these submissions. Google Forms and the form owner control access to and retention of submitted responses; this page cannot verify or guarantee those settings. <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer">Cloudflare privacy policy</a></p>
                                 <label class="speed-sync-setting" for="speed-cloud-sync">
                                     <input type="checkbox" id="speed-cloud-sync">
@@ -180,6 +187,14 @@
                                 <div id="speed-sync-status" class="speed-sync-status" role="status" aria-live="polite"></div>
                                 <div id="speed-status" class="speed-status" role="status" aria-live="polite">Press “Measure speed” to run the test.</div>
                                 <div id="speed-updated" class="data-updated"></div>
+                                <div class="area-speed-section">
+                                    <div>
+                                        <h3>Speeds in your area</h3>
+                                        <p class="session-note">Compare recent speed tests shared from your approximate IP location.</p>
+                                    </div>
+                                    <button type="button" class="search-btn secondary-btn" id="area-speed-button">Check area speeds</button>
+                                    <div id="area-speed-results" class="area-speed-results" role="status" aria-live="polite">Area averages are based on submitted tests and may have few samples.</div>
+                                </div>
                             </div>
                             <div class="network-tools">
                                 <div class="network-tools-heading"><div><h2>Network quality</h2><p class="session-note">Measure latency, packet loss, browser network estimates, and upload timing.</p></div><span class="network-actions"><button type="button" class="search-btn" id="latency-test-btn">Run latency test</button><button type="button" class="search-btn secondary-btn" id="full-network-test-btn">Full check</button></span></div>
