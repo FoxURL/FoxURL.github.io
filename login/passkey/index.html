@@ -129,6 +129,41 @@
             text-decoration: underline;
         }
 
+        .auth-container {
+            border-color: rgba(255, 255, 255, 0.16);
+            background: linear-gradient(155deg, rgba(28, 40, 47, 0.97), rgba(15, 23, 28, 0.97));
+            backdrop-filter: blur(18px);
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: #ffb36b;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            letter-spacing: -0.035em;
+        }
+
+        p.subtitle {
+            line-height: 1.6;
+        }
+
+        .btn-passkey {
+            min-height: 50px;
+            border-radius: 12px;
+            font-weight: 700;
+        }
+
+        .btn-passkey:focus-visible,
+        .back-link a:focus-visible {
+            outline: 3px solid #ffb36b;
+            outline-offset: 3px;
+        }
+
         @media (max-width: 480px) {
             .auth-container {
                 margin: 18px;
@@ -136,17 +171,24 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../auth.css">
 </head>
 <body>
 
     <div class="auth-container">
-        <div class="brand-mark" aria-hidden="true">F</div>
+        <a class="brand-mark" href="/" aria-label="FoxURL home">
+            <img src="../../assets/logo/logo.png" alt="FoxURL">
+        </a>
+        <div class="provider-mark provider-mark-passkey" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8 2 2-2 2 2 2-3 3-2-2-2 2"/></svg>
+        </div>
+        <p class="eyebrow">Secure account access</p>
         <h2>Passkey Authentication</h2>
         <p class="subtitle">Sign in securely using your device biometrics or hardware key.</p>
         
-        <div id="passkey-alert" class="alert alert-error"></div>
+        <div id="passkey-alert" class="alert alert-error" role="status" aria-live="polite"></div>
 
-        <button id="auth-btn" class="btn-passkey" onclick="handlePasskeyLogin()">Sign In with Passkey</button>
+        <button id="auth-btn" class="btn-passkey provider-button" onclick="handlePasskeyLogin()">Sign In with Passkey</button>
 
         <div class="back-link">
             <p><a href="/login/">Back to sign in options</a></p>

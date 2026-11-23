@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In - FoxURL</title>
     <!-- Google Identity Services Library -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script id="google-identity-services" src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
             --bg-color: #101820;
@@ -150,6 +150,150 @@
             width: 100%;
         }
 
+        .eyebrow {
+            margin: 0 0 10px;
+            color: #ffb36b;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            letter-spacing: -0.035em;
+        }
+
+        p.subtitle {
+            line-height: 1.6;
+        }
+
+        .btn-auth {
+            position: relative;
+            min-height: 50px;
+            padding: 12px 16px;
+            border: 1px solid transparent;
+            border-radius: 12px;
+            text-align: left;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .btn-email {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--border);
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .btn-email:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+
+        .btn-auth::after {
+            content: "→";
+            position: absolute;
+            top: 50%;
+            right: 16px;
+            color: currentColor;
+            font-size: 19px;
+            transform: translateY(-50%);
+            opacity: 0.75;
+        }
+
+        .btn-passkey {
+            background: rgba(255, 255, 255, 0.07);
+            border-color: var(--border);
+            color: var(--text-main);
+            box-shadow: none;
+        }
+
+        .btn-passkey:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.24);
+        }
+
+        .btn-github {
+            background: #24292f;
+            margin-top: 12px;
+        }
+
+        .btn-github:hover {
+            background: #1b1f23;
+        }
+
+        .btn-gitlab {
+            background: #fc6d26;
+            margin-top: 12px;
+            font-family: inherit;
+        }
+
+        .btn-gitlab:hover {
+            background: #e24329;
+        }
+
+        .gitlab-icon {
+            width: 20px;
+            height: 20px;
+            margin-right: 10px;
+            vertical-align: middle;
+            fill: currentColor;
+        }
+
+        .divider {
+            margin: 20px 0;
+        }
+
+        .google-btn-wrapper {
+            min-height: 40px;
+            margin-bottom: 12px;
+        }
+
+        .other-signin-toggle {
+            width: 100%;
+            padding: 12px;
+            margin-top: 8px;
+            border: 1px solid var(--border);
+            border-radius: 10px;
+            background: transparent;
+            color: var(--text-muted);
+            font: inherit;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background-color 0.2s, border-color 0.2s, color 0.2s;
+        }
+
+        .other-signin-toggle:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(255, 255, 255, 0.24);
+            color: var(--text-main);
+        }
+
+        .other-signin-toggle:focus-visible {
+            outline: 3px solid #ffb36b;
+            outline-offset: 3px;
+        }
+
+        .other-signin-options[hidden] {
+            display: none;
+        }
+
+        .security-note {
+            margin: 20px 0 0;
+            color: var(--text-muted);
+            font-size: 12px;
+            line-height: 1.5;
+        }
+
+        a:focus-visible {
+            outline: 3px solid #ffb36b;
+            outline-offset: 3px;
+        }
+
+        button.btn-auth:focus-visible {
+            outline: 3px solid #ffb36b;
+            outline-offset: 3px;
+        }
+
         @media (max-width: 480px) {
             .auth-container {
                 margin: 18px;
@@ -157,49 +301,229 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="auth.css">
 </head>
 <body>
 
-    <div class="auth-container">
-        <div class="brand-mark" aria-hidden="true">F</div>
-        <h2>Welcome to FoxURL</h2>
-        <p class="subtitle">Choose your preferred sign-in method.</p>
+    <main class="auth-container">
+        <a class="brand-mark" href="/" aria-label="FoxURL home">
+            <img src="../assets/logo/logo.png" alt="FoxURL">
+        </a>
+        <p class="eyebrow">Secure account access</p>
+        <h1>Sign in to FoxURL</h1>
+        <p class="subtitle">Choose how you'd like to continue to FoxURL.</p>
         
-        <div id="hub-alert" class="alert alert-error"></div>
+        <div id="hub-alert" class="alert alert-error" role="status" aria-live="polite"></div>
 
-        <!-- Option 1: Email Code Login -->
-        <a href="/login/email/" class="btn-auth">Continue with Email Code</a>
-
-        <!-- Option 2: Passkey Biometric Login -->
-        <a href="/login/passkey/" class="btn-auth btn-passkey">Sign In with Passkey</a>
-
-        <!-- Option 3: GitHub OAuth -->
-        <a href="/login/github/" class="btn-auth btn-github">Continue with GitHub</a>
-
-        <div class="divider">
-            <span>OR</span>
-        </div>
-
-        <!-- Option 3: Google Sign-In Button Container -->
-        <div id="g_id_onload"
-             data-client_id="293011781658-ehl0tb8kd6knljmhoj83gb688gcm4b7v.apps.googleusercontent.com"
-             data-callback="handleGoogleSignIn"
-             data-auto_prompt="false">
-        </div>
-        
-        <div class="google-btn-wrapper">
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="rectangular"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-size="large"
-                 data-width="320">
+        <div class="provider-list">
+            <a href="/login/email/" class="provider-button">
+                <span class="provider-icon provider-icon-email" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+                </span>
+                <span class="provider-label">Continue with Email Code</span>
+                <span class="provider-arrow" aria-hidden="true">›</span>
+            </a>
+            <div class="google-btn-wrapper">
+                <div id="google-button-container"></div>
             </div>
+            <a href="/login/passkey/" class="provider-button">
+                <span class="provider-icon provider-icon-passkey" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="8" cy="15" r="4"/><path d="m11 12 8-8 2 2-2 2 2 2-3 3-2-2-2 2"/></svg>
+                </span>
+                <span class="provider-label">Continue with Passkey</span>
+                <span class="provider-arrow" aria-hidden="true">›</span>
+            </a>
+            <a href="/login/github/" class="provider-button">
+                <span class="provider-icon provider-icon-github" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 .75a11.25 11.25 0 0 0-3.56 21.92c.56.1.77-.24.77-.54v-2.1c-3.14.68-3.8-1.33-3.8-1.33-.51-1.3-1.25-1.65-1.25-1.65-1.03-.7.08-.69.08-.69 1.14.08 1.74 1.17 1.74 1.17 1.01 1.73 2.66 1.23 3.3.94.1-.73.4-1.23.72-1.52-2.5-.29-5.13-1.28-5.13-5.57 0-1.23.44-2.24 1.16-3.03-.12-.29-.5-1.44.11-3 0 0 .95-.3 3.1 1.16a10.8 10.8 0 0 1 5.65 0c2.15-1.46 3.1-1.16 3.1-1.16.61 1.56.23 2.71.11 3 .73.79 1.16 1.8 1.16 3.03 0 4.3-2.63 5.28-5.14 5.56.41.36.77 1.04.77 2.1v3.1c0 .3.2.65.78.54A11.25 11.25 0 0 0 12 .75Z"/></svg>
+                </span>
+                <span class="provider-label">Continue with GitHub</span>
+                <span class="provider-arrow" aria-hidden="true">›</span>
+            </a>
+            <button id="gitlab-signin" class="provider-button" type="button">
+                <span class="provider-icon provider-icon-gitlab" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" fill="currentColor"><path d="m23.6004 9.5927-.0337-.0862L20.3.9814a.851.851 0 0 0-.3362-.405.8748.8748 0 0 0-.9997.0539.8748.8748 0 0 0-.29.4399l-2.2055 6.748H7.5375l-2.2057-6.748a.8573.8573 0 0 0-.29-.4412.8748.8748 0 0 0-.9997-.0537.8585.8585 0 0 0-.3362.4049L.4332 9.5015l-.0325.0862a6.0657 6.0657 0 0 0 2.0119 7.0105l.0113.0087.03.0213 4.976 3.7264 2.462 1.8633 1.4995 1.1321a1.0085 1.0085 0 0 0 1.2197 0l1.4995-1.1321 2.4619-1.8633 5.006-3.7489.0125-.01a6.0682 6.0682 0 0 0 2.0094-7.003z"/></svg>
+                </span>
+                <span class="provider-label">Continue with GitLab</span>
+                <span class="provider-arrow" aria-hidden="true">›</span>
+            </button>
         </div>
-    </div>
+
+        <p class="security-note">Your sign-in details are used only to access your FoxURL account.</p>
+    </main>
 
     <script>
+        const GITLAB_CLIENT_ID = 'ea4bf4cdde465ea822b559de41f7681529229241df142070aef4e5cc128504fc';
+        const GITLAB_AUTHORIZATION_ENDPOINT = 'https://gitlab.com/oauth/authorize';
+        const GITLAB_TOKEN_ENDPOINT = 'https://gitlab.com/oauth/token';
+        const GITLAB_USERINFO_ENDPOINT = 'https://gitlab.com/oauth/userinfo';
+        const GITLAB_STATE_KEY = 'foxurl.gitlab.oauth.state';
+        const GITLAB_VERIFIER_KEY = 'foxurl.gitlab.oauth.verifier';
+        const hubAlert = document.getElementById('hub-alert');
+        const gitLabSignInButton = document.getElementById('gitlab-signin');
+
+        gitLabSignInButton.addEventListener('click', startGitLabSignIn);
+
+        const gitLabCallbackParams = new URLSearchParams(window.location.search);
+        const gitLabCode = gitLabCallbackParams.get('code');
+        const gitLabState = gitLabCallbackParams.get('state');
+        const gitLabError = gitLabCallbackParams.get('error');
+        if (gitLabCode !== null || gitLabState !== null || gitLabError !== null) {
+            window.history.replaceState({}, document.title, window.location.pathname + window.location.hash);
+            handleGitLabCallback(gitLabCode, gitLabState, gitLabError, gitLabCallbackParams.get('error_description'));
+        }
+
+        async function startGitLabSignIn() {
+            hideHubAlert();
+            if (gitLabSignInButton.disabled) return;
+            gitLabSignInButton.disabled = true;
+            try {
+                if (!window.crypto || !window.crypto.subtle) {
+                    throw new Error('This browser does not support secure GitLab sign-in.');
+                }
+
+                const state = createRandomBase64Url(32);
+                const verifier = createRandomBase64Url(32);
+                sessionStorage.setItem(GITLAB_STATE_KEY, state);
+                sessionStorage.setItem(GITLAB_VERIFIER_KEY, verifier);
+
+                const challengeDigest = await window.crypto.subtle.digest(
+                    'SHA-256',
+                    new TextEncoder().encode(verifier)
+                );
+                const authorizationUrl = new URL(GITLAB_AUTHORIZATION_ENDPOINT);
+                authorizationUrl.search = new URLSearchParams({
+                    client_id: GITLAB_CLIENT_ID,
+                    redirect_uri: window.location.origin + window.location.pathname,
+                    response_type: 'code',
+                    scope: 'read_user openid profile email',
+                    state,
+                    code_challenge: toBase64Url(challengeDigest),
+                    code_challenge_method: 'S256'
+                }).toString();
+                window.location.href = authorizationUrl.toString();
+            } catch (error) {
+                sessionStorage.removeItem(GITLAB_STATE_KEY);
+                sessionStorage.removeItem(GITLAB_VERIFIER_KEY);
+                showHubAlert(error.message || 'Unable to start GitLab sign-in.');
+                gitLabSignInButton.disabled = false;
+            }
+        }
+
+        async function handleGitLabCallback(code, returnedState, oauthError, errorDescription) {
+            let expectedState;
+            let verifier;
+            try {
+                expectedState = sessionStorage.getItem(GITLAB_STATE_KEY);
+                verifier = sessionStorage.getItem(GITLAB_VERIFIER_KEY);
+                sessionStorage.removeItem(GITLAB_STATE_KEY);
+                sessionStorage.removeItem(GITLAB_VERIFIER_KEY);
+            } catch (error) {
+                showHubAlert('GitLab sign-in could not access its security data. Please enable session storage and try again.');
+                return;
+            }
+
+            if (!returnedState || !expectedState || returnedState !== expectedState) {
+                showHubAlert('GitLab sign-in could not be verified. Please try again.');
+                return;
+            }
+
+            if (oauthError) {
+                showHubAlert(oauthError === 'access_denied'
+                    ? 'GitLab sign-in was cancelled.'
+                    : `GitLab sign-in failed: ${errorDescription || oauthError}`);
+                return;
+            }
+
+            if (!code) {
+                showHubAlert('GitLab sign-in could not be verified. Please try again.');
+                return;
+            }
+
+            if (!verifier) {
+                showHubAlert('GitLab sign-in could not be completed because its security data is missing. Please try again.');
+                return;
+            }
+
+            try {
+                const tokenResponse = await fetch(GITLAB_TOKEN_ENDPOINT, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+                    body: new URLSearchParams({
+                        client_id: GITLAB_CLIENT_ID,
+                        code,
+                        grant_type: 'authorization_code',
+                        redirect_uri: window.location.origin + window.location.pathname,
+                        code_verifier: verifier
+                    })
+                });
+                let tokenResult;
+                try {
+                    tokenResult = await tokenResponse.json();
+                } catch (error) {
+                    throw new Error('GitLab token exchange returned an invalid response. Please try again.');
+                }
+                if (!tokenResponse.ok || !tokenResult.access_token) {
+                    throw new Error(tokenResult.error_description || tokenResult.error || 'GitLab did not return an access token.');
+                }
+
+                const profileResponse = await fetch(GITLAB_USERINFO_ENDPOINT, {
+                    headers: { Authorization: `Bearer ${tokenResult.access_token}` }
+                });
+                if (!profileResponse.ok) {
+                    throw new Error('GitLab could not retrieve your profile. Please try again.');
+                }
+
+                let profile;
+                try {
+                    profile = await profileResponse.json();
+                } catch (error) {
+                    throw new Error('GitLab returned an invalid profile response. Please try again.');
+                }
+                const email = typeof profile.email === 'string' ? profile.email.trim() : '';
+                if (!email.includes('@')) {
+                    throw new Error('GitLab did not provide an email address. Check your GitLab email and try again.');
+                }
+
+                saveVerifiedEmail(email);
+                localStorage.setItem('foxurl.signin.method', 'gitlab');
+                localStorage.setItem('foxurl.signin.lastLogin', new Date().toISOString());
+                const displayName = profile.name || profile.preferred_username || email;
+                showHubAlert(`Welcome, ${displayName}! Redirecting...`, 'success');
+                setTimeout(() => { window.location.href = '/'; }, 1200);
+            } catch (error) {
+                showHubAlert(error.message
+                    ? `GitLab sign-in could not be completed: ${error.message}`
+                    : 'GitLab sign-in could not be completed. Please try again.');
+            }
+        }
+
+        function createRandomBase64Url(byteLength) {
+            const bytes = new Uint8Array(byteLength);
+            window.crypto.getRandomValues(bytes);
+            return toBase64Url(bytes);
+        }
+
+        function toBase64Url(value) {
+            const bytes = value instanceof ArrayBuffer ? new Uint8Array(value) : value;
+            let binary = '';
+            bytes.forEach(byte => { binary += String.fromCharCode(byte); });
+            return window.btoa(binary)
+                .replace(/\+/g, '-')
+                .replace(/\//g, '_')
+                .replace(/=+$/, '');
+        }
+
+        function showHubAlert(message, type = 'error') {
+            hubAlert.className = `alert alert-${type}`;
+            hubAlert.textContent = message;
+            hubAlert.style.display = 'block';
+        }
+
+        function hideHubAlert() {
+            hubAlert.style.display = 'none';
+        }
+
         // Handle Google Sign-In Response callback directly from the hub if desired
         function handleGoogleSignIn(response) {
             const alertBox = document.getElementById('hub-alert');
@@ -235,6 +559,47 @@
             }).join(''));
             return JSON.parse(jsonPayload);
         }
+
+        let googleButtonInitialized = false;
+        let googleButtonWidth = 0;
+        let googleButtonResizeTimer;
+
+        function renderGoogleButton() {
+            const googleIdentity = window.google && window.google.accounts && window.google.accounts.id;
+            const buttonContainer = document.getElementById('google-button-container');
+            if (!googleIdentity || !buttonContainer) return;
+
+            const width = Math.floor(buttonContainer.getBoundingClientRect().width);
+            if (!width || width === googleButtonWidth) return;
+
+            if (!googleButtonInitialized) {
+                googleIdentity.initialize({
+                    client_id: '293011781658-ehl0tb8kd6knljmhoj83gb688gcm4b7v.apps.googleusercontent.com',
+                    callback: handleGoogleSignIn,
+                    auto_select: false
+                });
+                googleButtonInitialized = true;
+            }
+
+            buttonContainer.replaceChildren();
+            googleIdentity.renderButton(buttonContainer, {
+                type: 'standard',
+                shape: 'rectangular',
+                theme: 'outline',
+                text: 'continue_with',
+                size: 'large',
+                logo_alignment: 'left',
+                width
+            });
+            googleButtonWidth = width;
+        }
+
+        document.getElementById('google-identity-services').addEventListener('load', renderGoogleButton, { once: true });
+        window.addEventListener('resize', () => {
+            window.clearTimeout(googleButtonResizeTimer);
+            googleButtonResizeTimer = window.setTimeout(renderGoogleButton, 120);
+        });
+        renderGoogleButton();
     </script>
 </body>
 </html>

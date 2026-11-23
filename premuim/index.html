@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="FoxURL Premium includes email aliases, 5MB storage, early access, experimental features, and a more personal contact experience." />
+  <meta name="theme-color" content="#ff7a18" />
+  <title>FoxURL Premium</title>
+  <link rel="icon" type="image/png" href="/assets/logo/circular.png" />
+  <style>
+    :root {
+      --bg: #fffaf5;
+      --bg-soft: #fff1df;
+      --panel: rgba(255, 255, 255, 0.7);
+      --panel-strong: #fffdfb;
+      --ink: #1b120b;
+      --ink-soft: #5b4638;
+      --orange: #ff7a18;
+      --orange-strong: #e86808;
+      --orange-soft: #ffdcb5;
+      --line: rgba(90, 53, 26, 0.14);
+      --success: #1f8f5f;
+      --shadow: 0 24px 60px rgba(51, 25, 8, 0.12);
+    }
+
+    * { box-sizing: border-box; }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(255, 165, 94, 0.18), transparent 20%),
+        radial-gradient(circle at bottom right, rgba(255, 122, 24, 0.12), transparent 28%),
+        linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 100%);
+    }
+
+    img { max-width: 100%; display: block; }
+    a { color: inherit; text-decoration: none; }
+
+    .container {
+      width: min(1180px, calc(100% - 40px));
+      margin: 0 auto;
+    }
+
+    .topbar {
+      padding: 22px 0 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+    }
+
+    .brand-mark {
+      width: 42px;
+      height: 42px;
+      border-radius: 12px;
+      box-shadow: 0 10px 22px rgba(255, 122, 24, 0.2);
+    }
+
+    .brand-copy {
+      display: flex;
+      flex-direction: column;
+      line-height: 1.05;
+    }
+
+    .brand-copy small {
+      font-size: 0.72rem;
+      color: var(--ink-soft);
+      font-weight: 600;
+      letter-spacing: 0.01em;
+    }
+
+    .nav {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      min-height: 46px;
+      padding: 0 18px;
+      font-weight: 800;
+      transition: transform 180ms ease, box-shadow 180ms ease;
+    }
+
+    .btn:hover,
+    .btn:focus-visible {
+      transform: translateY(-2px);
+      outline: none;
+    }
+
+    .btn-ghost {
+      background: rgba(255,255,255,0.45);
+      color: var(--ink);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--orange) 0%, var(--orange-strong) 100%);
+      border-color: transparent;
+      color: #fff;
+      box-shadow: 0 14px 30px rgba(255, 122, 24, 0.2);
+    }
+
+    main {
+      padding: 24px 0 90px;
+    }
+
+    .hero {
+      display: grid;
+      grid-template-columns: 1.25fr 0.75fr;
+      gap: 34px;
+      align-items: center;
+      padding: 18px 0 6px;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 14px;
+      border-radius: 999px;
+      border: 1px solid rgba(255, 122, 24, 0.2);
+      background: rgba(255, 122, 24, 0.08);
+      color: var(--orange-strong);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: var(--orange);
+      box-shadow: 0 0 0 4px rgba(255, 122, 24, 0.12);
+    }
+
+    h1 {
+      margin: 18px 0 16px;
+      max-width: 12ch;
+      font-size: clamp(3rem, 6vw, 6.2rem);
+      line-height: 0.9;
+      letter-spacing: -0.08em;
+      font-weight: 900;
+    }
+
+    .lead {
+      max-width: 620px;
+      margin: 0;
+      color: var(--ink-soft);
+      font-size: 1.12rem;
+      line-height: 1.8;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .proof {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 18px;
+      margin-top: 24px;
+      color: var(--ink-soft);
+      font-size: 0.88rem;
+      font-weight: 700;
+    }
+
+    .proof span {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .proof span::before {
+      content: "✓";
+      width: 22px;
+      height: 22px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: rgba(31, 143, 95, 0.1);
+      color: var(--success);
+      font-weight: 900;
+    }
+
+    .showcase {
+      position: relative;
+      padding: 22px;
+      border-radius: 28px;
+      border: 1px solid var(--line);
+      background: linear-gradient(180deg, rgba(255, 122, 24, 0.08), rgba(255,255,255,0.85));
+      box-shadow: var(--shadow);
+    }
+
+    .showcase::before {
+      content: "";
+      position: absolute;
+      inset: 12px;
+      border-radius: 20px;
+      border: 1px dashed rgba(255, 122, 24, 0.3);
+      pointer-events: none;
+    }
+
+    .plan-card {
+      position: relative;
+      padding: 22px 20px 16px;
+      border-radius: 22px;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid rgba(255, 122, 24, 0.2);
+    }
+
+    .plan-tag {
+      display: inline-block;
+      margin-bottom: 10px;
+      color: var(--orange-strong);
+      font-size: 0.72rem;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
+
+    .price-wrap {
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+
+    .price {
+      font-size: clamp(3rem, 4vw, 4rem);
+      line-height: 1;
+      font-weight: 900;
+      letter-spacing: -0.06em;
+    }
+
+    .price-unit {
+      padding-bottom: 8px;
+      color: var(--ink-soft);
+      font-weight: 700;
+    }
+
+    .plan-name {
+      margin: 0 0 16px;
+      font-size: 1.12rem;
+      font-weight: 800;
+    }
+
+    .perks-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      color: var(--ink-soft);
+    }
+
+    .perks-list li {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      line-height: 1.5;
+    }
+
+    .perks-list li::before {
+      content: "•";
+      color: var(--orange);
+      font-size: 2rem;
+      line-height: 1;
+    }
+
+    .section {
+      margin-top: 88px;
+    }
+
+    .section-header {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 26px;
+    }
+
+    .section-header h2 {
+      margin: 0;
+      font-size: clamp(2rem, 3vw, 3rem);
+      letter-spacing: -0.06em;
+    }
+
+    .section-header p {
+      margin: 0;
+      max-width: 620px;
+      color: var(--ink-soft);
+      line-height: 1.7;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 18px;
+    }
+
+    .feature-card {
+      padding: 22px;
+      border-radius: 20px;
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,0.58);
+      box-shadow: 0 8px 22px rgba(58, 31, 10, 0.04);
+    }
+
+    .feature-icon {
+      width: 46px;
+      height: 46px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ffe2c2 0%, #ffd8ad 100%);
+      font-size: 1.2rem;
+      margin-bottom: 16px;
+    }
+
+    .feature-card h3 {
+      margin: 0 0 10px;
+      font-size: 1.15rem;
+    }
+
+    .feature-card p {
+      margin: 0;
+      color: var(--ink-soft);
+      line-height: 1.7;
+    }
+
+    .details {
+      margin-top: 28px;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 18px;
+    }
+
+    .info-panel,
+    .terms-panel,
+    .cta {
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: rgba(255,255,255,0.6);
+      padding: 24px;
+    }
+
+    .info-panel h3,
+    .terms-panel h3 {
+      margin: 0 0 14px;
+      font-size: 1.45rem;
+      letter-spacing: -0.04em;
+    }
+
+    .info-panel p,
+    .terms-panel p,
+    .terms-panel li {
+      color: var(--ink-soft);
+      line-height: 1.75;
+    }
+
+    .terms-panel ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+      display: grid;
+      gap: 10px;
+    }
+
+    .terms-panel li {
+      position: relative;
+      padding-left: 18px;
+    }
+
+    .terms-panel li::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 0.7em;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--orange);
+    }
+
+    .cta {
+      margin-top: 86px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      background: linear-gradient(135deg, #1b140f 0%, #2b1f14 100%);
+      color: #fff9f3;
+      box-shadow: var(--shadow);
+    }
+
+    .cta h3 {
+      margin: 0 0 8px;
+      font-size: clamp(2rem, 3vw, 2.8rem);
+      letter-spacing: -0.05em;
+    }
+
+    .cta p {
+      margin: 0;
+      color: rgba(255,249,243,0.75);
+      line-height: 1.7;
+    }
+
+    .cta-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .cta .btn-ghost {
+      border-color: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.08);
+      color: #fff;
+    }
+
+    @media (max-width: 900px) {
+      .hero,
+      .details {
+        display: grid;
+        grid-template-columns: 1fr;
+      }
+
+      .feature-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+      }
+    }
+
+    @media (max-width: 760px) {
+      .topbar,
+      .section-header,
+      .cta {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+
+      .nav {
+        width: 100%;
+        justify-content: flex-end;
+      }
+
+      .feature-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .cta {
+        padding: 26px 20px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header class="container topbar">
+    <a class="brand" href="/" aria-label="FoxURL homepage">
+      <img class="brand-mark" src="/assets/logo/circular.png" alt="FoxURL logo" />
+      <span class="brand-copy">
+        <span>FoxURL</span>
+        <small>innovate your connection</small>
+      </span>
+    </a>
+
+    <nav class="nav" aria-label="Main navigation">
+      <a class="btn btn-ghost" href="#features">View perks</a>
+      <a class="btn btn-primary" href="/login/">Login</a>
+    </nav>
+  </header>
+
+  <main class="container">
+    <section class="hero" aria-labelledby="main-title">
+      <div>
+        <div class="eyebrow">FoxURL Premium</div>
+        <h1 id="main-title">More control. More access. Less friction.</h1>
+        <p class="lead">A premium experience designed to make FoxURL feel more personal, more capable, and easier to live with every day.</p>
+
+        <div class="hero-actions">
+          <a class="btn btn-primary" href="#features">Explore perks</a>
+          <a class="btn btn-ghost" href="/login/">Open account</a>
+        </div>
+
+        <div class="proof" aria-label="Premium highlights">
+          <span>Email alias</span>
+          <span>5MB storage</span>
+          <span>Early access</span>
+        </div>
+      </div>
+
+      <aside class="showcase" aria-label="Premium plan summary">
+        <div class="plan-card">
+          <span class="plan-tag">Premium</span>
+          <div class="price-wrap">
+            <span class="price">$0</span>
+            <span class="price-unit">/ month</span>
+          </div>
+          <p class="plan-name">Simple plans, useful upgrades</p>
+          <ul class="perks-list">
+            <li>Email alias support</li>
+            <li>5MB of storage</li>
+            <li>Experimental features</li>
+            <li>Shared household access</li>
+          </ul>
+        </div>
+      </aside>
+    </section>
+
+    <section class="section" id="features" aria-labelledby="features-title">
+      <div class="section-header">
+        <h2 id="features-title">Premium perks</h2>
+        <p>Everything in Premium is built to be practical, personal, and useful from the first day.</p>
+      </div>
+
+      <div class="feature-grid">
+        <article class="feature-card">
+          <div class="feature-icon">✉️</div>
+          <h3>Send emails as an alias</h3>
+          <p>Use a FoxURL email alias to keep your main inbox cleaner while still sending with a polished, recognisable identity.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">💾</div>
+          <h3>5MB of storage</h3>
+          <p>Keep a little more of what matters in your account with a practical amount of personal space.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">🚀</div>
+          <h3>Early access to new features</h3>
+          <p>Try upgrades first and stay ahead of the curve with access to new capabilities before wider rollout.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">🧪</div>
+          <h3>Experimental features</h3>
+          <p>Explore new ideas and early-stage tools that shape the future of the FoxURL experience.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">👤</div>
+          <h3>Personalise contact visibility</h3>
+          <p>Adjust how your contacts see you with custom display names and profile pictures for trusted people in your network.</p>
+        </article>
+
+        <article class="feature-card">
+          <div class="feature-icon">👨‍👩‍👧‍👦</div>
+          <h3>Shared household access</h3>
+          <p>Premium can be shared with up to six users in the same household, keeping everyone connected without extra overhead.</p>
+        </article>
+      </div>
+    </section>
+
+    <section class="details" aria-label="Premium details">
+      <div class="info-panel">
+        <h3>Built for everyday use</h3>
+        <p>FoxURL Premium is shaped around small quality-of-life improvements: more personalised contact handling, better control, and a smoother experience for people who actually use the service.</p>
+      </div>
+
+      <div class="terms-panel">
+        <h3>Important terms</h3>
+        <ul>
+          <li>Premium can be shared with up to six users in the same household.</li>
+          <li>There are no cancellation fees.</li>
+          <li>No free trial is included — just direct service access.</li>
+          <li>Referral or request-based access may apply depending on eligibility.</li>
+        </ul>
+      </div>
+    </section>
+
+    <section class="cta" aria-label="Call to action">
+      <div>
+        <h3>Upgrade your FoxURL experience.</h3>
+        <p>Make your account feel more personal, more capable, and more ready for what comes next.</p>
+      </div>
+
+      <div class="cta-actions">
+        <a class="btn btn-primary" href="/login/">Get started</a>
+        <a class="btn btn-ghost" href="/cloud/products/">Browse tools</a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>

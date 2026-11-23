@@ -331,6 +331,71 @@
             margin-bottom: 16px;
         }
 
+        .auth-container {
+            max-width: 440px;
+            padding: 44px;
+            border-color: rgba(255, 255, 255, 0.16);
+            background: linear-gradient(155deg, rgba(28, 40, 47, 0.97), rgba(15, 23, 28, 0.97));
+            backdrop-filter: blur(18px);
+        }
+
+        h2 {
+            letter-spacing: -0.035em;
+        }
+
+        p.subtitle {
+            line-height: 1.6;
+        }
+
+        label {
+            font-weight: 600;
+        }
+
+        input[type="email"] {
+            min-height: 50px;
+            border-radius: 11px;
+        }
+
+        button:not(.link-btn) {
+            min-height: 50px;
+            border-radius: 11px;
+            font-weight: 700;
+        }
+
+        .code-input {
+            width: min(52px, 14vw);
+            height: 56px;
+            border-radius: 12px;
+        }
+
+        .footer-actions p {
+            margin: 12px 0;
+            color: var(--text-muted);
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-top: 20px;
+            color: #ffb36b;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible {
+            outline: 3px solid #ffb36b;
+            outline-offset: 3px;
+        }
+
+        .alert[role="status"] {
+            line-height: 1.5;
+        }
+
         @media (max-width: 480px) {
             .auth-container {
                 margin: 18px;
@@ -338,17 +403,24 @@
             }
         }
     </style>
+    <link rel="stylesheet" href="../auth.css">
 </head>
 <body>
 
     <div class="auth-container">
-        <div class="brand-mark" aria-hidden="true">F</div>
+        <a class="brand-mark" href="/" aria-label="FoxURL home">
+            <img src="../../assets/logo/logo.png" alt="FoxURL">
+        </a>
+        <div class="provider-mark provider-mark-email" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/></svg>
+        </div>
         <!-- Step 1: Email Input Form -->
         <div id="step-email">
+            <p class="eyebrow">Email code</p>
             <h2>Sign in to FoxURL</h2>
             <p class="subtitle">Enter your email to receive a secure login code.</p>
             
-            <div id="email-alert" class="alert alert-error"></div>
+            <div id="email-alert" class="alert alert-error" role="status" aria-live="polite"></div>
 
             <form onsubmit="handleSendCode(event)">
                 <div class="form-group">
@@ -364,7 +436,7 @@
             <h2>Enter Verification Code</h2>
             <p class="subtitle">We've sent a 6-digit code to <span id="display-email" style="color: var(--text-main); font-weight: 500;"></span></p>
             
-            <div id="code-alert" class="alert alert-error"></div>
+            <div id="code-alert" class="alert alert-error" role="status" aria-live="polite"></div>
 
             <form onsubmit="handleVerifyCode(event)">
                 <div class="code-inputs-container">
@@ -386,6 +458,7 @@
                 <p><button type="button" class="link-btn" onclick="resetToEmailStep()">Use a different email</button></p>
             </div>
         </div>
+        <a class="back-link" href="/login/">← Back to sign-in options</a>
     </div>
 
     <script>

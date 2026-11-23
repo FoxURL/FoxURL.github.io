@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sign In with Google - FoxURL</title>
     <!-- Google Identity Services Library -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script id="google-identity-services" src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
         :root {
             --bg-color: #101820;
@@ -117,33 +117,59 @@
         .back-link a:hover {
             text-decoration: underline;
         }
+
+        .auth-container {
+            border-color: rgba(255, 255, 255, 0.16);
+            background: linear-gradient(155deg, rgba(28, 40, 47, 0.97), rgba(15, 23, 28, 0.97));
+            backdrop-filter: blur(18px);
+        }
+
+        .eyebrow {
+            margin: 0 0 10px;
+            color: #ffb36b;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+        }
+
+        h2 {
+            letter-spacing: -0.035em;
+        }
+
+        p.subtitle {
+            line-height: 1.6;
+        }
+
+        .google-btn-wrapper {
+            min-height: 40px;
+            margin-top: 24px;
+        }
+
+        .back-link a:focus-visible {
+            outline: 3px solid #ffb36b;
+            outline-offset: 3px;
+        }
     </style>
+    <link rel="stylesheet" href="../auth.css">
 </head>
 <body>
 
     <div class="auth-container">
-        <div class="brand-mark" aria-hidden="true">F</div>
+        <a class="brand-mark" href="/" aria-label="FoxURL home">
+            <img src="../../assets/logo/logo.png" alt="FoxURL">
+        </a>
+        <div class="provider-mark provider-mark-google" aria-hidden="true">
+            <svg viewBox="0 0 48 48"><path fill="#4285F4" d="M43.6 24.5c0-1.4-.1-2.8-.4-4.1H24v7.8h11a9.5 9.5 0 0 1-4.1 6.2v5.1h6.6c3.9-3.6 6.1-8.8 6.1-15Z"/><path fill="#34A853" d="M24 44c5.5 0 10.1-1.8 13.5-4.9l-6.6-5.1c-1.8 1.2-4.1 1.9-6.9 1.9-5.3 0-9.8-3.6-11.4-8.4H5.8v5.3A20 20 0 0 0 24 44Z"/><path fill="#FBBC05" d="M12.6 27.5a12 12 0 0 1 0-7v-5.3H5.8a20 20 0 0 0 0 17.6l6.8-5.3Z"/><path fill="#EA4335" d="M24 12.1c3 0 5.7 1 7.8 3.1l5.8-5.8C34.1 6.1 29.5 4 24 4A20 20 0 0 0 5.8 15.2l6.8 5.3c1.6-4.8 6.1-8.4 11.4-8.4Z"/></svg>
+        </div>
+        <p class="eyebrow">Secure account access</p>
         <h2>Sign in to FoxURL</h2>
         <p class="subtitle">Use your Google account to verify and sign in instantly.</p>
         
-        <div id="google-alert" class="alert alert-error"></div>
+        <div id="google-alert" class="alert alert-error" role="status" aria-live="polite"></div>
 
-        <!-- Google Sign-In Button Container -->
-        <div id="g_id_onload"
-             data-client_id="293011781658-ehl0tb8kd6knljmhoj83gb688gcm4b7v.apps.googleusercontent.com"
-             data-callback="handleGoogleSignIn"
-             data-auto_prompt="false">
-        </div>
-        
         <div class="google-btn-wrapper">
-            <div class="g_id_signin"
-                 data-type="standard"
-                 data-shape="rectangular"
-                 data-theme="outline"
-                 data-text="sign_in_with"
-                 data-size="large"
-                 data-width="320">
-            </div>
+            <div id="google-button-container"></div>
         </div>
 
         <div class="back-link">
@@ -241,6 +267,47 @@
             }).join(''));
             return JSON.parse(jsonPayload);
         }
+
+        let googleButtonInitialized = false;
+        let googleButtonWidth = 0;
+        let googleButtonResizeTimer;
+
+        function renderGoogleButton() {
+            const googleIdentity = window.google && window.google.accounts && window.google.accounts.id;
+            const buttonContainer = document.getElementById('google-button-container');
+            if (!googleIdentity || !buttonContainer) return;
+
+            const width = Math.floor(buttonContainer.getBoundingClientRect().width);
+            if (!width || width === googleButtonWidth) return;
+
+            if (!googleButtonInitialized) {
+                googleIdentity.initialize({
+                    client_id: '293011781658-ehl0tb8kd6knljmhoj83gb688gcm4b7v.apps.googleusercontent.com',
+                    callback: handleGoogleSignIn,
+                    auto_select: false
+                });
+                googleButtonInitialized = true;
+            }
+
+            buttonContainer.replaceChildren();
+            googleIdentity.renderButton(buttonContainer, {
+                type: 'standard',
+                shape: 'rectangular',
+                theme: 'outline',
+                text: 'continue_with',
+                size: 'large',
+                logo_alignment: 'left',
+                width
+            });
+            googleButtonWidth = width;
+        }
+
+        document.getElementById('google-identity-services').addEventListener('load', renderGoogleButton, { once: true });
+        window.addEventListener('resize', () => {
+            window.clearTimeout(googleButtonResizeTimer);
+            googleButtonResizeTimer = window.setTimeout(renderGoogleButton, 120);
+        });
+        renderGoogleButton();
     </script>
 </body>
 </html>
