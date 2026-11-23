@@ -161,7 +161,12 @@ body::after,
 
 .provider-list {
     display: grid;
+    grid-template-columns: minmax(0, 1fr);
     gap: 10px;
+}
+
+.provider-list > * {
+    min-width: 0;
 }
 
 .provider-button {
@@ -257,15 +262,24 @@ body::after,
     align-items: center;
     justify-content: flex-start;
     width: 100%;
+    min-width: 0;
     margin: 0;
 }
 
 .google-btn-wrapper > div {
     max-width: 100%;
+    min-width: 0;
 }
 
 #google-button-container {
     width: 100%;
+    min-width: 0;
+}
+
+#google-button-container > div {
+    width: 100% !important;
+    max-width: 100%;
+    min-width: 0;
 }
 
 #google-button-container [role="button"] {
