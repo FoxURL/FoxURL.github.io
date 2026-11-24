@@ -1,0 +1,23 @@
+# Change these first
+owner: FoxURL
+repo: status
+
+sites:
+  - name: FoxURL
+    url: https://FoxURL.github.io
+  - name: FoxURL login
+    url: https://FoxURL.github.io/login/
+  - name: cloud
+    url: https://FoxURL.github.io/cloud/
+
+status-website:
+  baseUrl: /status
+  logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
+  name: FoxURL status
+  introTitle: "**FoxURL** status page."
+  introMessage: view the FoxURL uptime page to view response time, and incident historys.
+  navbar:
+    - title: Status
+      href: /
+    - title: GitHub
+      href: https://github.com/$OWNER/$REPO

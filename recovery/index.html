@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoxURL Account Recovery</title>
+    <link rel="stylesheet" href="../login/auth.css">
+</head>
+<body class="recovery-page">
+    <main class="auth-container recovery-container">
+        <a class="brand-mark" href="/" aria-label="FoxURL home">
+            <img src="../assets/logo/logo.png" alt="FoxURL">
+        </a>
+        <div class="provider-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="10.8" cy="10.8" r="6.8"></circle>
+                <path d="m16 16 4.5 4.5"></path>
+                <path d="M10.8 7.8v3.4l2.2 1.4"></path>
+            </svg>
+        </div>
+        <p class="eyebrow">FoxURL account recovery</p>
+        <h1>Get help accessing your account</h1>
+        <p class="subtitle">Tell us which account you’re trying to access. A person will review your request.</p>
+
+        <div class="recovery-disclosure" role="note">
+            Recovery details are sent to Google Forms for manual review. Never include your password, sign-in code, recovery code, or access token.
+        </div>
+
+        <form
+            id="recovery-form"
+            class="recovery-form"
+            action="https://docs.google.com/forms/d/e/1FAIpQLSeNH_-O4ykDFaLdctFyKGFdvzvDOBGqQhKr5E86soj7TuMZFA/formResponse"
+            method="post"
+            target="recovery-submission-frame"
+            accept-charset="UTF-8">
+            <div class="form-group">
+                <label for="account-email">Email address on the FoxURL account</label>
+                <input id="account-email" name="entry.840739162" type="email" autocomplete="username" maxlength="254" required>
+            </div>
+
+            <div class="form-group">
+                <label for="recovery-summary">What happened?</label>
+                <textarea id="recovery-summary" name="entry.2085508294" maxlength="1000" required aria-describedby="recovery-summary-hint"></textarea>
+                <p class="field-hint" id="recovery-summary-hint">Briefly describe why you can’t access the account.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="contact-email">Email address where we can contact you</label>
+                <input id="contact-email" name="entry.1538699054" type="email" autocomplete="email" maxlength="254" required>
+                <p class="field-hint">This can be different from the email on your FoxURL account.</p>
+            </div>
+
+            <div class="form-group">
+                <label for="login-method">How did you usually sign in?</label>
+                <select id="login-method" name="entry.1270313726" required>
+                    <option value="" selected disabled>Select a sign-in method</option>
+                    <option value="Email code">Email code</option>
+                    <option value="Passkey">Passkey</option>
+                    <option value="Google">Google</option>
+                    <option value="GitHub">GitHub</option>
+                    <option value="GitLab">GitLab</option>
+                    <option value="Not sure / other">Not sure / other</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="last-login">About when did you last access the account?</label>
+                <input id="last-login" name="entry.751244030" type="text" maxlength="100" placeholder="For example, August 2026">
+            </div>
+
+            <div class="form-group">
+                <label for="last-location">Approximate location of your last sign-in</label>
+                <input id="last-location" name="entry.2110982244" type="text" maxlength="150" autocomplete="off" placeholder="City, region, or country">
+            </div>
+
+            <div class="form-group">
+                <label for="other-details">Anything else that could help us review your request?</label>
+                <textarea id="other-details" name="entry.1009412530" maxlength="1500" aria-describedby="other-details-hint"></textarea>
+                <p class="field-hint" id="other-details-hint">Do not include passwords, sign-in codes, or other secrets.</p>
+            </div>
+
+            <div class="recovery-consent">
+                <input id="recovery-consent" type="checkbox" required>
+                <label for="recovery-consent">I understand that the information above will be sent to Google Forms for human review.</label>
+            </div>
+
+            <button type="submit">Send recovery request</button>
+        </form>
+
+        <p id="recovery-status" class="status" role="status" aria-live="polite"></p>
+        <div class="back-link">
+            <a href="/login/">Back to sign-in options</a>
+        </div>
+    </main>
+
+    <iframe
+        name="recovery-submission-frame"
+        title="Recovery request submission response"
+        hidden></iframe>
+
+    <script>
+        const recoveryForm = document.getElementById('recovery-form');
+        const recoveryFrame = document.querySelector('iframe[name="recovery-submission-frame"]');
+        const recoveryStatus = document.getElementById('recovery-status');
+        const recoverySubmitButton = recoveryForm.querySelector('button[type="submit"]');
+        let submissionPending = false;
+        let submissionTimeout;
+
+        recoveryForm.addEventListener('submit', () => {
+            submissionPending = true;
+            recoverySubmitButton.disabled = true;
+            recoveryStatus.textContent = 'Sending your request to Google Forms...';
+
+            window.clearTimeout(submissionTimeout);
+            submissionTimeout = window.setTimeout(() => {
+                if (!submissionPending) return;
+
+                submissionPending = false;
+                recoverySubmitButton.disabled = false;
+                recoveryStatus.textContent = 'No response was received. Google Forms may still have received your request, so check your connection before trying again.';
+            }, 15000);
+        });
+
+        recoveryFrame.addEventListener('load', () => {
+            if (!submissionPending) return;
+
+            submissionPending = false;
+            window.clearTimeout(submissionTimeout);
+            recoverySubmitButton.disabled = false;
+            recoveryStatus.textContent = 'Google Forms responded. This page cannot verify whether your request was accepted.';
+        });
+    </script>
+</body>
+</html>

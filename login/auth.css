@@ -38,6 +38,14 @@ body::after,
     content: none !important;
 }
 
+body.recovery-page {
+    place-items: start center;
+}
+
+body.recovery-page .auth-container {
+    margin: 0 auto;
+}
+
 .auth-container {
     width: min(100%, 460px);
     max-width: 460px;
@@ -414,6 +422,87 @@ body::after,
     border-color: #e85d04;
     outline: 3px solid rgba(232, 93, 4, 0.16);
     box-shadow: none;
+}
+
+.recovery-form {
+    display: grid;
+    gap: 16px;
+    text-align: left;
+}
+
+.recovery-form .form-group {
+    margin: 0;
+}
+
+.recovery-form label {
+    display: block;
+}
+
+.recovery-form input:not([type="checkbox"]),
+.recovery-form select,
+.recovery-form textarea {
+    width: 100%;
+    min-height: 48px;
+    padding: 11px 12px;
+    border: 1px solid #e9cdbb;
+    border-radius: 9px;
+    background: #fff;
+    color: #202124;
+    font: 16px Arial, Helvetica, sans-serif;
+}
+
+.recovery-form textarea {
+    min-height: 96px;
+    resize: vertical;
+}
+
+.recovery-form input:not([type="checkbox"]):focus,
+.recovery-form select:focus,
+.recovery-form textarea:focus {
+    border-color: #e85d04;
+    outline: 3px solid rgba(232, 93, 4, 0.16);
+}
+
+.recovery-form .field-hint {
+    margin: 6px 0 0;
+    color: #72777f;
+    font-size: 12px;
+    line-height: 1.45;
+}
+
+.recovery-consent {
+    display: flex;
+    align-items: flex-start;
+    gap: 9px;
+    text-align: left;
+}
+
+.recovery-consent input {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 16px;
+    margin: 2px 0 0;
+    accent-color: #e85d04;
+}
+
+.recovery-consent label {
+    margin: 0;
+    color: #5f6368;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.5;
+}
+
+.recovery-disclosure {
+    margin: 0 0 16px;
+    padding: 11px 13px;
+    border: 1px solid #f1d2bd;
+    border-radius: 10px;
+    background: #fff8f1;
+    color: #5f6368;
+    font-size: 13px;
+    line-height: 1.5;
+    text-align: left;
 }
 
 .auth-container form button[type="submit"] {
